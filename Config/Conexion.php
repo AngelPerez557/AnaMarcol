@@ -36,6 +36,11 @@ class Conexion
                     PDO::ATTR_PERSISTENT         => true,
                 ]);
 
+                // Estandariza charset/collation de sesión para evitar conflictos
+                // entre parámetros de SP y columnas en MySQL 8.
+                self::$instance->exec("SET NAMES utf8mb4 COLLATE utf8mb4_unicode_ci");
+                self::$instance->exec("SET collation_connection = utf8mb4_unicode_ci");
+
             } catch (PDOException $e) {
                 // En desarrollo muestra el error real para depuración
                 // En producción oculta detalles internos al usuario

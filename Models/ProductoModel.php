@@ -91,7 +91,6 @@ class ProductoModel extends BaseModel
             $data['nombre'],
             $data['descripcion']     ?? null,
             $data['precio_base']     ?? null,
-            $data['tiene_variantes'] ?? 0,
             $data['stock']           ?? 0,
             $data['codigo_barras']   ?? null,
             $data['image_url']       ?? null,

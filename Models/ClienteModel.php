@@ -63,7 +63,6 @@ class ClienteModel extends BaseModel
             $data['nombre'],
             $data['email']     ?? null,
             $data['telefono']  ?? null,
-            $data['direccion'] ?? null,
             $data['password']  ?? null,
         ]);
     }
