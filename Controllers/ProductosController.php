@@ -66,7 +66,7 @@ class ProductosController
         $categoriaModel = new CategoriaModel();
         $categorias     = $categoriaModel->findActivas();
 
-        require_once VIEWS_PATH . 'Productos' . DS . 'registry.php';
+        require_once VIEWS_PATH . 'Productos' . DS . 'Registry.php';
     }
 
     // ─────────────────────────────────────────────

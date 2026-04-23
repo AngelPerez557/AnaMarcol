@@ -32,7 +32,7 @@ class ZonasController
             exit();
         }
 
-        require_once VIEWS_PATH . 'Zonas' . DS . 'registry.php';
+        require_once VIEWS_PATH . 'Zonas' . DS . 'Registry.php';
     }
 
     public function save(): void

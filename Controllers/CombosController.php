@@ -62,7 +62,7 @@ class CombosController
         // Todos los productos activos para el selector
         $productos = $this->productoModel->findActivos();
 
-        require_once VIEWS_PATH . 'Combos' . DS . 'registry.php';
+        require_once VIEWS_PATH . 'Combos' . DS . 'Registry.php';
     }
 
     // ─────────────────────────────────────────────

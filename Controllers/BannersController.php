@@ -32,7 +32,7 @@ class BannersController
             exit();
         }
 
-        require_once VIEWS_PATH . 'Banners' . DS . 'registry.php';
+        require_once VIEWS_PATH . 'Banners' . DS . 'Registry.php';
     }
 
     public function save(): void

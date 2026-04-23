@@ -59,7 +59,7 @@ class UsuariosController
         $esPropioUsuario = $esEdicion && (int)$id === Auth::id();
         $roles           = $this->roleModel->findAll();
 
-        require_once VIEWS_PATH . 'Usuarios' . DS . 'registry.php';
+        require_once VIEWS_PATH . 'Usuarios' . DS . 'Registry.php';
     }
 
     // ─────────────────────────────────────────────

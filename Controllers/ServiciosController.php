@@ -36,7 +36,7 @@ class ServiciosController
             exit();
         }
 
-        require_once VIEWS_PATH . 'Servicios' . DS . 'registry.php';
+        require_once VIEWS_PATH . 'Servicios' . DS . 'Registry.php';
     }
 
     public function save(): void

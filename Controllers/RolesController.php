@@ -70,7 +70,7 @@ class RolesController
               )
             : [];
 
-        require_once VIEWS_PATH . 'Roles' . DS . 'registry.php';
+        require_once VIEWS_PATH . 'Roles' . DS . 'Registry.php';
     }
 
     // ─────────────────────────────────────────────

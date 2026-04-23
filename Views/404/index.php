@@ -7,8 +7,8 @@
     <link rel="icon" type="image/png" href="<?= APP_URL ?>Content/Demo/img/Logo2.png">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="<?= APP_URL ?>Content/Dist/css/custom/variables.css">
-    <link rel="stylesheet" href="<?= APP_URL ?>Content/Dist/css/custom/custom-themes.css">
+    <link rel="stylesheet" href="<?= APP_URL ?>Content/Dist/css/Custom/variables.css">
+    <link rel="stylesheet" href="<?= APP_URL ?>Content/Dist/css/Custom/custom-themes.css">
     <style>
         /* Estilos exclusivos de la vista 404 — no afectan otros módulos */
         .error-page {

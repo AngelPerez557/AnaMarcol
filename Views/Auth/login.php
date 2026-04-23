@@ -17,7 +17,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
     <!-- Variables globales — necesarias para login.css -->
-    <link rel="stylesheet" href="<?= APP_URL ?>Content/Dist/css/custom/variables.css">
+    <link rel="stylesheet" href="<?= APP_URL ?>Content/Dist/css/Custom/variables.css">
 
     <!-- CSS del login -->
     <link rel="stylesheet" href="<?= APP_URL ?>Content/Dist/css/login.css">

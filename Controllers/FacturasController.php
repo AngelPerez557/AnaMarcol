@@ -39,7 +39,7 @@ class FacturasController
         $pageTitle = 'Configuración de Facturación';
         $config    = $this->ventaModel->getFacturacionConfig();
 
-        require_once VIEWS_PATH . 'Facturas' . DS . 'config.php';
+        require_once VIEWS_PATH . 'Facturas' . DS . 'Config.php';
     }
 
     // ─────────────────────────────────────────────

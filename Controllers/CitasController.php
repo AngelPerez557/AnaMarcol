@@ -95,7 +95,7 @@ class CitasController
         if (!empty($_GET['fecha'])) {
             $cita->fecha = htmlspecialchars(strip_tags($_GET['fecha']));
         }
-        require_once VIEWS_PATH . 'Citas' . DS . 'registry.php';
+        require_once VIEWS_PATH . 'Citas' . DS . 'Registry.php';
     }
 
     public function edit(string $id = ''): void
@@ -110,7 +110,7 @@ class CitasController
         $pageTitle = 'Editar Cita';
         $servicios = $this->servicioModel->findActivos();
         $config    = $this->citaModel->getConfig();
-        require_once VIEWS_PATH . 'Citas' . DS . 'registry.php';
+        require_once VIEWS_PATH . 'Citas' . DS . 'Registry.php';
     }
 
     // ─────────────────────────────────────────────
@@ -246,7 +246,7 @@ class CitasController
         Auth::require('citas.editar');
         $pageTitle = 'Configuración de Horarios';
         $config    = $this->citaModel->getConfig();
-        require_once VIEWS_PATH . 'Citas' . DS . 'config.php';
+        require_once VIEWS_PATH . 'Citas' . DS . 'Config.php';
     }
 
     public function saveConfigCitas(): void

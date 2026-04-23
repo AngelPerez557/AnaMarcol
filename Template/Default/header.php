@@ -23,12 +23,12 @@
     <!-- CSS propio — orden obligatorio:
          1. variables.css     → variables globales de color, tipografía, espaciado
          2. custom-themes.css → componentes que consumen las variables -->
-    <link rel="stylesheet" href="<?= APP_URL ?>Content/Dist/css/custom/variables.css">
-    <link rel="stylesheet" href="<?= APP_URL ?>Content/Dist/css/custom/custom-themes.css">
+    <link rel="stylesheet" href="<?= APP_URL ?>Content/Dist/css/Custom/variables.css">
+    <link rel="stylesheet" href="<?= APP_URL ?>Content/Dist/css/Custom/custom-themes.css">
 
     <!-- CSS adicional por vista
          El controlador inyecta estilos específicos mediante $extraCss
-         Ejemplo: $extraCss = ['Content/Dist/css/custom/calendar.css']; -->
+         Ejemplo: $extraCss = ['Content/Dist/css/Custom/calendar.css']; -->
     <?php if (!empty($extraCss)): ?>
         <?php foreach ($extraCss as $css): ?>
             <link rel="stylesheet" href="<?= APP_URL . htmlspecialchars($css) ?>">

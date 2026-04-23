@@ -27,7 +27,7 @@ class ReportesController
         $ventasPorMetodo= $this->callSP($pdo, 'sp_reportes_ventasPorMetodo',[]);
         $topProductos   = $this->callSP($pdo, 'sp_reportes_topProductos',   []);
 
-        require_once VIEWS_PATH . 'Reportes' . DS . 'ventas.php';
+        require_once VIEWS_PATH . 'Reportes' . DS . 'Ventas.php';
     }
 
     // ─────────────────────────────────────────────
@@ -45,7 +45,7 @@ class ReportesController
         $pedidosPorEstado= $this->callSP($pdo, 'sp_reportes_pedidosPorEstado',[]);
         $pedidosPorDia   = $this->callSP($pdo, 'sp_reportes_pedidosPorDia',  []);
 
-        require_once VIEWS_PATH . 'Reportes' . DS . 'pedidos.php';
+        require_once VIEWS_PATH . 'Reportes' . DS . 'Pedidos.php';
     }
 
     // ─────────────────────────────────────────────
@@ -64,7 +64,7 @@ class ReportesController
         $stockBajo       = $this->callSP($pdo, 'sp_reportes_stockBajo',          [$limite]);
         $variantesStockBajo = $this->callSP($pdo, 'sp_reportes_variantesStockBajo', [$limite]);
 
-        require_once VIEWS_PATH . 'Reportes' . DS . 'inventario.php';
+        require_once VIEWS_PATH . 'Reportes' . DS . 'Inventario.php';
     }
 
     // ─────────────────────────────────────────────

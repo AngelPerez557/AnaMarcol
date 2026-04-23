@@ -285,6 +285,6 @@ class CajaController
         $detalle = $this->ventaModel->findDetalle((int) $id);
         $config  = $this->ventaModel->getFacturacionConfig();
 
-        require_once VIEWS_PATH . 'Caja' . DS . 'recibo.php';
+        require_once VIEWS_PATH . 'Caja' . DS . 'Recibo.php';
     }
 }

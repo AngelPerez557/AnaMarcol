@@ -60,6 +60,6 @@ class VentasController
 
         $pageTitle = 'Detalle de Venta #' . str_pad($id, 8, '0', STR_PAD_LEFT);
 
-        require_once VIEWS_PATH . 'Ventas' . DS . 'detalle.php';
+        require_once VIEWS_PATH . 'Ventas' . DS . 'Detalle.php';
     }
 }

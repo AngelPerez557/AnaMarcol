@@ -126,7 +126,7 @@ class PedidosController
         $historial = $this->pedidoModel->findHistorial((int) $id);
         $pageTitle = 'Pedido ' . $pedido->getCodigoFormateado();
 
-        require_once VIEWS_PATH . 'Pedidos' . DS . 'detalle.php';
+        require_once VIEWS_PATH . 'Pedidos' . DS . 'Detalle.php';
     }
 
     // ─────────────────────────────────────────────

@@ -24,7 +24,7 @@ class ClientesController
         $pageTitle = 'Clientes';
         $clientes  = $this->clienteModel->findAll();
 
-        require_once VIEWS_PATH . 'Clientes' . DS . 'index.php';
+        require_once VIEWS_PATH . 'Clientes' . DS . 'Index.php';
     }
 
     // ─────────────────────────────────────────────
@@ -108,6 +108,6 @@ class ClientesController
         $ventas    = [];
         $pageTitle = 'Historial de ' . $cliente->nombre;
 
-        require_once VIEWS_PATH . 'Clientes' . DS . 'historial.php';
+        require_once VIEWS_PATH . 'Clientes' . DS . 'Historial.php';
     }
 }

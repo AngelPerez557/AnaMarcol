@@ -52,7 +52,7 @@ class CategoriasController
             exit();
         }
 
-        require_once VIEWS_PATH . 'Categorias' . DS . 'registry.php';
+        require_once VIEWS_PATH . 'Categorias' . DS . 'Registry.php';
     }
 
     // ─────────────────────────────────────────────
