@@ -52,22 +52,13 @@ define('APP_URL', $protocol . '://' . $host . $base);
 
 // ─────────────────────────────────────────────
 // 5. BASE DE DATOS
-// Las credenciales se leen de variables de entorno.
-// Nunca hardcodear credenciales reales aquí.
-//
-// En Ubuntu configurar en /etc/environment:
-//   DB_HOST=localhost
-//   DB_NAME=anamarcol
-//   DB_USER=tu_usuario
-//   DB_PASS=tu_password
-//
-// El valor después de ?: es solo para desarrollo local
 // ─────────────────────────────────────────────
-define('DB_HOST',    getenv('DB_HOST') ?: 'localhost');
-define('DB_PORT',    getenv('DB_PORT') ?: '3306');
-define('DB_NAME',    getenv('DB_NAME') ?: 'anamarcol');
-define('DB_USER',    getenv('DB_USER') ?: 'root');
-define('DB_PASS',    getenv('DB_PASS') ?: '');
+define('DB_HOST',    'localhost');
+define('DB_PORT',    '3306');
+define('DB_NAME',    'AnaMarcol');
+define('DB_USER',    'zonamarcol_user');
+define('DB_PASSWORD','AaPR2005_');
+define('DB_PASS',    DB_PASSWORD);
 define('DB_CHARSET', 'utf8mb4');
 
 // ─────────────────────────────────────────────
