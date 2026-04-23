@@ -55,7 +55,7 @@ define('APP_URL', $protocol . '://' . $host . $base);
 // ─────────────────────────────────────────────
 define('DB_HOST',    'localhost');
 define('DB_PORT',    '3306');
-define('DB_NAME',    'AnaMarcol');
+define('DB_NAME',    'anamarcol');
 define('DB_USER',    'zonamarcol_user');
 define('DB_PASSWORD','AaPR2005_');
 define('DB_PASS',    DB_PASSWORD);
