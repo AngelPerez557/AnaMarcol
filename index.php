@@ -23,6 +23,7 @@ header('Referrer-Policy: strict-origin-when-cross-origin');
 require_once __DIR__ . '/Config/Define.php';
 require_once __DIR__ . '/Config/AutoLoad.php';
 require_once __DIR__ . '/Config/Core/Auth.php';
+require_once __DIR__ . '/Config/Core/RateLimiter.php';
 require_once __DIR__ . '/Config/JRequest.php';
 require_once __DIR__ . '/Config/JRouter.php';
 
@@ -51,6 +52,21 @@ if (session_status() === PHP_SESSION_NONE) {
 if (empty($_SESSION['csrf_token'])) {
     $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
 }
+
+// ── Timeout de sesión — 2 horas de inactividad ──────
+define('SESSION_TIMEOUT', 7200);
+if (isset($_SESSION['ultima_actividad'])) {
+    if (time() - $_SESSION['ultima_actividad'] > SESSION_TIMEOUT) {
+        $esCliente = isset($_SESSION['cliente']);
+        session_unset();
+        session_destroy();
+        header('Location: ' . ($esCliente
+            ? APP_URL . 'Tienda/login?expired=1'
+            : APP_URL . 'Auth/index?expired=1'));
+        exit();
+    }
+}
+$_SESSION['ultima_actividad'] = time();
 
 // ─────────────────────────────────────────────
 // 4. RUTA ACTUAL
@@ -118,7 +134,7 @@ $metodosJson = ['toggle', 'delete', 'save', 'saveVariante', 'deleteVariante',
                 'cambiarEstado', 'saveProductos', 'saveConfig',
                 'dia', 'verificar', 'cambiarEstadoCita', 'saveConfigCitas',
                 'checkout', 'guardarRegistro', 'procesarLogin', 'agendarCita',
-                'obtener', 'marcarLeida', 'marcarTodas', 'eliminar'];
+                'obtener', 'marcarLeida', 'marcarTodas', 'eliminar', 'marcarTour'];
 
 $metodoActual     = strtolower(explode('/', $urlActual)[1] ?? '');
 $metodosJsonLower = array_map('strtolower', $metodosJson);

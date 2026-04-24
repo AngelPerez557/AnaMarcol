@@ -1,0 +1,26 @@
+{
+  "name": "Ana Marcol Makeup Studio",
+  "short_name": "Ana Marcol",
+  "description": "Tienda oficial Ana Marcol Makeup Studio Honduras",
+  "start_url": "/Tienda/index",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#F48FB1",
+  "theme_color": "#F48FB1",
+  "lang": "es",
+  "icons": [
+    {
+      "src": "Content/Demo/img/Logo.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "Content/Demo/img/Logo.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

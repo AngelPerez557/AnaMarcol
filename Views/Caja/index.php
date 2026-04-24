@@ -25,7 +25,7 @@
         <!-- ═══════════════════════════════════════════
              COLUMNA IZQUIERDA — Productos
              ═══════════════════════════════════════════ -->
-        <div class="col-12 col-lg-7">
+        <div class="col-12 col-lg-7" id="tour-grid-caja">
 
             <!-- Barra de búsqueda y controles -->
             <div class="card mb-3">
@@ -33,7 +33,7 @@
                     <div class="row g-2 align-items-center">
 
                         <!-- Buscador -->
-                        <div class="col-12 col-md-5">
+                        <div class="col-12 col-md-5" id="tour-buscador-caja">
                             <div class="input-group">
                                 <span class="input-group-text bg-transparent">
                                     <i class="fas fa-search text-muted"></i>
@@ -226,7 +226,7 @@
         <!-- ═══════════════════════════════════════════
              COLUMNA DERECHA — Carrito
              ═══════════════════════════════════════════ -->
-        <div class="col-12 col-lg-5">
+        <div class="col-12 col-lg-5" id="tour-carrito-caja">
             <div class="card" style="position:sticky; top:80px;">
 
                 <!-- Header carrito -->
@@ -304,7 +304,7 @@
                     </div>
 
                     <!-- Método de pago -->
-                    <div class="p-3 border-bottom">
+                    <div class="p-3 border-bottom" id="tour-metodo-pago">
                         <label class="form-label fw-semibold mb-2" style="font-size:0.85rem;">
                             Método de pago
                         </label>
@@ -355,7 +355,7 @@
                     </div>
 
                     <!-- Botón cobrar -->
-                    <div class="p-3">
+                    <div class="p-3" id="tour-btn-cobrar">
                         <button type="button"
                                 class="btn btn-primary w-100 fw-bold"
                                 id="btnCobrar"
@@ -941,5 +941,75 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     });
 
+});
+</script>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    if (AM_TOUR_COMPLETADO) return;
+    if (!document.getElementById('tour-buscador-caja')) return;
+    if (typeof window.driver === 'undefined') return;
+
+    const { driver } = window.driver.js ?? window;
+
+    setTimeout(() => {
+        const tourCaja = driver({
+            showProgress: true,
+            popoverClass: 'am-driver-popover',
+            nextBtnText:  'Siguiente →',
+            prevBtnText:  '← Atrás',
+            doneBtnText:  '¡Entendido! ✓',
+            steps: [
+                {
+                    popover: {
+                        title: '💰 Caja — Punto de Venta',
+                        description: `Hola <strong>${AM_USER_NOMBRE}</strong>, este es el módulo de ventas presenciales. Te explico cómo registrar una venta paso a paso.`
+                    }
+                },
+                {
+                    element: '#tour-buscador-caja',
+                    popover: {
+                        title: '🔍 Buscar producto',
+                        description: 'Escribe el nombre del producto para buscarlo en tiempo real, o acerca el escáner de código de barras para agregarlo automáticamente. También puedes filtrar por categoría usando los botones de arriba.',
+                        side: 'bottom'
+                    }
+                },
+                {
+                    element: '#tour-grid-caja',
+                    popover: {
+                        title: '🛍️ Catálogo de productos',
+                        description: 'Aquí aparecen los productos disponibles con su precio y stock. Haz clic en cualquier producto para agregarlo al carrito. Si tiene variantes (colores, tamaños) el sistema te pedirá que elijas una antes de agregarlo.',
+                        side: 'top'
+                    }
+                },
+                {
+                    element: '#tour-carrito-caja',
+                    popover: {
+                        title: '🛒 Carrito de venta',
+                        description: 'Aquí aparecen los productos seleccionados. Puedes aumentar o disminuir la cantidad con los botones + y −, eliminar un producto con la X, o aplicar un descuento en porcentaje. El subtotal y total se calculan automáticamente.',
+                        side: 'left'
+                    }
+                },
+                {
+                    element: '#tour-metodo-pago',
+                    popover: {
+                        title: '💳 Método de pago',
+                        description: 'Selecciona cómo paga el cliente: <strong>Efectivo</strong> (ingresa el monto recibido y el sistema calcula el cambio), <strong>Tarjeta</strong> o <strong>Transferencia</strong>. También puedes buscar y asociar el cliente a la venta.',
+                        side: 'top'
+                    }
+                },
+                {
+                    element: '#tour-btn-cobrar',
+                    popover: {
+                        title: '✅ Cobrar y generar recibo',
+                        description: 'Cuando el carrito esté listo y el método de pago seleccionado, pulsa Cobrar. El sistema registra la venta en el historial, descuenta el stock de cada producto y abre automáticamente el recibo térmico de 80mm listo para imprimir.',
+                        side: 'top'
+                    }
+                }
+            ]
+        });
+
+        tourCaja.drive();
+    }, 800);
 });
 </script>

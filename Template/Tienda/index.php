@@ -13,6 +13,16 @@
     <!-- CSS Tienda -->
     <link rel="stylesheet" href="<?= APP_URL ?>Content/Dist/css/tienda.css">
 
+    <!-- PWA Tienda -->
+    <link rel="manifest" href="<?= APP_URL ?>manifest-tienda.json">
+    <meta name="theme-color" content="#F48FB1">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="Ana Marcol">
+    <link rel="apple-touch-icon"
+          href="<?= APP_URL ?>Content/Demo/img/icons/icon-tienda-192.png">
+
     <style>
         :root {
             --rosa:       #de777d;

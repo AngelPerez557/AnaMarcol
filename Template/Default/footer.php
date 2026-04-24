@@ -29,6 +29,25 @@
     <!-- 1. Variable global APP_URL — debe ir primero -->
     <script>const APP_URL = '<?= APP_URL ?>';</script>
 
+    <!-- Driver.js v1.0.1 -->
+    <script src="https://cdn.jsdelivr.net/npm/driver.js@1.0.1/dist/driver.min.js"></script>
+    <script>
+    // ── Variables globales del tour ───────────────────────
+    const AM_TOUR_COMPLETADO = <?= Auth::get('tour_completado') ? 'true' : 'false' ?>;
+    const AM_APP_URL         = '<?= APP_URL ?>';
+    const AM_USER_ID         = <?= Auth::id() ?? 0 ?>;
+    const AM_CSRF            = '<?= htmlspecialchars($_SESSION['csrf_token'] ?? '') ?>';
+    const AM_USER_NOMBRE     = '<?= htmlspecialchars(Auth::get('nombre') ?? 'Usuario') ?>';
+
+    function amMarcarTour() {
+        const fd = new FormData();
+        fd.append('csrf_token', AM_CSRF);
+        fd.append('id', AM_USER_ID);
+        fetch(AM_APP_URL + 'Usuarios/marcarTour', { method: 'POST', body: fd })
+        .catch(() => {});
+    }
+    </script>
+
     <!-- 2. Bootstrap bundle — incluye Popper -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"></script>
 

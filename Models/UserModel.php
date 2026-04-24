@@ -126,4 +126,9 @@ class UserModel extends BaseModel
         $affected = $this->callSPExecute('sp_users_delete', [$id]);
         return $affected > 0;
     }
+
+    public function marcarTour(int $id): void
+    {
+        $this->callSPExecute('sp_users_marcarTour', [$id]);
+    }
 }

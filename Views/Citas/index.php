@@ -20,7 +20,7 @@
             </a>
             <?php endif; ?>
             <?php if (Auth::can('citas.crear')): ?>
-            <a href="<?= APP_URL ?>Citas/create" class="btn btn-primary">
+            <a href="<?= APP_URL ?>Citas/create" class="btn btn-primary" id="tour-btn-nueva-cita">
                 <i class="fas fa-plus me-2"></i>Nueva Cita
             </a>
             <?php endif; ?>
@@ -63,7 +63,7 @@
             </a>
         </div>
 
-        <div class="card">
+        <div class="card" id="tour-calendario-citas">
     <div class="card-body p-2">
         <!-- Días de la semana -->
         <div style="display:grid; grid-template-columns:repeat(7,1fr); gap:2px; margin-bottom:4px;">
@@ -155,7 +155,7 @@
         <button type="button" class="btn btn-outline-primary btn-sm" id="btnHoy">Hoy</button>
     </div>
 
-    <div class="card">
+    <div class="card" id="tour-vista-dia">
         <div class="card-header d-flex justify-content-between align-items-center">
             <span id="tituloFechaDia" class="fw-semibold"></span>
             <?php if (Auth::can('citas.crear')): ?>
@@ -245,7 +245,7 @@ document.addEventListener('DOMContentLoaded', function () {
         cargarCitasDia(document.getElementById('fechaDia').value);
     });
 
-    document.getElementById('fechaDia').addEventListener('change', function () {
+    document.getElementById('fechaDia').addEventListener('change', function() {
         cargarCitasDia(this.value);
     });
 
@@ -413,5 +413,65 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     });
 
+});
+</script>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    if (AM_TOUR_COMPLETADO) return;
+    if (!document.getElementById('tour-calendario-citas')) return;
+    if (typeof window.driver === 'undefined') return;
+
+    const { driver } = window.driver.js ?? window;
+
+    setTimeout(() => {
+        const tourCitas = driver({
+            showProgress: true,
+            popoverClass: 'am-driver-popover',
+            nextBtnText:  'Siguiente →',
+            prevBtnText:  '← Atrás',
+            doneBtnText:  '¡Entendido! ✓',
+            steps: [
+                {
+                    popover: {
+                        title: '📅 Gestión de Citas',
+                        description: `<strong>${AM_USER_NOMBRE}</strong>, aquí administras todas las citas de tu estudio. Los clientes pueden agendar desde la tienda en línea y tú las gestionas desde este panel.`
+                    }
+                },
+                {
+                    element: '#tour-calendario-citas',
+                    popover: {
+                        title: '🗓️ Calendario mensual',
+                        description: 'Vista general del mes. Los días con citas aparecen marcados con un punto o color. Haz clic en cualquier día para ver sus citas en el panel derecho. Usa las flechas ← → para navegar entre meses.',
+                        side: 'right'
+                    }
+                },
+                {
+                    element: '#tour-vista-dia',
+                    popover: {
+                        title: '⏰ Citas del día seleccionado',
+                        description: 'Aquí ves todas las citas del día con el horario exacto, el servicio solicitado y el nombre del cliente. Puedes cambiar el estado: <strong>Pendiente</strong> → <strong>Confirmada</strong> → <strong>Completada</strong>. También puedes cancelarla si es necesario.',
+                        side: 'left'
+                    }
+                },
+                {
+                    element: '#tour-btn-nueva-cita',
+                    popover: {
+                        title: '➕ Crear cita manualmente',
+                        description: 'Crea una cita directamente desde el panel para clientes que llamen por teléfono o visiten el estudio sin haber agendado en línea. Selecciona el servicio, la fecha, la hora y el cliente (o créalo al momento).',
+                        side: 'bottom'
+                    }
+                },
+                {
+                    popover: {
+                        title: '📲 Confirmación por WhatsApp',
+                        description: 'Cuando confirmas una cita, el sistema te muestra un botón para abrir WhatsApp con un mensaje pre-escrito dirigido al cliente, con todos los detalles de su cita. Solo tienes que enviarlo — ¡rápido y profesional!'
+                    }
+                }
+            ]
+        });
+
+        tourCitas.drive();
+    }, 800);
 });
 </script>

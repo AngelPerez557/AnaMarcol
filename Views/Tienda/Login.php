@@ -11,7 +11,18 @@
                         <p class="text-muted" style="font-size:0.85rem;">Accede a tu cuenta</p>
                     </div>
 
-                    <?php if (!empty($error)): ?>
+                    <?php if (!empty($_GET['expired'])): ?>
+                    <div class="alert alert-warning py-2" style="font-size:0.85rem;">
+                        <i class="fas fa-clock me-2"></i>
+                        Tu sesión expiró. Inicia sesión nuevamente.
+                    </div>
+                    <?php elseif (!empty($_GET['blocked'])): ?>
+                    <div class="alert alert-danger py-2" style="font-size:0.85rem;">
+                        <i class="fas fa-lock me-2"></i>
+                        Demasiados intentos fallidos. Espera
+                        <?= (int)($_GET['min'] ?? 15) ?> minuto(s) antes de intentar.
+                    </div>
+                    <?php elseif (!empty($error)): ?>
                     <div class="alert alert-danger py-2" style="font-size:0.85rem;">
                         <?php
                         echo match($error) {

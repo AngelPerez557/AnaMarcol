@@ -3,8 +3,8 @@ $urlActual = strtolower(trim($_GET['url'] ?? '', '/'));
 
 $menu = [
     'Inicio' => ['Id'=>1,'Nombre'=>'Inicio','Url'=>APP_URL.'Dashboard/index','Icono'=>'fas fa-home','Permiso'=>''],
-    'Caja'   => ['Id'=>12,'Nombre'=>'Caja / Punto de Venta','Url'=>APP_URL.'Caja/index','Icono'=>'fas fa-cash-register','Permiso'=>'ventas.crear'],
-    'Pedidos'=> ['Id'=>2,'Nombre'=>'Pedidos','Url'=>APP_URL.'Pedidos/index','Icono'=>'fas fa-shopping-bag','Permiso'=>'pedidos.ver'],
+    'Caja'   => ['Id'=>12,'Nombre'=>'Caja / Punto de Venta','Url'=>APP_URL.'Caja/index','Icono'=>'fas fa-cash-register','Permiso'=>'ventas.crear','TourId'=>'tour-caja-link'],
+    'Pedidos'=> ['Id'=>2,'Nombre'=>'Pedidos','Url'=>APP_URL.'Pedidos/index','Icono'=>'fas fa-shopping-bag','Permiso'=>'pedidos.ver','TourId'=>'tour-pedidos-link'],
     'Catalogo'=> ['Id'=>3,'Nombre'=>'Catálogo','Url'=>'#','Icono'=>'fas fa-box-open','Permiso'=>'','Children'=>[
         ['Id'=>31,'Nombre'=>'Productos', 'Url'=>APP_URL.'Productos/index', 'Icono'=>'fas fa-boxes',      'Permiso'=>'productos.ver'],
         ['Id'=>32,'Nombre'=>'Categorías','Url'=>APP_URL.'Categorias/index','Icono'=>'fas fa-tags',        'Permiso'=>'categorias.ver'],
@@ -14,7 +14,7 @@ $menu = [
         ['Id'=>41,'Nombre'=>'Historial','Url'=>APP_URL.'Ventas/index','Icono'=>'fas fa-history','Permiso'=>'ventas.ver'],
     ]],
     'Citas'=> ['Id'=>5,'Nombre'=>'Citas','Url'=>'#','Icono'=>'fas fa-calendar-alt','Permiso'=>'citas.ver','Children'=>[
-        ['Id'=>51,'Nombre'=>'Calendario','Url'=>APP_URL.'Citas/index',    'Icono'=>'fas fa-calendar',      'Permiso'=>'citas.ver'],
+        ['Id'=>51,'Nombre'=>'Calendario','Url'=>APP_URL.'Citas/index',    'Icono'=>'fas fa-calendar',      'Permiso'=>'citas.ver','TourId'=>'tour-citas-link'],
         ['Id'=>52,'Nombre'=>'Nueva cita', 'Url'=>APP_URL.'Citas/create',   'Icono'=>'fas fa-plus-circle',   'Permiso'=>'citas.crear'],
         ['Id'=>53,'Nombre'=>'Servicios',  'Url'=>APP_URL.'Servicios/index','Icono'=>'fas fa-concierge-bell','Permiso'=>'citas.ver'],
     ]],
@@ -31,7 +31,7 @@ $menu = [
         ['Id'=>84,'Nombre'=>'Fotos de clientes', 'Url'=>APP_URL.'Galeria/index','Icono'=>'fas fa-images',           'Permiso'=>'tienda.configurar'],
         ['Id'=>83,'Nombre'=>'Zonas de envío',   'Url'=>APP_URL.'Zonas/index',  'Icono'=>'fas fa-map-marker-alt',   'Permiso'=>'tienda.configurar'],
     ]],
-    'Reportes'=> ['Id'=>9,'Nombre'=>'Reportes','Url'=>'#','Icono'=>'fas fa-chart-bar','Permiso'=>'reportes.ver','Children'=>[
+    'Reportes'=> ['Id'=>9,'Nombre'=>'Reportes','Url'=>'#','Icono'=>'fas fa-chart-bar','Permiso'=>'reportes.ver','TourId'=>'tour-reportes-link','Children'=>[
         ['Id'=>91,'Nombre'=>'Ventas',    'Url'=>APP_URL.'Reportes/ventas',    'Icono'=>'fas fa-chart-line', 'Permiso'=>'reportes.ver'],
         ['Id'=>92,'Nombre'=>'Pedidos',   'Url'=>APP_URL.'Reportes/pedidos',   'Icono'=>'fas fa-shopping-bag','Permiso'=>'reportes.ver'],
         ['Id'=>93,'Nombre'=>'Inventario','Url'=>APP_URL.'Reportes/inventario','Icono'=>'fas fa-boxes',      'Permiso'=>'reportes.ver'],
@@ -69,24 +69,27 @@ function renderMenu(array $menu): void
             foreach ($item['Children'] as $child) {
                 if (isActive($child['Url'])) { $hayHijoActivo = true; break; }
             }
-            $submenuId = 'submenu-' . $item['Id'];
+            $submenuId   = 'submenu-' . $item['Id'];
+            $parentTourId = !empty($item['TourId']) ? ' id="'.htmlspecialchars($item['TourId']).'"' : '';
             echo '<li class="nav-item">';
-            echo '<a class="nav-link" href="#" data-bs-toggle="collapse" data-bs-target="#'.$submenuId.'" aria-expanded="'.($hayHijoActivo?'true':'false').'" aria-controls="'.$submenuId.'">';
+            echo '<a class="nav-link"'.$parentTourId.' href="#" data-bs-toggle="collapse" data-bs-target="#'.$submenuId.'" aria-expanded="'.($hayHijoActivo?'true':'false').'" aria-controls="'.$submenuId.'">';
             echo '<i class="'.htmlspecialchars($item['Icono']).'"></i>';
             echo '<span class="ms-2">'.htmlspecialchars($item['Nombre']).'</span>';
             echo '<i class="fas fa-chevron-down ms-auto"></i></a>';
             echo '<div class="collapse'.($hayHijoActivo?' show':'').'" id="'.$submenuId.'"><ul class="nav flex-column">';
             foreach ($item['Children'] as $child) {
                 if (!empty($child['Permiso']) && !Auth::can($child['Permiso'])) continue;
-                $activeClass = isActive($child['Url']) ? ' active' : '';
-                echo '<li class="nav-item"><a class="nav-link'.$activeClass.'" href="'.htmlspecialchars($child['Url']).'">';
+                $activeClass  = isActive($child['Url']) ? ' active' : '';
+                $childTourId  = !empty($child['TourId']) ? ' id="'.htmlspecialchars($child['TourId']).'"' : '';
+                echo '<li class="nav-item"><a class="nav-link'.$activeClass.'"'.$childTourId.' href="'.htmlspecialchars($child['Url']).'">';
                 echo '<i class="'.htmlspecialchars($child['Icono']).'"></i><span class="ms-2">'.htmlspecialchars($child['Nombre']).'</span></a></li>';
             }
             echo '</ul></div></li>';
         } else {
             $activeClass = isActive($item['Url']) ? ' active' : '';
-            $target = isset($item['Target']) ? ' target="'.htmlspecialchars($item['Target']).'"' : '';
-            echo '<li class="nav-item"><a class="nav-link'.$activeClass.'" href="'.htmlspecialchars($item['Url']).'"'.$target.'>';
+            $target      = isset($item['Target']) ? ' target="'.htmlspecialchars($item['Target']).'"' : '';
+            $tourId      = !empty($item['TourId']) ? ' id="'.htmlspecialchars($item['TourId']).'"' : '';
+            echo '<li class="nav-item"><a class="nav-link'.$activeClass.'"'.$tourId.' href="'.htmlspecialchars($item['Url']).'"'.$target.'>';
             echo '<i class="'.htmlspecialchars($item['Icono']).'"></i><span class="ms-2">'.htmlspecialchars($item['Nombre']).'</span></a></li>';
         }
     }
@@ -147,7 +150,7 @@ function renderMenu(array $menu): void
             <i class="fas fa-times"></i>
         </button>
     </div>
-    <nav class="sidebar-nav">
+    <nav class="sidebar-nav" id="tour-menu">
         <ul class="nav flex-column"><?php renderMenu($menu); ?></ul>
     </nav>
 </aside>
@@ -162,7 +165,7 @@ function renderMenu(array $menu): void
     <div class="d-flex align-items-center gap-2">
 
         <!-- ── NOTIFICACIONES ──────────────────────── -->
-        <div class="dropdown">
+        <div class="dropdown" id="tour-notif">
             <button type="button" class="btn-notificaciones"
                     id="btnNotificaciones" data-bs-toggle="dropdown"
                     aria-expanded="false" title="Notificaciones">

@@ -49,6 +49,14 @@
                     <p class="login-subtitle">Ingresá tus credenciales</p>
                 </div>
 
+                <!-- ── Alerta sesión expirada ────────────── -->
+                <?php if (!empty($_GET['expired'])): ?>
+                <div class="alert alert-warning py-2" style="font-size:0.85rem;">
+                    <i class="fas fa-clock me-2"></i>
+                    Tu sesión expiró por inactividad. Inicia sesión nuevamente.
+                </div>
+                <?php endif; ?>
+
                 <!-- ── Mensaje de error desde sesión ────── -->
                 <?php if (!empty($error)): ?>
                     <div class="alert alert-danger alert-dismissible fade show mt-3" role="alert">

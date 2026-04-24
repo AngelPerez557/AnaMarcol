@@ -14,7 +14,7 @@
             </small>
         </div>
         <?php if (Auth::can('productos.crear')): ?>
-        <a href="<?= APP_URL ?>Productos/registry" class="btn btn-primary">
+        <a href="<?= APP_URL ?>Productos/registry" class="btn btn-primary" id="tour-btn-nuevo-prod">
             <i class="fas fa-plus me-2"></i>Nuevo Producto
         </a>
         <?php endif; ?>
@@ -82,8 +82,9 @@
     </div>
     <?php else: ?>
 
+    <div id="tour-tabla-productos">
     <div class="row g-3" id="gridProductos">
-        <?php foreach ($productos as $producto): ?>
+        <?php $primerToggle = true; foreach ($productos as $producto): ?>
         <div class="col-12 col-sm-6 col-md-4 col-xl-3 producto-card"
              data-nombre="<?= strtolower(htmlspecialchars($producto->nombre)) ?>"
              data-categoria="<?= htmlspecialchars($producto->categoria_nombre) ?>"
@@ -149,7 +150,8 @@
                 <div class="card-footer d-flex gap-2 justify-content-between align-items-center">
                     <!-- Toggle activo -->
                     <?php if (Auth::can('productos.editar')): ?>
-                    <div class="form-check form-switch mb-0">
+                    <div class="form-check form-switch mb-0" <?= $primerToggle ? 'id="tour-toggle-activo"' : '' ?>>
+                        <?php $primerToggle = false; ?>
                         <input class="form-check-input toggle-activo"
                                type="checkbox"
                                role="switch"
@@ -191,6 +193,7 @@
         </div>
         <?php endforeach; ?>
     </div>
+    </div><!-- /#tour-tabla-productos -->
 
     <?php endif; ?>
 
@@ -333,5 +336,59 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     });
 
+});
+</script>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    if (AM_TOUR_COMPLETADO) return;
+    if (!document.getElementById('tour-tabla-productos')) return;
+    if (typeof window.driver === 'undefined') return;
+
+    const { driver } = window.driver.js ?? window;
+
+    setTimeout(() => {
+        const tourProductos = driver({
+            showProgress: true,
+            popoverClass: 'am-driver-popover',
+            nextBtnText:  'Siguiente →',
+            prevBtnText:  '← Atrás',
+            doneBtnText:  '¡Entendido! ✓',
+            steps: [
+                {
+                    popover: {
+                        title: '📦 Gestión de Productos',
+                        description: `<strong>${AM_USER_NOMBRE}</strong>, aquí administras todo tu catálogo de productos que se muestra en la tienda en línea y en la caja de ventas presenciales.`
+                    }
+                },
+                {
+                    element: '#tour-btn-nuevo-prod',
+                    popover: {
+                        title: '➕ Agregar nuevo producto',
+                        description: 'Crea un producto con nombre, categoría, precio base, stock inicial e imagen. Si el producto viene en varias presentaciones (ej: labial en 5 colores), activa la opción <strong>"Tiene variantes"</strong> — así podrás agregar cada variante con su precio y stock individual.',
+                        side: 'bottom'
+                    }
+                },
+                {
+                    element: '#tour-tabla-productos',
+                    popover: {
+                        title: '📋 Lista de productos',
+                        description: 'Aquí ves todos tus productos con su categoría, precio, stock actual y estado. El ícono de lápiz ✏️ abre la edición. Puedes buscar por nombre o filtrar por categoría usando los controles de arriba.',
+                        side: 'top'
+                    }
+                },
+                {
+                    element: '#tour-toggle-activo',
+                    popover: {
+                        title: '👁️ Activar / Desactivar producto',
+                        description: 'Este toggle controla si el producto es visible en la tienda en línea. Desactívalo cuando esté agotado o fuera de temporada — el producto queda guardado en el sistema pero no aparece para los clientes. Se reactiva con un solo clic.',
+                        side: 'left'
+                    }
+                }
+            ]
+        });
+
+        tourProductos.drive();
+    }, 800);
 });
 </script>

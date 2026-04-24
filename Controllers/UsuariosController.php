@@ -294,6 +294,31 @@ class UsuariosController
     }
 
     // ─────────────────────────────────────────────
+    // MARCAR TOUR — marca el tour como completado
+    // URL: /Usuarios/marcarTour  (POST — JSON)
+    // ─────────────────────────────────────────────
+    public function marcarTour(): void
+    {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            http_response_code(405); exit();
+        }
+        if (!isset($_POST['csrf_token']) ||
+            $_SESSION['csrf_token'] !== $_POST['csrf_token']) {
+            http_response_code(403); exit();
+        }
+
+        $id = (int) ($_POST['id'] ?? Auth::id());
+        if ($id > 0) {
+            $this->userModel->marcarTour($id);
+            $_SESSION['user']['tour_completado'] = 1;
+        }
+
+        header('Content-Type: application/json');
+        echo json_encode(['success' => true]);
+        exit();
+    }
+
+    // ─────────────────────────────────────────────
     // HELPER — Subir foto de usuario
     // ─────────────────────────────────────────────
     private function subirFoto(array $file): ?string

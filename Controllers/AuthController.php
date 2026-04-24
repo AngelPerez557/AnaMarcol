@@ -26,6 +26,14 @@ class AuthController
             exit();
         }
 
+        $ip = $_SERVER['REMOTE_ADDR'] ?? '0.0.0.0';
+        if (!RateLimiter::check($ip)) {
+            $minutos = RateLimiter::minutosRestantes($ip);
+            $_SESSION['login_error'] = "Por seguridad el acceso está bloqueado. Intenta en {$minutos} minuto(s).";
+            header('Location: ' . APP_URL . 'Auth/index');
+            exit();
+        }
+
         $email    = htmlspecialchars(strip_tags(trim($_POST['email']    ?? '')));
         $password = trim($_POST['password'] ?? '');
 
@@ -40,6 +48,7 @@ class AuthController
 
         // Verifica que el usuario exista — Found = false si no existe
         if (!$user->Found) {
+            RateLimiter::registrarFallo($ip);
             $_SESSION['login_error'] = 'Correo o contraseña incorrectos.';
             header('Location: ' . APP_URL . 'Auth/index');
             exit();
@@ -47,6 +56,7 @@ class AuthController
 
         // Verifica la contraseña contra el hash
         if (!password_verify($password, $user->password)) {
+            RateLimiter::registrarFallo($ip);
             $_SESSION['login_error'] = 'Correo o contraseña incorrectos.';
             header('Location: ' . APP_URL . 'Auth/index');
             exit();
@@ -63,14 +73,17 @@ class AuthController
         $roleModel = new RoleModel();
         $permisos  = $roleModel->getPermissionsByRole($user->rol_id);
 
+        RateLimiter::limpiar($ip);
+
         // Inicia la sesión
         Auth::login([
-            'id'       => $user->id,
-            'nombre'   => $user->nombre,
-            'email'    => $user->email,
-            'rol_id'   => $user->rol_id,
-            'rol_slug' => $user->rol_slug,
-            'permisos' => $permisos,
+            'id'              => $user->id,
+            'nombre'          => $user->nombre,
+            'email'           => $user->email,
+            'rol_id'          => $user->rol_id,
+            'rol_slug'        => $user->rol_slug,
+            'permisos'        => $permisos,
+            'tour_completado' => (int) ($user->tour_completado ?? 0),
         ]);
 
         header('Location: ' . APP_URL . 'Dashboard/index');

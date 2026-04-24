@@ -330,16 +330,26 @@ class TiendaController
     {
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') { header('Location: ' . APP_URL . 'Tienda/login'); exit(); }
 
+        $ip = $_SERVER['REMOTE_ADDR'] ?? '0.0.0.0';
+        if (!RateLimiter::check($ip)) {
+            $minutos = RateLimiter::minutosRestantes($ip);
+            header('Location: ' . APP_URL . 'Tienda/login?blocked=1&min=' . $minutos);
+            exit();
+        }
+
         $email    = htmlspecialchars(strip_tags(trim($_POST['email']    ?? '')));
         $password = trim($_POST['password'] ?? '');
         $cliente  = $this->clienteModel->findByEmail($email);
 
         if (!$cliente->Found || !password_verify($password, $cliente->password ?? '')) {
+            RateLimiter::registrarFallo($ip);
             header('Location: ' . APP_URL . 'Tienda/login?error=credenciales'); exit();
         }
         if (!$cliente->isActivo()) {
             header('Location: ' . APP_URL . 'Tienda/login?error=inactivo'); exit();
         }
+
+        RateLimiter::limpiar($ip);
 
         $_SESSION['cliente'] = [
             'id'       => $cliente->id,

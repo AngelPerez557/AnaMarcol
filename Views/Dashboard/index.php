@@ -23,7 +23,7 @@
     <!-- ─────────────────────────────────────────────
          CARDS DE RESUMEN
          ───────────────────────────────────────────── -->
-    <div class="row g-3 mb-4">
+    <div class="row g-3 mb-4" id="tour-cards">
 
         <!-- Card Usuarios -->
         <?php if (Auth::can('usuarios.ver')): ?>
@@ -285,3 +285,98 @@
     </div>
 
 </div><!-- /.container-fluid -->
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    if (AM_TOUR_COMPLETADO) return;
+    if (typeof window.driver === 'undefined') return;
+
+    const { driver } = window.driver.js ?? window;
+
+    const tourDashboard = driver({
+        showProgress:     true,
+        popoverClass:     'am-driver-popover',
+        nextBtnText:      'Siguiente →',
+        prevBtnText:      '← Atrás',
+        doneBtnText:      '¡Entendido! ✓',
+        onDestroyStarted: () => {
+            amMarcarTour();
+            tourDashboard.destroy();
+        },
+        steps: [
+            {
+                popover: {
+                    title: `👋 ¡Bienvenida, ${AM_USER_NOMBRE}!`,
+                    description: `Hola <strong>${AM_USER_NOMBRE}</strong>, este es el panel de administración de Ana Marcol Makeup Studio. Te guiaré por los módulos principales para que puedas gestionar tu negocio de forma eficiente desde el primer día.`
+                }
+            },
+            {
+                element: '#tour-menu',
+                popover: {
+                    title: '📋 Menú principal',
+                    description: 'Desde aquí accedes a todos los módulos del sistema: Caja, Pedidos, Catálogo, Citas, Clientes, Facturación, Reportes y más. En dispositivos móviles toca el ícono ☰ para abrirlo.',
+                    side: 'right',
+                    align: 'start'
+                }
+            },
+            {
+                element: '#tour-notif',
+                popover: {
+                    title: '🔔 Notificaciones en tiempo real',
+                    description: 'Aquí recibirás alertas automáticas cuando llegue un nuevo pedido desde la tienda en línea o cuando un cliente agende una cita. El número rojo indica cuántas notificaciones tienes sin leer. Se actualiza cada 30 segundos.',
+                    side: 'bottom',
+                    align: 'end'
+                }
+            },
+            {
+                element: '#tour-cards',
+                popover: {
+                    title: '📊 Resumen del negocio',
+                    description: 'Estas tarjetas muestran un vistazo rápido de tu operación diaria: ventas del día, pedidos pendientes, citas de hoy y clientes registrados. Son el punto de partida para tomar decisiones rápidas.',
+                    side: 'bottom'
+                }
+            },
+            {
+                element: '#tour-caja-link',
+                popover: {
+                    title: '💰 Caja / Punto de Venta',
+                    description: 'Registra ventas presenciales en tu estudio. Busca productos por nombre o escanea el código de barras, selecciona la cantidad, elige el método de pago (Efectivo, Tarjeta o Transferencia) y cobra. El sistema descuenta el stock automáticamente y genera el recibo.',
+                    side: 'right'
+                }
+            },
+            {
+                element: '#tour-pedidos-link',
+                popover: {
+                    title: '📦 Pedidos en línea',
+                    description: 'Cuando un cliente compra desde la tienda en línea, el pedido aparece aquí en estado "Pendiente". Tú cambias el estado conforme avanza: Pendiente → En preparación → Listo → En camino → Entregado. Cada cambio queda registrado en el historial del pedido.',
+                    side: 'right'
+                }
+            },
+            {
+                element: '#tour-citas-link',
+                popover: {
+                    title: '📅 Gestión de Citas',
+                    description: 'Administra tu calendario de citas. Los clientes pueden agendar desde la tienda en línea y tú las ves aquí organizadas por día y mes. Al confirmar una cita puedes notificar al cliente por WhatsApp. También puedes crear citas manualmente para clientes que llamen por teléfono.',
+                    side: 'right'
+                }
+            },
+            {
+                element: '#tour-reportes-link',
+                popover: {
+                    title: '📈 Reportes y estadísticas',
+                    description: 'Analiza el rendimiento de tu negocio con gráficas de ventas por día y por mes, métodos de pago más usados, tus 10 productos más vendidos, distribución de pedidos por estado, e inventario con alertas de stock bajo para que nunca te quedes sin producto.',
+                    side: 'right'
+                }
+            },
+            {
+                popover: {
+                    title: `✅ ¡Todo listo, ${AM_USER_NOMBRE}!`,
+                    description: `Ya conoces los módulos principales del sistema. <strong>Importante:</strong> cambia tu contraseña desde el menú de tu perfil (ícono de usuario arriba a la derecha). Si tienes alguna duda o problema técnico, escríbenos desde el módulo <strong>Soporte DeskCod</strong>. ¡Mucho éxito en tu negocio! 💄`
+                }
+            }
+        ]
+    });
+
+    tourDashboard.drive();
+});
+</script>
