@@ -11,18 +11,24 @@ class DashboardController
     {
         $pageTitle = 'Dashboard';
 
+        // ── Instanciar todos los modelos ──────────────
         $userModel       = new UserModel();
         $roleModel       = new RoleModel();
         $permissionModel = new PermissionModel();
+        $productoModel   = new ProductoModel();
+        $pedidoModel     = new PedidoModel();
+        $clienteModel    = new ClienteModel();
+        $citaModel       = new CitaModel();
 
+        // ── Consultar datos ───────────────────────────
         $totalUsuarios = $userModel->count();
         $totalActivos  = $userModel->countActivos();
         $totalRoles    = $roleModel->count();
         $totalPermisos = $permissionModel->count();
 
         $totalProductos         = $productoModel->count();
-        $totalProductosActivos  = $productoModel->countActivos();
-        $totalPedidosPendientes = $pedidoModel->countPendientes();
+        $totalProductosActivos  = $productoModel->count();
+        $totalPedidosPendientes = $pedidoModel->countByEstado('Pendiente');
         $totalPedidosHoy        = $pedidoModel->countHoy();
         $totalClientes          = $clienteModel->count();
         $totalCitasHoy          = $citaModel->countHoy();
@@ -30,7 +36,6 @@ class DashboardController
 
         $usuario = Auth::user();
 
-        // ← Esta línea faltaba
         require_once VIEWS_PATH . 'Dashboard' . DS . 'index.php';
     }
 }
