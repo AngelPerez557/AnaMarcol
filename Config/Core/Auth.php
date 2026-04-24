@@ -22,6 +22,7 @@ class Auth
             'rol_id'   => $userData['rol_id'],
             'rol_slug' => $userData['rol_slug'],
             'permisos' => $userData['permisos'] ?? [],
+            'tour_completado' => $userData['tour_completado'] ?? 0,
         ];
     }
 

@@ -20,13 +20,13 @@ class DashboardController
         $totalRoles    = $roleModel->count();
         $totalPermisos = $permissionModel->count();
 
-        $totalProductos         = 0;
-        $totalProductosActivos  = 0;
-        $totalPedidosPendientes = 0;
-        $totalPedidosHoy        = 0;
-        $totalClientes          = 0;
-        $totalCitasHoy          = 0;
-        $totalCitasPendientes   = 0;
+        $totalProductos         = $productoModel->count();
+        $totalProductosActivos  = $productoModel->countActivos();
+        $totalPedidosPendientes = $pedidoModel->countPendientes();
+        $totalPedidosHoy        = $pedidoModel->countHoy();
+        $totalClientes          = $clienteModel->count();
+        $totalCitasHoy          = $citaModel->countHoy();
+        $totalCitasPendientes   = $citaModel->countPendientes();
 
         $usuario = Auth::user();
 
