@@ -46,6 +46,18 @@
         fetch(AM_APP_URL + 'Usuarios/marcarTour', { method: 'POST', body: fd })
         .catch(() => {});
     }
+
+    function amActivarTour() {
+        const fd = new FormData();
+        fd.append('csrf_token', AM_CSRF);
+        fd.append('id', AM_USER_ID);
+        fetch(AM_APP_URL + 'Usuarios/activarTour', { method: 'POST', body: fd })
+        .then(() => {
+            // Redirigir al Dashboard para que inicie el tour
+            window.location.href = AM_APP_URL + 'Dashboard/index';
+        })
+        .catch(() => {});
+    }
     </script>
 
     <!-- 2. Bootstrap bundle — incluye Popper -->

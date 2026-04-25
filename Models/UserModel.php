@@ -131,4 +131,9 @@ class UserModel extends BaseModel
     {
         $this->callSPExecute('sp_users_marcarTour', [$id]);
     }
+
+    public function activarTour(int $id): void
+    {
+        $this->callSPExecute('sp_users_activarTour', [$id]);
+    }
 }

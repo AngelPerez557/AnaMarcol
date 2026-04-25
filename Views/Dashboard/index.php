@@ -219,164 +219,109 @@
             <div class="card h-100">
                 <div class="card-header">
                     <i class="fas fa-user-circle me-2"></i>Mi información
-                </div>
-                <div class="card-body">
-                    <table class="table table-sm mb-0">
-                        <tbody>
-                            <tr>
-                                <td class="text-muted" width="40%">Nombre</td>
-                                <td><strong><?= htmlspecialchars(Auth::get('nombre') ?? '—') ?></strong></td>
-                            </tr>
-                            <tr>
-                                <td class="text-muted">Correo</td>
-                                <td><?= htmlspecialchars(Auth::get('email') ?? '—') ?></td>
-                            </tr>
-                            <tr>
-                                <td class="text-muted">Rol</td>
-                                <td>
-                                    <span class="badge" style="background-color:#de777d;">
-                                        <?= htmlspecialchars(Auth::get('rol_slug') ?? '—') ?>
-                                    </span>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td class="text-muted">Permisos</td>
-                                <td><?= count(Auth::user()['permisos'] ?? []) ?> asignados</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
+            const driverFn = (window.driver && window.driver.js)
+                ? window.driver.js.driver
+                : window.driver;
 
-        <!-- Info del sistema -->
-        <div class="col-12 col-md-6">
-            <div class="card h-100">
-                <div class="card-header">
-                    <i class="fas fa-info-circle me-2"></i>Información del sistema
-                </div>
-                <div class="card-body">
-                    <table class="table table-sm mb-0">
-                        <tbody>
-                            <tr>
-                                <td class="text-muted" width="40%">Sistema</td>
-                                <td><strong><?= APP_NAME ?></strong></td>
-                            </tr>
-                            <tr>
-                                <td class="text-muted">Versión</td>
-                                <td><?= APP_VERSION ?></td>
-                            </tr>
-                            <tr>
-                                <td class="text-muted">Entorno</td>
-                                <td>
-                                    <?php if (APP_ENV === 'development'): ?>
-                                        <span class="badge bg-warning text-dark">Desarrollo</span>
-                                    <?php else: ?>
-                                        <span class="badge bg-success">Producción</span>
-                                    <?php endif; ?>
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
+            if (typeof driverFn !== 'function') return;
 
-    </div>
-
-</div><!-- /.container-fluid -->
-
-<script>
-document.addEventListener('DOMContentLoaded', function () {
-    if (AM_TOUR_COMPLETADO) return;
-    if (typeof window.driver === 'undefined') return;
-
-    const { driver } = window.driver.js ?? window;
-
-    const tourDashboard = driver({
-        showProgress:     true,
-        popoverClass:     'am-driver-popover',
-        nextBtnText:      'Siguiente →',
-        prevBtnText:      '← Atrás',
-        doneBtnText:      '¡Entendido! ✓',
-        onDestroyStarted: () => {
-            amMarcarTour();
-            tourDashboard.destroy();
-        },
-        steps: [
-            {
-                popover: {
-                    title: `👋 ¡Bienvenida, ${AM_USER_NOMBRE}!`,
-                    description: `Hola <strong>${AM_USER_NOMBRE}</strong>, este es el panel de administración de Ana Marcol Makeup Studio. Te guiaré por los módulos principales para que puedas gestionar tu negocio de forma eficiente desde el primer día.`
-                }
-            },
-            {
-                element: '#tour-menu',
-                popover: {
-                    title: '📋 Menú principal',
-                    description: 'Desde aquí accedes a todos los módulos del sistema: Caja, Pedidos, Catálogo, Citas, Clientes, Facturación, Reportes y más. En dispositivos móviles toca el ícono ☰ para abrirlo.',
-                    side: 'right',
-                    align: 'start'
-                }
-            },
-            {
-                element: '#tour-notif',
-                popover: {
-                    title: '🔔 Notificaciones en tiempo real',
-                    description: 'Aquí recibirás alertas automáticas cuando llegue un nuevo pedido desde la tienda en línea o cuando un cliente agende una cita. El número rojo indica cuántas notificaciones tienes sin leer. Se actualiza cada 30 segundos.',
-                    side: 'bottom',
-                    align: 'end'
-                }
-            },
-            {
-                element: '#tour-cards',
-                popover: {
-                    title: '📊 Resumen del negocio',
-                    description: 'Estas tarjetas muestran un vistazo rápido de tu operación diaria: ventas del día, pedidos pendientes, citas de hoy y clientes registrados. Son el punto de partida para tomar decisiones rápidas.',
-                    side: 'bottom'
-                }
-            },
-            {
-                element: '#tour-caja-link',
-                popover: {
-                    title: '💰 Caja / Punto de Venta',
-                    description: 'Registra ventas presenciales en tu estudio. Busca productos por nombre o escanea el código de barras, selecciona la cantidad, elige el método de pago (Efectivo, Tarjeta o Transferencia) y cobra. El sistema descuenta el stock automáticamente y genera el recibo.',
-                    side: 'right'
-                }
-            },
-            {
-                element: '#tour-pedidos-link',
-                popover: {
-                    title: '📦 Pedidos en línea',
-                    description: 'Cuando un cliente compra desde la tienda en línea, el pedido aparece aquí en estado "Pendiente". Tú cambias el estado conforme avanza: Pendiente → En preparación → Listo → En camino → Entregado. Cada cambio queda registrado en el historial del pedido.',
-                    side: 'right'
-                }
-            },
-            {
-                element: '#tour-citas-link',
-                popover: {
-                    title: '📅 Gestión de Citas',
-                    description: 'Administra tu calendario de citas. Los clientes pueden agendar desde la tienda en línea y tú las ves aquí organizadas por día y mes. Al confirmar una cita puedes notificar al cliente por WhatsApp. También puedes crear citas manualmente para clientes que llamen por teléfono.',
-                    side: 'right'
-                }
-            },
-            {
-                element: '#tour-reportes-link',
-                popover: {
-                    title: '📈 Reportes y estadísticas',
-                    description: 'Analiza el rendimiento de tu negocio con gráficas de ventas por día y por mes, métodos de pago más usados, tus 10 productos más vendidos, distribución de pedidos por estado, e inventario con alertas de stock bajo para que nunca te quedes sin producto.',
-                    side: 'right'
-                }
-            },
-            {
-                popover: {
-                    title: `✅ ¡Todo listo, ${AM_USER_NOMBRE}!`,
-                    description: `Ya conoces los módulos principales del sistema. <strong>Importante:</strong> cambia tu contraseña desde el menú de tu perfil (ícono de usuario arriba a la derecha). Si tienes alguna duda o problema técnico, escríbenos desde el módulo <strong>Soporte DeskCod</strong>. ¡Mucho éxito en tu negocio! 💄`
-                }
+            function el(tourId) {
+                return document.querySelector('[data-tour="' + tourId + '"]')
+                    ? '[data-tour="' + tourId + '"]'
+                    : null;
             }
-        ]
-    });
 
-    tourDashboard.drive();
-});
+            const stepsBase = [
+                {
+                    popover: {
+                        title: `👋 ¡Bienvenida, ${AM_USER_NOMBRE}!`,
+                        description: `Hola <strong>${AM_USER_NOMBRE}</strong>, este es el panel de administración de <strong>Ana Marcol Makeup Studio</strong>. Te guiaré por los módulos principales para que puedas gestionar tu negocio de forma eficiente desde el primer día.`
+                    }
+                },
+                {
+                    element: el('tour-menu'),
+                    popover: {
+                        title: '📋 Menú principal',
+                        description: 'Desde aquí accedes a todos los módulos del sistema: Caja, Pedidos, Catálogo, Citas, Clientes, Facturación, Reportes y más. En dispositivos móviles toca el ícono ☰ para abrirlo.',
+                        side: 'right',
+                        align: 'start'
+                    }
+                },
+                {
+                    element: el('tour-notif'),
+                    popover: {
+                        title: '🔔 Notificaciones en tiempo real',
+                        description: 'Aquí recibirás alertas automáticas cuando llegue un nuevo pedido desde la tienda en línea o cuando un cliente agende una cita. El número rojo indica cuántas tienes sin leer. Se actualiza cada 30 segundos automáticamente.',
+                        side: 'bottom',
+                        align: 'end'
+                    }
+                },
+                {
+                    element: '#tour-cards',
+                    popover: {
+                        title: '📊 Resumen del negocio',
+                        description: 'Estas tarjetas muestran un vistazo rápido de tu operación diaria: ventas del día, pedidos pendientes, citas de hoy y clientes registrados. Son el punto de partida para tomar decisiones rápidas cada mañana.',
+                        side: 'bottom'
+                    }
+                },
+                {
+                    element: el('tour-caja-link'),
+                    popover: {
+                        title: '💰 Caja / Punto de Venta',
+                        description: 'Registra ventas presenciales en tu estudio. Busca productos por nombre o escanea el código de barras, selecciona la cantidad, elige el método de pago (Efectivo, Tarjeta o Transferencia) y cobra. El sistema descuenta el stock automáticamente y genera el recibo térmico.',
+                        side: 'right'
+                    }
+                },
+                {
+                    element: el('tour-pedidos-link'),
+                    popover: {
+                        title: '📦 Pedidos en línea',
+                        description: 'Cuando un cliente compra desde la tienda en línea, el pedido aparece aquí en estado "Pendiente". Cambia el estado conforme avanza: <strong>Pendiente → En preparación → Listo → En camino → Entregado</strong>. Cada cambio queda registrado en el historial.',
+                        side: 'right'
+                    }
+                },
+                {
+                    element: el('tour-citas-link'),
+                    popover: {
+                        title: '📅 Gestión de Citas',
+                        description: 'Administra tu calendario de citas. Los clientes agendan desde la tienda en línea y tú las ves aquí por día y mes. Al confirmar una cita puedes notificar al cliente por WhatsApp. También puedes crear citas manuales para clientes que llamen por teléfono.',
+                        side: 'right'
+                    }
+                },
+                {
+                    element: el('tour-reportes-link'),
+                    popover: {
+                        title: '📈 Reportes y estadísticas',
+                        description: 'Analiza el rendimiento de tu negocio con gráficas de ventas por día y mes, métodos de pago más usados, tus 10 productos más vendidos, distribución de pedidos por estado, e inventario con alertas de stock bajo.',
+                        side: 'right'
+                    }
+                },
+                {
+                    popover: {
+                        title: `✅ ¡Todo listo, ${AM_USER_NOMBRE}!`,
+                        description: `Ya conoces los módulos principales. <strong>Importante:</strong> cambia tu contraseña desde el menú de perfil (ícono de usuario arriba a la derecha). Si tienes dudas o problemas técnicos, contáctanos desde <strong>Soporte DeskCod</strong>. ¡Mucho éxito! 💄`
+                    }
+                }
+            ];
+
+            const steps = stepsBase.filter(step => {
+                if (!step.element) return true;
+                return document.querySelector(step.element) !== null;
+            });
+
+            const tourDashboard = driverFn({
+                showProgress:     true,
+                popoverClass:     'am-driver-popover',
+                nextBtnText:      'Siguiente →',
+                prevBtnText:      '← Atrás',
+                doneBtnText:      '¡Entendido! ✓',
+                onDestroyStarted: () => {
+                    amMarcarTour();
+                    tourDashboard.destroy();
+                },
+                steps: steps
+            });
+
+            tourDashboard.drive();
+        });
 </script>

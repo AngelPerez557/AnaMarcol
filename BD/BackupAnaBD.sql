@@ -823,6 +823,14 @@ BEGIN
 END$$
 DELIMITER ;
 
+DROP PROCEDURE IF EXISTS sp_users_activarTour;
+DELIMITER $$
+CREATE PROCEDURE sp_users_activarTour(IN p_id INT)
+BEGIN
+    UPDATE users SET tour_completado=0 WHERE id=p_id;
+END$$
+DELIMITER ;
+
 -- ── CLIENTES ─────────────────────────────────────────────────
 DROP PROCEDURE IF EXISTS sp_clientes_findAll;
 DELIMITER $$

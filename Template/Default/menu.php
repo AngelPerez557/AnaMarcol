@@ -70,7 +70,7 @@ function renderMenu(array $menu): void
                 if (isActive($child['Url'])) { $hayHijoActivo = true; break; }
             }
             $submenuId   = 'submenu-' . $item['Id'];
-            $parentTourId = !empty($item['TourId']) ? ' id="'.htmlspecialchars($item['TourId']).'"' : '';
+            $parentTourId = !empty($item['TourId']) ? ' data-tour="'.htmlspecialchars($item['TourId']).'"' : '';
             echo '<li class="nav-item">';
             echo '<a class="nav-link"'.$parentTourId.' href="#" data-bs-toggle="collapse" data-bs-target="#'.$submenuId.'" aria-expanded="'.($hayHijoActivo?'true':'false').'" aria-controls="'.$submenuId.'">';
             echo '<i class="'.htmlspecialchars($item['Icono']).'"></i>';
@@ -80,7 +80,7 @@ function renderMenu(array $menu): void
             foreach ($item['Children'] as $child) {
                 if (!empty($child['Permiso']) && !Auth::can($child['Permiso'])) continue;
                 $activeClass  = isActive($child['Url']) ? ' active' : '';
-                $childTourId  = !empty($child['TourId']) ? ' id="'.htmlspecialchars($child['TourId']).'"' : '';
+                $childTourId  = !empty($child['TourId']) ? ' data-tour="'.htmlspecialchars($child['TourId']).'"' : '';
                 echo '<li class="nav-item"><a class="nav-link'.$activeClass.'"'.$childTourId.' href="'.htmlspecialchars($child['Url']).'">';
                 echo '<i class="'.htmlspecialchars($child['Icono']).'"></i><span class="ms-2">'.htmlspecialchars($child['Nombre']).'</span></a></li>';
             }
@@ -88,7 +88,7 @@ function renderMenu(array $menu): void
         } else {
             $activeClass = isActive($item['Url']) ? ' active' : '';
             $target      = isset($item['Target']) ? ' target="'.htmlspecialchars($item['Target']).'"' : '';
-            $tourId      = !empty($item['TourId']) ? ' id="'.htmlspecialchars($item['TourId']).'"' : '';
+            $tourId      = !empty($item['TourId']) ? ' data-tour="'.htmlspecialchars($item['TourId']).'"' : '';
             echo '<li class="nav-item"><a class="nav-link'.$activeClass.'"'.$tourId.' href="'.htmlspecialchars($item['Url']).'"'.$target.'>';
             echo '<i class="'.htmlspecialchars($item['Icono']).'"></i><span class="ms-2">'.htmlspecialchars($item['Nombre']).'</span></a></li>';
         }
@@ -138,7 +138,7 @@ function renderMenu(array $menu): void
 </style>
 
 <!-- SIDEBAR -->
-<aside class="sidebar" id="sidebar">
+<aside class="sidebar" id="sidebar" data-tour="tour-menu">
     <div class="sidebar-header">
         <a class="sidebar-brand d-flex align-items-center justify-content-center" href="<?= APP_URL ?>Dashboard/index">
             <img src="<?= APP_URL ?>Content/Demo/img/Logo.png" alt="<?= APP_NAME ?>"
@@ -167,7 +167,7 @@ function renderMenu(array $menu): void
         <!-- ── NOTIFICACIONES ──────────────────────── -->
         <div class="dropdown" id="tour-notif">
             <button type="button" class="btn-notificaciones"
-                    id="btnNotificaciones" data-bs-toggle="dropdown"
+                    id="btnNotificaciones" data-bs-toggle="dropdown" data-tour="tour-notif"
                     aria-expanded="false" title="Notificaciones">
                 <i class="fas fa-bell"></i>
                 <span class="badge-notif d-none" id="badgeNotif">0</span>
@@ -219,6 +219,11 @@ function renderMenu(array $menu): void
                     </span>
                 </li>
                 <li><hr class="dropdown-divider"></li>
+                <li>
+                    <button class="dropdown-item" type="button" onclick="amActivarTour()" style="border:none; background:none; cursor:pointer; text-align:left;">
+                        <i class="fas fa-graduation-cap me-2" style="color:#F06292;"></i>Repetir tour
+                    </button>
+                </li>
                 <li>
                     <a class="dropdown-item" href="<?= APP_URL ?>Perfil/index">
                         <i class="fas fa-user-circle me-2"></i>Mi perfil

@@ -319,6 +319,31 @@ class UsuariosController
     }
 
     // ─────────────────────────────────────────────
+    // ACTIVAR TOUR — marca el tour como no completado
+    // URL: /Usuarios/activarTour  (POST — JSON)
+    // ─────────────────────────────────────────────
+    public function activarTour(): void
+    {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            http_response_code(405); exit();
+        }
+        if (!isset($_POST['csrf_token']) ||
+            $_SESSION['csrf_token'] !== $_POST['csrf_token']) {
+            http_response_code(403); exit();
+        }
+
+        $id = (int) ($_POST['id'] ?? Auth::id());
+        if ($id > 0) {
+            $this->userModel->activarTour($id);
+            $_SESSION['user']['tour_completado'] = 0;
+        }
+
+        header('Content-Type: application/json');
+        echo json_encode(['success' => true]);
+        exit();
+    }
+
+    // ─────────────────────────────────────────────
     // HELPER — Subir foto de usuario
     // ─────────────────────────────────────────────
     private function subirFoto(array $file): ?string
