@@ -257,15 +257,64 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     if (!tourForzado && AM_TOUR_COMPLETADO) return;
-    if (typeof window.driver === 'undefined') {
-        console.error('[TOUR] Driver.js no está cargado en window.driver');
-        return;
+
+    function getDriverFactory() {
+        if (window.driver && window.driver.js && typeof window.driver.js.driver === 'function') {
+            return window.driver.js.driver;
+        }
+        if (typeof window.driver === 'function') {
+            return window.driver;
+        }
+        if (window.driver && typeof window.driver.driver === 'function') {
+            return window.driver.driver;
+        }
+        return null;
     }
 
-    const { driver } = window.driver.js ?? window;
-    if (typeof driver !== 'function') {
-        console.error('[TOUR] No se encontró función driver en window.driver.js ni window');
-        return;
+    function loadScript(src) {
+        return new Promise((resolve, reject) => {
+            const existing = document.querySelector('script[data-tour-driver-src="' + src + '"]');
+            if (existing) {
+                existing.addEventListener('load', () => resolve(), { once: true });
+                existing.addEventListener('error', () => reject(new Error('No se pudo cargar ' + src)), { once: true });
+                return;
+            }
+
+            const s = document.createElement('script');
+            s.src = src;
+            s.async = true;
+            s.setAttribute('data-tour-driver-src', src);
+            s.onload = () => resolve();
+            s.onerror = () => reject(new Error('No se pudo cargar ' + src));
+            document.head.appendChild(s);
+        });
+    }
+
+    async function ensureDriverFactory() {
+        let factory = getDriverFactory();
+        if (factory) return factory;
+
+        console.warn('[TOUR] Driver.js no está disponible, intentando fallback CDN...');
+
+        const fallbacks = [
+            'https://cdn.jsdelivr.net/npm/driver.js@1.0.1/dist/driver.min.js',
+            'https://unpkg.com/driver.js@1.0.1/dist/driver.min.js'
+        ];
+
+        for (const src of fallbacks) {
+            try {
+                await loadScript(src);
+                factory = getDriverFactory();
+                if (factory) {
+                    console.log('[TOUR] Driver.js cargado correctamente desde:', src);
+                    return factory;
+                }
+            } catch (e) {
+                console.warn('[TOUR] Fallo cargando Driver.js desde:', src, e);
+            }
+        }
+
+        return null;
     }
 
     if (tourForzado) {
@@ -364,8 +413,22 @@ document.addEventListener('DOMContentLoaded', function() {
 
     console.log('[TOUR] Steps disponibles:', steps.length);
 
-    setTimeout(() => {
+    setTimeout(async () => {
         try {
+            const driver = await ensureDriverFactory();
+            if (!driver) {
+                console.error('[TOUR] No se pudo cargar Driver.js desde ninguna fuente.');
+                if (typeof Swal !== 'undefined') {
+                    Swal.fire({
+                        icon: 'warning',
+                        title: 'No se pudo iniciar el tour',
+                        text: 'No fue posible cargar la librería del tour. Revisa tu conexión y vuelve a intentar.',
+                        confirmButtonColor: '#de777d'
+                    });
+                }
+                return;
+            }
+
             const tourDashboard = driver({
                 showProgress:     true,
                 popoverClass:     'am-driver-popover',
