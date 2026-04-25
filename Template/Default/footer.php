@@ -48,15 +48,54 @@
     }
 
     function amActivarTour() {
+        console.log('🔄 [TOUR] Iniciando amActivarTour()');
+        
+        // Verificar que las variables globales existan
+        if (!AM_CSRF || !AM_USER_ID || !AM_APP_URL) {
+            console.error('❌ [TOUR] Variables globales no definidas:');
+            console.error('   AM_CSRF:', AM_CSRF);
+            console.error('   AM_USER_ID:', AM_USER_ID);
+            console.error('   AM_APP_URL:', AM_APP_URL);
+            alert('Error: Variables de sesión no disponibles. Por favor recarga la página.');
+            return;
+        }
+        
+        console.log('📊 [TOUR] Variables globales OK:');
+        console.log('   CSRF:', AM_CSRF.substring(0, 10) + '...');
+        console.log('   USER_ID:', AM_USER_ID);
+        console.log('   APP_URL:', AM_APP_URL);
+        
+        const url = AM_APP_URL + 'Usuarios/activarTour';
         const fd = new FormData();
         fd.append('csrf_token', AM_CSRF);
         fd.append('id', AM_USER_ID);
-        fetch(AM_APP_URL + 'Usuarios/activarTour', { method: 'POST', body: fd })
-        .then(() => {
-            // Redirigir al Dashboard para que inicie el tour
-            window.location.href = AM_APP_URL + 'Dashboard/index';
+        
+        console.log('🚀 [TOUR] Enviando POST a:', url);
+        
+        fetch(url, { 
+            method: 'POST', 
+            body: fd 
         })
-        .catch(() => {});
+        .then(response => {
+            console.log('📡 [TOUR] Respuesta HTTP:', response.status, response.statusText);
+            if (!response.ok) {
+                throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+            }
+            return response.json();
+        })
+        .then(data => {
+            console.log('✅ [TOUR] Respuesta JSON:', data);
+            console.log('🔄 [TOUR] Redirigiendo al Dashboard...');
+            setTimeout(() => {
+                window.location.href = AM_APP_URL + 'Dashboard/index';
+            }, 500);
+        })
+        .catch((error) => {
+            console.error('❌ [TOUR] Error al activar tour:', error);
+            console.error('   Tipo:', error.name);
+            console.error('   Mensaje:', error.message);
+            alert('❌ Error al activar el tour:\n\n' + error.message + '\n\nRevisa la consola (F12) para más detalles.');
+        });
     }
     </script>
 
