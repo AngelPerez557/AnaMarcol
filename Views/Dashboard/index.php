@@ -239,7 +239,10 @@
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    if (AM_TOUR_COMPLETADO) return;
+    const urlParams = new URLSearchParams(window.location.search);
+    const tourForzado = urlParams.get('tour') === '1';
+
+    if (!tourForzado && AM_TOUR_COMPLETADO) return;
     if (typeof window.driver === 'undefined') return;
 
     const driverFn = (window.driver && window.driver.js)
@@ -247,6 +250,15 @@ document.addEventListener('DOMContentLoaded', function() {
         : window.driver;
 
     if (typeof driverFn !== 'function') return;
+
+    if (tourForzado) {
+        try {
+            const cleanUrl = window.location.pathname + window.location.hash;
+            window.history.replaceState({}, document.title, cleanUrl);
+        } catch (error) {
+            console.warn('No se pudo limpiar el parámetro tour:', error);
+        }
+    }
 
     function el(tourId) {
         return document.querySelector('[data-tour="' + tourId + '"]')

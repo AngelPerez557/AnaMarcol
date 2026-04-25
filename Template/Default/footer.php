@@ -85,9 +85,9 @@
         })
         .then(data => {
             console.log('✅ [TOUR] Respuesta JSON:', data);
-            console.log('🔄 [TOUR] Redirigiendo al Dashboard...');
+            console.log('🔄 [TOUR] Redirigiendo al Dashboard con tour forzado...');
             setTimeout(() => {
-                window.location.href = AM_APP_URL + 'Dashboard/index';
+                window.location.href = AM_APP_URL + 'Dashboard/index?tour=1';
             }, 500);
         })
         .catch((error) => {
