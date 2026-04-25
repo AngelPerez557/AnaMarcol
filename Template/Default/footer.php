@@ -33,7 +33,9 @@
     <script src="<?= APP_URL ?>Content/Vendor/driverjs/driver.js.iife.js"></script>
     <script>
     // ── Variables globales del tour ───────────────────────
-    const AM_TOUR_COMPLETADO = <?= Auth::get('tour_completado') ? 'true' : 'false' ?>;
+    const AM_TOUR_COMPLETADO = <?= isset($_SESSION['user']['tour_completado'])
+        ? ($_SESSION['user']['tour_completado'] ? 'true' : 'false')
+        : 'true' ?>;
     const AM_APP_URL         = '<?= APP_URL ?>';
     const AM_USER_ID         = <?= Auth::id() ?? 0 ?>;
     const AM_CSRF            = '<?= htmlspecialchars($_SESSION['csrf_token'] ?? '') ?>';
@@ -44,6 +46,9 @@
         fd.append('csrf_token', AM_CSRF);
         fd.append('id', AM_USER_ID);
         fetch(AM_APP_URL + 'Usuarios/marcarTour', { method: 'POST', body: fd })
+        .then(() => {
+            window.AM_TOUR_COMPLETADO_LOCAL = true;
+        })
         .catch(() => {});
     }
 
