@@ -257,13 +257,16 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     if (!tourForzado && AM_TOUR_COMPLETADO) return;
-    if (typeof window.driver === 'undefined') return;
+    if (typeof window.driver === 'undefined') {
+        console.error('[TOUR] Driver.js no está cargado en window.driver');
+        return;
+    }
 
-    const driverFn = (window.driver && window.driver.js)
-        ? window.driver.js.driver
-        : window.driver;
-
-    if (typeof driverFn !== 'function') return;
+    const { driver } = window.driver.js ?? window;
+    if (typeof driver !== 'function') {
+        console.error('[TOUR] No se encontró función driver en window.driver.js ni window');
+        return;
+    }
 
     if (tourForzado) {
         try {
@@ -361,19 +364,35 @@ document.addEventListener('DOMContentLoaded', function() {
 
     console.log('[TOUR] Steps disponibles:', steps.length);
 
-    const tourDashboard = driverFn({
-        showProgress:     true,
-        popoverClass:     'am-driver-popover',
-        nextBtnText:      'Siguiente →',
-        prevBtnText:      '← Atrás',
-        doneBtnText:      '¡Entendido! ✓',
-        onDestroyStarted: () => {
-            amMarcarTour();
-            tourDashboard.destroy();
-        },
-        steps: steps
-    });
+    setTimeout(() => {
+        try {
+            const tourDashboard = driver({
+                showProgress:     true,
+                popoverClass:     'am-driver-popover',
+                nextBtnText:      'Siguiente →',
+                prevBtnText:      '← Atrás',
+                doneBtnText:      '¡Entendido! ✓',
+                onDestroyStarted: () => {
+                    amMarcarTour();
+                    tourDashboard.destroy();
+                },
+                steps: steps
+            });
 
-    tourDashboard.drive();
+            if (typeof tourDashboard?.drive === 'function') {
+                tourDashboard.drive();
+                return;
+            }
+
+            if (typeof tourDashboard?.start === 'function') {
+                tourDashboard.start();
+                return;
+            }
+
+            console.error('[TOUR] La instancia no tiene drive() ni start()', tourDashboard);
+        } catch (err) {
+            console.error('[TOUR] Error al iniciar tour de Dashboard:', err);
+        }
+    }, 250);
 });
 </script>
