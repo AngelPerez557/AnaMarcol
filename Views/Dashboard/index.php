@@ -240,7 +240,21 @@
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     const urlParams = new URLSearchParams(window.location.search);
-    const tourForzado = urlParams.get('tour') === '1';
+    let tourForzadoStorage = false;
+    try {
+        tourForzadoStorage = localStorage.getItem('am_force_tour') === '1';
+    } catch (e) {
+        console.warn('No se pudo leer am_force_tour desde localStorage:', e);
+    }
+    const tourForzado = urlParams.get('tour') === '1' || tourForzadoStorage;
+
+    console.log('[TOUR] Estado inicial:', {
+        tourForzado,
+        tourForzadoStorage,
+        AM_TOUR_COMPLETADO,
+        path: window.location.pathname,
+        search: window.location.search
+    });
 
     if (!tourForzado && AM_TOUR_COMPLETADO) return;
     if (typeof window.driver === 'undefined') return;
@@ -253,6 +267,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     if (tourForzado) {
         try {
+            localStorage.removeItem('am_force_tour');
             const cleanUrl = window.location.pathname + window.location.hash;
             window.history.replaceState({}, document.title, cleanUrl);
         } catch (error) {
@@ -343,6 +358,8 @@ document.addEventListener('DOMContentLoaded', function() {
         if (!step.element) return true;
         return document.querySelector(step.element) !== null;
     });
+
+    console.log('[TOUR] Steps disponibles:', steps.length);
 
     const tourDashboard = driverFn({
         showProgress:     true,

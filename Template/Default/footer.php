@@ -64,6 +64,13 @@
         console.log('   CSRF:', AM_CSRF.substring(0, 10) + '...');
         console.log('   USER_ID:', AM_USER_ID);
         console.log('   APP_URL:', AM_APP_URL);
+
+        // Bandera local para forzar el tour aunque falle la actualización en servidor
+        try {
+            localStorage.setItem('am_force_tour', '1');
+        } catch (e) {
+            console.warn('No se pudo guardar am_force_tour en localStorage:', e);
+        }
         
         const url = AM_APP_URL + 'Usuarios/activarTour';
         const fd = new FormData();
@@ -94,7 +101,8 @@
             console.error('❌ [TOUR] Error al activar tour:', error);
             console.error('   Tipo:', error.name);
             console.error('   Mensaje:', error.message);
-            alert('❌ Error al activar el tour:\n\n' + error.message + '\n\nRevisa la consola (F12) para más detalles.');
+            console.warn('⚠️ [TOUR] Se forzará redirección local al Dashboard para iniciar tour.');
+            window.location.href = AM_APP_URL + 'Dashboard/index?tour=1';
         });
     }
     </script>
