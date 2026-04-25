@@ -29,8 +29,8 @@
     <!-- 1. Variable global APP_URL — debe ir primero -->
     <script>const APP_URL = '<?= APP_URL ?>';</script>
 
-    <!-- Driver.js v1.0.1 -->
-    <script src="https://cdn.jsdelivr.net/npm/driver.js@1.0.1/dist/driver.min.js"></script>
+    <!-- Driver.js v1.0.1 (local, sin dependencia de CDN) -->
+    <script src="<?= APP_URL ?>Content/Vendor/driverjs/driver.js.iife.js"></script>
     <script>
     // ── Variables globales del tour ───────────────────────
     const AM_TOUR_COMPLETADO = <?= Auth::get('tour_completado') ? 'true' : 'false' ?>;
