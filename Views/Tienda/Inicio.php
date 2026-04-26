@@ -5,7 +5,7 @@
         <?php foreach ($banners as $i => $b): ?>
         <div class="carousel-item <?= $i === 0 ? 'active' : '' ?>">
             <div style="
-                height:420px;
+                height: clamp(220px, 45vw, 420px);
                 background-image: url('<?= APP_URL ?>Content/Demo/img/Banners/<?= htmlspecialchars($b['imagen_url']) ?>');
                 background-size: cover;
                 background-position: center;">
@@ -28,7 +28,7 @@
     <?php endif; ?>
 </div>
 <?php else: ?>
-<div style="background:linear-gradient(135deg, #f5e6e7 0%, #fdf8f8 100%); padding:80px 0; text-align:center;">
+<div style="background:linear-gradient(135deg, #f5e6e7 0%, #fdf8f8 100%); padding:clamp(40px,8vw,80px) 0; text-align:center;">
     <div class="container">
         <h1 class="fw-bold mb-3" style="color:#de777d;">Ana Marcol Makeup Studio</h1>
         <p class="text-muted mb-4">Beleza profesional para cada ocasión</p>
@@ -74,7 +74,7 @@
     <?php else: ?>
     <div class="row g-3">
         <?php foreach ($productosDestacados as $p): ?>
-        <div class="col-6 col-md-4 col-lg-3">
+        <div class="col-12 col-sm-6 col-md-4 col-lg-3">
             <div class="producto-card">
                 <a href="<?= APP_URL ?>Tienda/producto/<?= $p->id ?>">
                     <div class="producto-img"

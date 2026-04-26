@@ -237,43 +237,34 @@
 
 </div><!-- /.container-fluid -->
 
+<!-- ═══ TOUR DASHBOARD ═══════════════════════════ -->
 <script>
 document.addEventListener('DOMContentLoaded', function () {
     if (AM_TOUR_COMPLETADO) return;
-    if (typeof window.driver === 'undefined') return;
+    if (typeof window.driver === 'undefined' &&
+        !(window.driver && window.driver.js)) return;
 
-    const driverFn = (window.driver && window.driver.js)
-        ? window.driver.js.driver
-        : window.driver;
-
-    if (typeof driverFn !== 'function') return;
-
-    function el(tourId) {
-        return document.querySelector('[data-tour="' + tourId + '"]') ?
-               '[data-tour="' + tourId + '"]' : null;
-    }
-
-    const stepsBase = [
+    const t = amDriver([
         {
             popover: {
                 title: `👋 ¡Bienvenida, ${AM_USER_NOMBRE}!`,
-                description: `Hola <strong>${AM_USER_NOMBRE}</strong>, este es el panel de administración de <strong>Ana Marcol Makeup Studio</strong>. Te guiaré por los módulos principales para que puedas gestionar tu negocio de forma eficiente desde el primer día.`
+                description: `Hola <strong>${AM_USER_NOMBRE}</strong>, este es el panel de administración de <strong>Ana Marcol Makeup Studio</strong>. Te guiaré por los módulos principales para que gestiones tu negocio desde el primer día.`
             }
         },
         {
-            element: el('tour-menu'),
+            element: amEl('tour-menu'),
             popover: {
                 title: '📋 Menú principal',
-                description: 'Desde aquí accedes a todos los módulos del sistema: Caja, Pedidos, Catálogo, Citas, Clientes, Facturación, Reportes y más. En dispositivos móviles toca el ícono ☰ para abrirlo.',
+                description: 'Accede a todos los módulos desde aquí: Caja, Pedidos, Catálogo, Citas, Clientes, Facturación, Reportes y Administración. En móvil toca ☰ para abrirlo.',
                 side: 'right',
                 align: 'start'
             }
         },
         {
-            element: el('tour-notif'),
+            element: amEl('tour-notif'),
             popover: {
                 title: '🔔 Notificaciones en tiempo real',
-                description: 'Aquí recibirás alertas automáticas cuando llegue un nuevo pedido desde la tienda en línea o cuando un cliente agende una cita. El número rojo indica cuántas tienes sin leer. Se actualiza cada 30 segundos automáticamente.',
+                description: 'Alertas automáticas de nuevos pedidos y citas. El número rojo indica cuántas tienes sin leer. Se actualiza cada 30 segundos automáticamente.',
                 side: 'bottom',
                 align: 'end'
             }
@@ -282,68 +273,50 @@ document.addEventListener('DOMContentLoaded', function () {
             element: '#tour-cards',
             popover: {
                 title: '📊 Resumen del negocio',
-                description: 'Estas tarjetas muestran un vistazo rápido de tu operación diaria: ventas del día, pedidos pendientes, citas de hoy y clientes registrados. Son el punto de partida para tomar decisiones rápidas cada mañana.',
+                description: 'Vistazo rápido de tu operación diaria: ventas del día, pedidos pendientes, citas de hoy y clientes registrados. El punto de partida cada mañana.',
                 side: 'bottom'
             }
         },
         {
-            element: el('tour-caja-link'),
+            element: amEl('tour-caja-link'),
             popover: {
                 title: '💰 Caja / Punto de Venta',
-                description: 'Registra ventas presenciales en tu estudio. Busca productos por nombre o escanea el código de barras, selecciona la cantidad, elige el método de pago (Efectivo, Tarjeta o Transferencia) y cobra. El sistema descuenta el stock automáticamente y genera el recibo térmico.',
+                description: 'Registra ventas presenciales. Busca por nombre o código de barras, elige el método de pago (Efectivo, Tarjeta o Transferencia) y cobra. El stock se descuenta automáticamente y genera el recibo.',
                 side: 'right'
             }
         },
         {
-            element: el('tour-pedidos-link'),
+            element: amEl('tour-pedidos-link'),
             popover: {
                 title: '📦 Pedidos en línea',
-                description: 'Cuando un cliente compra desde la tienda en línea, el pedido aparece aquí en estado "Pendiente". Cambia el estado conforme avanza: <strong>Pendiente → En preparación → Listo → En camino → Entregado</strong>. Cada cambio queda registrado en el historial.',
+                description: 'Los pedidos de la tienda aparecen aquí. Cambia el estado: <strong>Pendiente → En preparación → Listo → En camino → Entregado</strong>. Historial completo por pedido.',
                 side: 'right'
             }
         },
         {
-            element: el('tour-citas-link'),
+            element: amEl('tour-citas-link'),
             popover: {
-                title: '📅 Gestión de Citas',
-                description: 'Administra tu calendario de citas. Los clientes agendan desde la tienda en línea y tú las ves aquí por día y mes. Al confirmar una cita puedes notificar al cliente por WhatsApp. También puedes crear citas manuales para clientes que llamen por teléfono.',
+                title: '📅 Citas',
+                description: 'Calendario de citas agendadas desde la tienda. Confirma, completa o cancela. Al confirmar notificas al cliente por WhatsApp. También puedes crear citas manualmente.',
                 side: 'right'
             }
         },
         {
-            element: el('tour-reportes-link'),
+            element: amEl('tour-reportes-link'),
             popover: {
                 title: '📈 Reportes y estadísticas',
-                description: 'Analiza el rendimiento de tu negocio con gráficas de ventas por día y mes, métodos de pago más usados, tus 10 productos más vendidos, distribución de pedidos por estado, e inventario con alertas de stock bajo.',
+                description: 'Gráficas de ventas por día y mes, métodos de pago, top 10 productos, estados de pedidos e inventario con alertas de stock bajo.',
                 side: 'right'
             }
         },
         {
             popover: {
                 title: `✅ ¡Todo listo, ${AM_USER_NOMBRE}!`,
-                description: `Ya conoces los módulos principales. <strong>Importante:</strong> cambia tu contraseña desde el menú de perfil (ícono de usuario arriba a la derecha). Si tienes dudas o problemas técnicos, contáctanos desde <strong>Soporte DeskCod</strong>. ¡Mucho éxito! 💄`
+                description: `Conoces los módulos principales. <strong>Cambia tu contraseña</strong> desde el ícono de perfil arriba a la derecha. Dudas o problemas → módulo <strong>Soporte DeskCod</strong>. ¡Mucho éxito! 💄`
             }
         }
-    ];
+    ]);
 
-    const steps = stepsBase.filter(step => {
-        if (!step.element) return true;
-        return document.querySelector(step.element) !== null;
-    });
-
-    const tourDashboard = driverFn({
-        showProgress:     true,
-        popoverClass:     'am-driver-popover',
-        nextBtnText:      'Siguiente →',
-        prevBtnText:      '← Atrás',
-        doneBtnText:      '¡Entendido! ✓',
-        onDestroyStarted: () => {
-            amMarcarTour();
-            tourDashboard.destroy();
-        },
-        steps: steps
-    });
-
-    tourDashboard.drive();
+    if (t) t.drive();
 });
 </script>

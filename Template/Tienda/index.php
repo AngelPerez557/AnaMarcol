@@ -210,6 +210,34 @@
             color: #fff;
         }
 
+        /* ── Responsive móvil navbar tienda ── */
+        @media (max-width: 767px) {
+            .tienda-navbar .container {
+                padding-left: 12px;
+                padding-right: 12px;
+            }
+            .tienda-brand img {
+                height: 36px !important;
+                max-width: 140px !important;
+            }
+            .btn-carrito {
+                padding: 6px 12px !important;
+                font-size: 0.85rem;
+            }
+            .btn-rosa-outline {
+                padding: 5px 10px !important;
+                font-size: 0.78rem !important;
+            }
+            .d-flex.align-items-center.gap-3 {
+                gap: 8px !important;
+            }
+            /* Hero section más compacto en móvil */
+            .tienda-footer {
+                padding: 30px 0 15px;
+                margin-top: 30px;
+            }
+        }
+
         /* ── DISPONIBILIDAD CITAS ── */
         .dia-disponible  { background: rgba(40,167,69,0.15) !important; border-color: #28a745 !important; cursor: pointer; }
         .dia-ocupado     { background: rgba(220,53,69,0.08) !important; color: #aaa !important; cursor: not-allowed; }
@@ -225,7 +253,8 @@
                 <a href="<?= APP_URL ?>Tienda/index" class="tienda-brand">
                     <img src="<?= APP_URL ?>Content/Demo/img/Logo.png"
                          alt="<?= APP_NAME ?>"
-                         style="height:44px; width:auto; object-fit:contain;">
+                         style="height:40px; width:auto; object-fit:contain;
+                                max-width:160px;">
                 </a>
 
                 <!-- Menú desktop -->
