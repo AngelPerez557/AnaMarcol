@@ -73,19 +73,23 @@
                     </div>
                     <?php if ($p->tieneVariantes()): ?>
                     <a href="<?= APP_URL ?>Tienda/producto/<?= $p->id ?>"
-                       class="btn-rosa d-block text-center text-decoration-none">
+                    class="btn-rosa d-block text-center text-decoration-none">
                         <i class="fas fa-eye me-1"></i>Ver opciones
                     </a>
-                    <?php else: ?>
+                    <?php elseif ($p->stock > 0): ?>
                     <button type="button"
                             class="btn-rosa w-100"
-                            onclick="agregarAlCarrito(
-                                <?= $p->id ?>,
+                            onclick="agregarAlCarritoConStock(
+                                <?= $p->id ?>, 0,
                                 '<?= addslashes(htmlspecialchars($p->nombre)) ?>',
                                 <?= $p->precio_base ?>,
-                                '<?= $p->getImageUrl() ?>',
-                                null, null)">
+                                '<?= $p->getImageUrl() ?>')">
                         <i class="fas fa-cart-plus me-1"></i>Agregar al carrito
+                    </button>
+                    <?php else: ?>
+                    <button type="button" class="btn-rosa w-100" disabled
+                            style="opacity:0.5; cursor:not-allowed;">
+                        <i class="fas fa-ban me-1"></i>No disponible
                     </button>
                     <?php endif; ?>
                 </div>

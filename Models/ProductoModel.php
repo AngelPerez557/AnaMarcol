@@ -148,4 +148,25 @@ class ProductoModel extends BaseModel
         $rows = $this->callSP('sp_productos_findVariantes', [$productoId]);
         return array_map(fn($row) => VarianteEntity::fromArray($row), $rows);
     }
+    // ── Actualizar stock de producto simple ────────
+    public function updateStock(int $id, int $cantidad): bool
+    {
+        $affected = $this->callSPExecute('sp_productos_updateStock', [$id, $cantidad]);
+        return $affected >= 0;
+    }
+
+    // ── Actualizar stock de variante ───────────────
+    public function updateVarianteStock(int $id, int $cantidad): bool
+    {
+        $affected = $this->callSPExecute('sp_variantes_updateStock', [$id, $cantidad]);
+        return $affected >= 0;
+    }
+
+    // ── Buscar variante por ID ─────────────────────
+    public function findVarianteById(int $id): ?VarianteEntity
+    {
+        $row = $this->callSPSingle('sp_variantes_findById', [$id]);
+        if (!$row) return null;
+        return VarianteEntity::fromArray($row);
+    }
 }

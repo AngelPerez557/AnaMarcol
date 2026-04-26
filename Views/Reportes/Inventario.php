@@ -1,14 +1,22 @@
 <div class="container-fluid py-4">
 
     <!-- ─── CABECERA ─────────────────────────────── -->
-    <div class="d-flex justify-content-between align-items-center mb-4">
+    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
         <div>
             <h4 class="mb-0 fw-bold">
                 <i class="fas fa-boxes me-2" style="color:#de777d;"></i>
                 <?= htmlspecialchars($pageTitle) ?>
             </h4>
         </div>
-        <div class="d-flex gap-2 align-items-center">
+        <div class="d-flex gap-2 align-items-center flex-wrap">
+            <button onclick="descargarPDFInventario()"
+                    class="btn btn-sm btn-danger">
+                <i class="fas fa-file-pdf me-1"></i>PDF
+            </button>
+            <button onclick="descargarExcelInventario()"
+                    class="btn btn-sm btn-success">
+                <i class="fas fa-file-excel me-1"></i>Excel
+            </button>
             <label class="text-muted" style="font-size:0.85rem;">Alerta si stock ≤</label>
             <select class="form-select form-select-sm" style="width:80px;"
                     onchange="window.location='<?= APP_URL ?>Reportes/inventario?limite='+this.value">
@@ -16,8 +24,10 @@
                 <option value="<?= $op ?>" <?= $limite === $op ? 'selected' : '' ?>><?= $op ?></option>
                 <?php endforeach; ?>
             </select>
-            <a href="<?= APP_URL ?>Reportes/ventas"  class="btn btn-outline-secondary btn-sm">Ventas</a>
-            <a href="<?= APP_URL ?>Reportes/pedidos" class="btn btn-outline-secondary btn-sm">Pedidos</a>
+            <a href="<?= APP_URL ?>Reportes/ventas"
+               class="btn btn-outline-secondary btn-sm">Ventas</a>
+            <a href="<?= APP_URL ?>Reportes/pedidos"
+               class="btn btn-outline-secondary btn-sm">Pedidos</a>
         </div>
     </div>
 
@@ -25,17 +35,17 @@
     <div class="row g-3 mb-4">
         <?php
         $cards = [
-            ['label'=>'Total productos', 'valor'=>$resumen['total_productos']?? 0, 'color'=>'#de777d'],
-            ['label'=>'Activos',         'valor'=>$resumen['activos']         ?? 0, 'color'=>'#28a745'],
-            ['label'=>'Sin stock',       'valor'=>$resumen['sin_stock']       ?? 0, 'color'=>'#dc3545'],
-            ['label'=>'Stock bajo',      'valor'=>$resumen['stock_bajo']      ?? 0, 'color'=>'#ffc107'],
+            ['label'=>'Total productos','valor'=>$resumen['total_productos']??0,'color'=>'#de777d'],
+            ['label'=>'Activos',        'valor'=>$resumen['activos']        ??0,'color'=>'#28a745'],
+            ['label'=>'Sin stock',      'valor'=>$resumen['sin_stock']      ??0,'color'=>'#dc3545'],
+            ['label'=>'Stock bajo',     'valor'=>$resumen['stock_bajo']     ??0,'color'=>'#ffc107'],
         ];
         foreach ($cards as $c):
         ?>
         <div class="col-6 col-md-3">
             <div class="card h-100">
                 <div class="card-body text-center py-3">
-                    <div class="fw-bold" style="font-size:2rem; color:<?= $c['color'] ?>;">
+                    <div class="fw-bold" style="font-size:2rem;color:<?= $c['color'] ?>;">
                         <?= $c['valor'] ?>
                     </div>
                     <div class="text-muted" style="font-size:0.85rem;"><?= $c['label'] ?></div>
@@ -47,7 +57,6 @@
 
     <div class="row g-4">
 
-        <!-- ─── GRÁFICA STOCK BAJO ────────────────── -->
         <?php if (!empty($stockBajo)): ?>
         <div class="col-12 col-lg-6">
             <div class="card h-100">
@@ -62,7 +71,6 @@
         </div>
         <?php endif; ?>
 
-        <!-- ─── TABLA PRODUCTOS STOCK BAJO ───────── -->
         <div class="col-12 <?= !empty($stockBajo) ? 'col-lg-6' : '' ?>">
             <div class="card">
                 <div class="card-header">
@@ -75,7 +83,7 @@
                         Todos los productos tienen stock suficiente.
                     </div>
                     <?php else: ?>
-                    <table class="table table-sm align-middle mb-0">
+                    <table class="table table-sm align-middle mb-0" id="tablaInventario">
                         <thead>
                             <tr style="background:rgba(222,119,125,0.08);">
                                 <th class="ps-3">Producto</th>
@@ -100,7 +108,6 @@
                                 </td>
                             </tr>
                             <?php endforeach; ?>
-
                             <?php foreach ($variantesStockBajo as $v): ?>
                             <tr>
                                 <td class="ps-3">
@@ -125,15 +132,16 @@
                 </div>
             </div>
         </div>
-
     </div>
-
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+
 <script>
 document.addEventListener('DOMContentLoaded', function () {
-
     const stockBajo = <?= json_encode(array_values($stockBajo)) ?>;
 
     if (stockBajo.length > 0 && document.getElementById('chartStockBajo')) {
@@ -165,6 +173,100 @@ document.addEventListener('DOMContentLoaded', function () {
             }
         });
     }
-
 });
+
+function descargarPDFInventario() {
+    const { jsPDF } = window.jspdf;
+    const doc  = new jsPDF();
+    const fecha = new Date().toLocaleDateString('es-HN');
+
+    doc.setFillColor(222, 119, 125);
+    doc.rect(0, 0, 210, 28, 'F');
+    doc.setTextColor(255,255,255);
+    doc.setFontSize(16); doc.setFont('helvetica','bold');
+    doc.text('Ana Marcol Makeup Studio', 14, 12);
+    doc.setFontSize(11); doc.setFont('helvetica','normal');
+    doc.text('Reporte de Inventario — ' + fecha, 14, 22);
+    doc.setTextColor(0,0,0);
+
+    const resumenData = <?= json_encode($resumen) ?>;
+    doc.autoTable({
+        startY: 36,
+        head: [['Indicador', 'Valor']],
+        body: [
+            ['Total productos', resumenData.total_productos ?? 0],
+            ['Activos',         resumenData.activos         ?? 0],
+            ['Sin stock',       resumenData.sin_stock       ?? 0],
+            ['Stock bajo',      resumenData.stock_bajo      ?? 0],
+        ],
+        styles: { fontSize: 10 },
+        headStyles: { fillColor: [222,119,125], textColor: 255 },
+        alternateRowStyles: { fillColor: [253,240,241] },
+        margin: { left: 14, right: 14 },
+    });
+
+    const stockBajo = <?= json_encode(array_values($stockBajo)) ?>;
+    const variantesStockBajo = <?= json_encode(array_values($variantesStockBajo)) ?>;
+    const todosBajos = [
+        ...stockBajo.map(p => [p.nombre, p.categoria_nombre, p.stock + ' uds.', 'L. ' + parseFloat(p.precio_base).toFixed(2)]),
+        ...variantesStockBajo.map(v => [v.producto_nombre + ' — ' + v.variante_nombre, 'Variante', v.stock + ' uds.', 'L. ' + parseFloat(v.precio).toFixed(2)]),
+    ];
+
+    if (todosBajos.length > 0) {
+        doc.autoTable({
+            startY: doc.lastAutoTable.finalY + 10,
+            head: [['Producto', 'Categoría', 'Stock', 'Precio']],
+            body: todosBajos,
+            styles: { fontSize: 9 },
+            headStyles: { fillColor: [222,119,125], textColor: 255 },
+            alternateRowStyles: { fillColor: [253,240,241] },
+            margin: { left: 14, right: 14 },
+            columnStyles: { 2: { halign: 'center' }, 3: { halign: 'right' } }
+        });
+    }
+
+    const pageCount = doc.internal.getNumberOfPages();
+    for (let i = 1; i <= pageCount; i++) {
+        doc.setPage(i);
+        doc.setFontSize(8); doc.setTextColor(150,150,150);
+        doc.text(`Generado el ${fecha} | Ana Marcol Makeup Studio | Página ${i} de ${pageCount}`, 14, 290);
+    }
+
+    doc.save(`reporte-inventario-${fecha.replace(/\//g,'-')}.pdf`);
+}
+
+function descargarExcelInventario() {
+    const wb    = XLSX.utils.book_new();
+    const fecha  = new Date().toLocaleDateString('es-HN');
+    const resumenData        = <?= json_encode($resumen) ?>;
+    const stockBajo          = <?= json_encode(array_values($stockBajo)) ?>;
+    const variantesStockBajo = <?= json_encode(array_values($variantesStockBajo)) ?>;
+
+    const wsResumen = XLSX.utils.aoa_to_sheet([
+        ['ANA MARCOL MAKEUP STUDIO — REPORTE DE INVENTARIO'],
+        ['Generado:', fecha],
+        [],
+        ['RESUMEN'],
+        ['Indicador', 'Valor'],
+        ['Total productos', resumenData.total_productos ?? 0],
+        ['Activos',         resumenData.activos         ?? 0],
+        ['Sin stock',       resumenData.sin_stock       ?? 0],
+        ['Stock bajo',      resumenData.stock_bajo      ?? 0],
+    ]);
+    XLSX.utils.book_append_sheet(wb, wsResumen, 'Resumen');
+
+    const wsStock = XLSX.utils.aoa_to_sheet([
+        ['Producto', 'Categoría', 'Stock Actual', 'Precio (L.)'],
+        ...stockBajo.map(p => [p.nombre, p.categoria_nombre, parseInt(p.stock), parseFloat(p.precio_base)]),
+        ...variantesStockBajo.map(v => [
+            v.producto_nombre + ' — ' + v.variante_nombre,
+            'Variante',
+            parseInt(v.stock),
+            parseFloat(v.precio)
+        ])
+    ]);
+    XLSX.utils.book_append_sheet(wb, wsStock, 'Stock Bajo');
+
+    XLSX.writeFile(wb, `reporte-inventario-${fecha.replace(/\//g,'-')}.xlsx`);
+}
 </script>

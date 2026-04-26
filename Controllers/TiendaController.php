@@ -2,16 +2,17 @@
 
 class TiendaController
 {
-    private ProductoModel      $productoModel;
-    private CategoriaModel     $categoriaModel;
-    private BannerModel        $bannerModel;
-    private ComboModel         $comboModel;
-    private PedidoModel        $pedidoModel;
-    private CitaModel          $citaModel;
-    private ServicioModel      $servicioModel;
-    private ClienteModel       $clienteModel;
-    private ZonaModel          $zonaModel;
-    private NotificacionModel  $notifModel;
+    private ProductoModel     $productoModel;
+    private CategoriaModel    $categoriaModel;
+    private BannerModel       $bannerModel;
+    private ComboModel        $comboModel;
+    private PedidoModel       $pedidoModel;
+    private CitaModel         $citaModel;
+    private ServicioModel     $servicioModel;
+    private ClienteModel      $clienteModel;
+    private ZonaModel         $zonaModel;
+    private NotificacionModel $notifModel;
+    private VentaModel        $ventaModel;
 
     public function __construct()
     {
@@ -25,6 +26,7 @@ class TiendaController
         $this->clienteModel   = new ClienteModel();
         $this->zonaModel      = new ZonaModel();
         $this->notifModel     = new NotificacionModel();
+        $this->ventaModel     = new VentaModel();
     }
 
     public function index(): void
@@ -35,7 +37,9 @@ class TiendaController
         $combos              = $this->comboModel->findActivos();
         $categorias          = $this->categoriaModel->findAll();
         $productosDestacados = array_slice($productos, 0, 8);
-        $this->render('Inicio.php', compact('pageTitle','banners','productosDestacados','combos','categorias'));
+        $this->render('inicio.php', compact(
+            'pageTitle','banners','productosDestacados','combos','categorias'
+        ));
     }
 
     public function catalogo(): void
@@ -45,9 +49,13 @@ class TiendaController
         $categorias  = $this->categoriaModel->findAll();
         $productos   = $this->productoModel->findActivos();
         if ($categoriaId > 0) {
-            $productos = array_values(array_filter($productos, fn($p) => (int)$p->categoria_id === $categoriaId));
+            $productos = array_values(array_filter(
+                $productos, fn($p) => (int)$p->categoria_id === $categoriaId
+            ));
         }
-        $this->render('Catalogo.php', compact('pageTitle','productos','categorias','categoriaId'));
+        $this->render('catalogo.php', compact(
+            'pageTitle','productos','categorias','categoriaId'
+        ));
     }
 
     public function producto(string $id = ''): void
@@ -61,18 +69,64 @@ class TiendaController
         }
         $variantes = $this->productoModel->findVariantes((int) $id);
         $pageTitle = $producto->nombre;
-        $this->render('Producto.php', compact('pageTitle','producto','variantes'));
+        $this->render('producto.php', compact('pageTitle','producto','variantes'));
     }
 
     public function carrito(): void
     {
         $pageTitle = 'Carrito';
         $zonas     = $this->zonaModel->findActivas();
-        $this->render('Carrito.php', compact('pageTitle','zonas'));
+        $this->render('carrito.php', compact('pageTitle','zonas'));
     }
 
     // ─────────────────────────────────────────────
-    // CHECKOUT — genera pedido + notificación
+    // VERIFICAR STOCK — endpoint AJAX
+    // Verifica stock antes de agregar al carrito
+    // URL: /Tienda/verificarStock  (POST — JSON)
+    // ─────────────────────────────────────────────
+    public function verificarStock(): void
+    {
+        header('Content-Type: application/json');
+
+        $productoId = (int) ($_POST['producto_id'] ?? 0);
+        $varianteId = (int) ($_POST['variante_id'] ?? 0);
+        $cantidad   = (int) ($_POST['cantidad']    ?? 1);
+
+        if (!$productoId) {
+            echo json_encode(['disponible' => false, 'mensaje' => 'Producto inválido']);
+            exit();
+        }
+
+        if ($varianteId > 0) {
+            // Verificar stock de variante
+            $variante = $this->productoModel->findVarianteById($varianteId);
+            if (!$variante || !$variante->activo || $variante->stock < $cantidad) {
+                echo json_encode([
+                    'disponible' => false,
+                    'mensaje'    => 'Esta opción no está disponible en la cantidad solicitada.',
+                    'stock'      => $variante ? (int)$variante->stock : 0,
+                ]);
+                exit();
+            }
+        } else {
+            // Verificar stock de producto simple
+            $producto = $this->productoModel->findById($productoId);
+            if (!$producto->Found || !$producto->activo || $producto->stock < $cantidad) {
+                echo json_encode([
+                    'disponible' => false,
+                    'mensaje'    => 'Este producto no está disponible en la cantidad solicitada.',
+                    'stock'      => $producto->Found ? (int)$producto->stock : 0,
+                ]);
+                exit();
+            }
+        }
+
+        echo json_encode(['disponible' => true]);
+        exit();
+    }
+
+    // ─────────────────────────────────────────────
+    // CHECKOUT — crea pedido + venta + factura
     // ─────────────────────────────────────────────
     public function checkout(): void
     {
@@ -81,7 +135,8 @@ class TiendaController
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
             header('Location: ' . APP_URL . 'Tienda/carrito'); exit();
         }
-        if (!isset($_POST['csrf_token']) || $_SESSION['csrf_token'] !== $_POST['csrf_token']) {
+        if (!isset($_POST['csrf_token']) ||
+            !hash_equals($_SESSION['csrf_token'], $_POST['csrf_token'])) {
             header('Location: ' . APP_URL . 'Tienda/carrito'); exit();
         }
 
@@ -97,34 +152,99 @@ class TiendaController
             header('Location: ' . APP_URL . 'Tienda/carrito'); exit();
         }
 
-        $subtotal   = array_reduce($items, fn($sum, $i) => $sum + (float)$i['precio'] * (int)$i['cantidad'], 0);
+        // ── Validar stock de todos los items ──────
+        foreach ($items as $item) {
+            $pid = (int)($item['id']         ?? 0);
+            $vid = (int)($item['varianteId'] ?? 0);
+            $qty = (int)($item['cantidad']   ?? 1);
+
+            if ($vid > 0) {
+                $variante = $this->productoModel->findVarianteById($vid);
+                if (!$variante || $variante->stock < $qty) {
+                    $_SESSION['alert'] = [
+                        'icon'  => 'warning',
+                        'title' => 'Sin stock',
+                        'text'  => "El producto \"{$item['nombre']}\" no tiene suficiente stock.",
+                    ];
+                    header('Location: ' . APP_URL . 'Tienda/carrito'); exit();
+                }
+            } else {
+                $producto = $this->productoModel->findById($pid);
+                if (!$producto->Found || $producto->stock < $qty) {
+                    $_SESSION['alert'] = [
+                        'icon'  => 'warning',
+                        'title' => 'Sin stock',
+                        'text'  => "El producto \"{$item['nombre']}\" no tiene suficiente stock.",
+                    ];
+                    header('Location: ' . APP_URL . 'Tienda/carrito'); exit();
+                }
+            }
+        }
+
+        // ── Calcular totales ──────────────────────
+        $subtotal   = array_reduce(
+            $items, fn($sum, $i) => $sum + (float)$i['precio'] * (int)$i['cantidad'], 0
+        );
         $costoEnvio = 0;
 
         if ($tipoEntrega === 'Envio' && $zonaId) {
             $zona       = $this->zonaModel->findById($zonaId);
-            $costoEnvio = $zona ? (float)$zona['costo'] : 0;
+            $costoEnvio = $zona ? (float)($zona['costo'] ?? 0) : 0;
         }
 
-        $total   = $subtotal + $costoEnvio;
-        $codigo  = $this->pedidoModel->generarCodigo();
+        $total  = $subtotal + $costoEnvio;
+        $codigo = $this->pedidoModel->generarCodigo();
 
+        // ── Crear pedido ──────────────────────────
         $pedidoId = $this->pedidoModel->insert([
             'codigo'          => $codigo,
             'cliente_id'      => $clienteId,
-            'wa_numero'       => $waNumero ?: null,
+            'wa_numero'       => $waNumero    ?: null,
             'tipo_entrega'    => $tipoEntrega,
             'direccion_envio' => $tipoEntrega === 'Envio' ? $direccion : null,
             'zona_id'         => $zonaId,
             'subtotal'        => $subtotal,
             'costo_envio'     => $costoEnvio,
             'total'           => $total,
-            'nota'            => $nota ?: null,
+            'nota'            => $nota        ?: null,
         ]);
 
-        if ($pedidoId > 0) {
+        if ($pedidoId <= 0) {
+            header('Location: ' . APP_URL . 'Tienda/carrito?error=1'); exit();
+        }
+
+        // ── Insertar detalle del pedido ───────────
+        foreach ($items as $item) {
+            $this->pedidoModel->insertDetalle([
+                'pedido_id'       => $pedidoId,
+                'producto_id'     => $item['id'],
+                'variante_id'     => $item['varianteId'] ?? null,
+                'nombre_producto' => $item['nombre'],
+                'precio_unit'     => $item['precio'],
+                'cantidad'        => $item['cantidad'],
+                'subtotal'        => $item['precio'] * $item['cantidad'],
+            ]);
+        }
+
+        // ── Crear venta en sistema (como caja) ────
+        // user_id = 1 (sistema/tienda) — ajustar si tienes un usuario sistema
+        $ventaId = $this->ventaModel->insert([
+            'cliente_id'     => $clienteId,
+            'user_id'        => 1,
+            'metodo_pago'    => 'Transferencia',
+            'subtotal'       => $subtotal,
+            'descuento'      => 0,
+            'total'          => $total,
+            'monto_recibido' => $total,
+            'cambio'         => 0,
+            'nota'           => "Pedido tienda en línea #{$codigo}",
+        ]);
+
+        if ($ventaId > 0) {
+            // Insertar detalle de venta
             foreach ($items as $item) {
-                $this->pedidoModel->insertDetalle([
-                    'pedido_id'       => $pedidoId,
+                $this->ventaModel->insertDetalle([
+                    'venta_id'        => $ventaId,
                     'producto_id'     => $item['id'],
                     'variante_id'     => $item['varianteId'] ?? null,
                     'nombre_producto' => $item['nombre'],
@@ -133,41 +253,64 @@ class TiendaController
                     'subtotal'        => $item['precio'] * $item['cantidad'],
                 ]);
             }
-
-            // ── Notificación al panel ─────────────
-            $clienteNombre = $_SESSION['cliente']['nombre'] ?? 'Cliente';
-            $this->notifModel->nuevoPedido($codigo, $clienteNombre, $total);
-
-            $_SESSION['pedido_exitoso'] = $pedidoId;
-            header('Location: ' . APP_URL . 'Tienda/pedidoExitoso');
-        } else {
-            header('Location: ' . APP_URL . 'Tienda/carrito?error=1');
         }
+
+        // ── Descontar stock de cada producto ──────
+        foreach ($items as $item) {
+            $vid = (int)($item['varianteId'] ?? 0);
+            $qty = (int)($item['cantidad']   ?? 1);
+            if ($vid > 0) {
+                $this->productoModel->updateVarianteStock($vid, $qty);
+            } else {
+                $this->productoModel->updateStock((int)$item['id'], $qty);
+            }
+        }
+
+        // ── Notificación al panel ─────────────────
+        $clienteNombre = $_SESSION['cliente']['nombre'] ?? 'Cliente';
+        $this->notifModel->nuevoPedido($codigo, $clienteNombre, $total);
+
+        // ── Guardar datos para vista de éxito ─────
+        $_SESSION['pedido_exitoso'] = [
+            'pedido_id' => $pedidoId,
+            'venta_id'  => $ventaId,
+        ];
+
+        header('Location: ' . APP_URL . 'Tienda/pedidoExitoso');
         exit();
     }
 
     public function pedidoExitoso(): void
     {
-        $pedidoId = $_SESSION['pedido_exitoso'] ?? null;
-        if (!$pedidoId) { header('Location: ' . APP_URL . 'Tienda/index'); exit(); }
+        $datos = $_SESSION['pedido_exitoso'] ?? null;
+        if (!$datos) {
+            header('Location: ' . APP_URL . 'Tienda/index'); exit();
+        }
         unset($_SESSION['pedido_exitoso']);
-        $pedido    = $this->pedidoModel->findById((int) $pedidoId);
-        $detalle   = $this->pedidoModel->findDetalle((int) $pedidoId);
-        $pageTitle = 'Pedido confirmado';
-        $this->render('PedidoExitoso.php', compact('pageTitle','pedido','detalle'));
+
+        $pedidoId = is_array($datos) ? (int)$datos['pedido_id'] : (int)$datos;
+        $ventaId  = is_array($datos) ? (int)($datos['venta_id'] ?? 0) : 0;
+
+        $pedido        = $this->pedidoModel->findById($pedidoId);
+        $detalle       = $this->pedidoModel->findDetalle($pedidoId);
+        $factConfig    = $this->ventaModel->getFacturacionConfig();
+        $pageTitle     = 'Pedido confirmado';
+
+        $this->render('pedido_exitoso.php', compact(
+            'pageTitle','pedido','detalle','ventaId','factConfig'
+        ));
     }
 
     public function misPedidos(): void
     {
         $this->requireCliente();
         $pageTitle = 'Mis Pedidos';
-        $pedidos   = $this->pedidoModel->findByCliente((int)$_SESSION['cliente']['id']);
-        $this->render('MisPedidos.php', compact('pageTitle','pedidos'));
+        $pedidos   = $this->pedidoModel->findByCliente(
+            (int)$_SESSION['cliente']['id']
+        );
+        $this->render('mis_pedidos.php', compact('pageTitle','pedidos'));
     }
 
-    // ─────────────────────────────────────────────
-    // CITAS — Calendario público
-    // ─────────────────────────────────────────────
     public function citas(): void
     {
         $pageTitle = 'Agendar Cita';
@@ -179,28 +322,31 @@ class TiendaController
         if ($mes > 12) { $mes = 1;  $anio++; }
         $citasMes      = $this->citaModel->findByMes($anio, $mes);
         $citasPorFecha = [];
-        foreach ($citasMes as $cita) { $citasPorFecha[$cita['fecha']][] = $cita; }
-        $this->render('Citas.php', compact('pageTitle','config','servicios','anio','mes','citasPorFecha'));
+        foreach ($citasMes as $cita) {
+            $citasPorFecha[$cita['fecha']][] = $cita;
+        }
+        $this->render('citas.php', compact(
+            'pageTitle','config','servicios','anio','mes','citasPorFecha'
+        ));
     }
 
-    // ─────────────────────────────────────────────
-    // AGENDAR CITA — genera cita + notificación
-    // ─────────────────────────────────────────────
     public function agendarCita(): void
     {
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
             header('Location: ' . APP_URL . 'Tienda/citas'); exit();
         }
-        if (!isset($_POST['csrf_token']) || $_SESSION['csrf_token'] !== $_POST['csrf_token']) {
+        if (!isset($_POST['csrf_token']) ||
+            !hash_equals($_SESSION['csrf_token'], $_POST['csrf_token'])) {
             header('Location: ' . APP_URL . 'Tienda/citas'); exit();
         }
 
-        $clienteId  = !empty($_SESSION['cliente']['id']) ? (int)$_SESSION['cliente']['id'] : null;
-        $servicioId = (int) ($_POST['servicio_id'] ?? 0);
+        $clienteId  = !empty($_SESSION['cliente']['id'])
+            ? (int)$_SESSION['cliente']['id'] : null;
+        $servicioId = (int)  ($_POST['servicio_id'] ?? 0);
         $fecha      = htmlspecialchars(strip_tags(trim($_POST['fecha']       ?? '')));
         $hora       = htmlspecialchars(strip_tags(trim($_POST['hora_inicio'] ?? '')));
-        $duracion   = (int) ($_POST['duracion'] ?? 60);
-        $precio     = (float) ($_POST['precio'] ?? 0);
+        $duracion   = (int)  ($_POST['duracion'] ?? 60);
+        $precio     = (float)($_POST['precio']   ?? 0);
         $nota       = htmlspecialchars(strip_tags(trim($_POST['nota']        ?? '')));
 
         if (!$servicioId || !$fecha || !$hora) {
@@ -208,7 +354,7 @@ class TiendaController
         }
 
         $config    = $this->citaModel->getConfig();
-        $capacidad = (int) ($config['capacidad_simultanea'] ?? 1);
+        $capacidad = (int)($config['capacidad_simultanea'] ?? 1);
         $ocupadas  = $this->citaModel->verificarDisponibilidad($fecha, $hora, $duracion, 0);
 
         if ($ocupadas >= $capacidad) {
@@ -227,19 +373,14 @@ class TiendaController
         ]);
 
         if ($citaId > 0) {
-            // ── Notificación al panel ─────────────
             $servicio      = $this->servicioModel->findById($servicioId);
             $clienteNombre = $_SESSION['cliente']['nombre'] ?? 'Cliente sin cuenta';
-            $fechaFormato  = date('d/m/Y', strtotime($fecha));
-            $horaFormato   = date('h:i A', strtotime($hora));
-
             $this->notifModel->nuevaCita(
                 $clienteNombre,
                 $servicio->nombre ?? 'Servicio',
-                $fechaFormato,
-                $horaFormato
+                date('d/m/Y', strtotime($fecha)),
+                date('h:i A', strtotime($hora))
             );
-
             $_SESSION['cita_exitosa'] = $citaId;
         }
 
@@ -250,39 +391,48 @@ class TiendaController
     public function citaExitosa(): void
     {
         $citaId = $_SESSION['cita_exitosa'] ?? null;
-        if (!$citaId) { header('Location: ' . APP_URL . 'Tienda/citas'); exit(); }
+        if (!$citaId) {
+            header('Location: ' . APP_URL . 'Tienda/citas'); exit();
+        }
         unset($_SESSION['cita_exitosa']);
         $cita      = $this->citaModel->findById((int) $citaId);
         $pageTitle = 'Cita agendada';
-        $this->render('CitasExitosas.php', compact('pageTitle','cita'));
+        $this->render('cita_exitosa.php', compact('pageTitle','cita'));
     }
 
     public function misCitas(): void
     {
         $this->requireCliente();
         $pageTitle = 'Mis Citas';
-        $citas     = $this->citaModel->findByCliente((int)$_SESSION['cliente']['id']);
-        $this->render('MisCitas.php', compact('pageTitle','citas'));
+        $citas     = $this->citaModel->findByCliente(
+            (int)$_SESSION['cliente']['id']
+        );
+        $this->render('mis_citas.php', compact('pageTitle','citas'));
     }
 
     public function registro(): void
     {
-        if (!empty($_SESSION['cliente'])) { header('Location: ' . APP_URL . 'Tienda/index'); exit(); }
+        if (!empty($_SESSION['cliente'])) {
+            header('Location: ' . APP_URL . 'Tienda/index'); exit();
+        }
         $pageTitle = 'Crear cuenta';
         $error     = $_GET['error'] ?? null;
-        $this->render('Registro.php', compact('pageTitle','error'));
+        $this->render('registro.php', compact('pageTitle','error'));
     }
 
     public function guardarRegistro(): void
     {
-        if ($_SERVER['REQUEST_METHOD'] !== 'POST') { header('Location: ' . APP_URL . 'Tienda/registro'); exit(); }
-        if (!isset($_POST['csrf_token']) || $_SESSION['csrf_token'] !== $_POST['csrf_token']) {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            header('Location: ' . APP_URL . 'Tienda/registro'); exit();
+        }
+        if (!isset($_POST['csrf_token']) ||
+            !hash_equals($_SESSION['csrf_token'], $_POST['csrf_token'])) {
             header('Location: ' . APP_URL . 'Tienda/registro?error=csrf'); exit();
         }
 
-        $nombre    = htmlspecialchars(strip_tags(trim($_POST['nombre']    ?? '')));
-        $email     = htmlspecialchars(strip_tags(trim($_POST['email']     ?? '')));
-        $telefono  = htmlspecialchars(strip_tags(trim($_POST['telefono']  ?? '')));
+        $nombre    = htmlspecialchars(strip_tags(trim($_POST['nombre']   ?? '')));
+        $email     = htmlspecialchars(strip_tags(trim($_POST['email']    ?? '')));
+        $telefono  = htmlspecialchars(strip_tags(trim($_POST['telefono'] ?? '')));
         $password  = trim($_POST['password']  ?? '');
         $password2 = trim($_POST['password2'] ?? '');
 
@@ -297,10 +447,11 @@ class TiendaController
         }
 
         $id = $this->clienteModel->insert([
-            'nombre'   => $nombre,
-            'email'    => $email,
-            'telefono' => $telefono ?: null,
-            'password' => password_hash($password, PASSWORD_BCRYPT),
+            'nombre'    => $nombre,
+            'email'     => $email,
+            'telefono'  => $telefono ?: null,
+            'direccion' => null,
+            'password'  => password_hash($password, PASSWORD_BCRYPT),
         ]);
 
         if ($id > 0) {
@@ -320,15 +471,19 @@ class TiendaController
 
     public function login(): void
     {
-        if (!empty($_SESSION['cliente'])) { header('Location: ' . APP_URL . 'Tienda/index'); exit(); }
+        if (!empty($_SESSION['cliente'])) {
+            header('Location: ' . APP_URL . 'Tienda/index'); exit();
+        }
         $pageTitle = 'Iniciar sesión';
         $error     = $_GET['error'] ?? null;
-        $this->render('Login.php', compact('pageTitle','error'));
+        $this->render('login.php', compact('pageTitle','error'));
     }
 
     public function procesarLogin(): void
     {
-        if ($_SERVER['REQUEST_METHOD'] !== 'POST') { header('Location: ' . APP_URL . 'Tienda/login'); exit(); }
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            header('Location: ' . APP_URL . 'Tienda/login'); exit();
+        }
 
         $ip = $_SERVER['REMOTE_ADDR'] ?? '0.0.0.0';
         if (!RateLimiter::check($ip)) {
@@ -350,7 +505,6 @@ class TiendaController
         }
 
         RateLimiter::limpiar($ip);
-
         $_SESSION['cliente'] = [
             'id'       => $cliente->id,
             'nombre'   => $cliente->nombre,
