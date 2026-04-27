@@ -37,7 +37,7 @@ class TiendaController
         $combos              = $this->comboModel->findActivos();
         $categorias          = $this->categoriaModel->findAll();
         $productosDestacados = array_slice($productos, 0, 8);
-        $this->render('inicio.php', compact(
+        $this->render('Inicio.php', compact(
             'pageTitle','banners','productosDestacados','combos','categorias'
         ));
     }
@@ -53,7 +53,7 @@ class TiendaController
                 $productos, fn($p) => (int)$p->categoria_id === $categoriaId
             ));
         }
-        $this->render('catalogo.php', compact(
+        $this->render('Catalogo.php', compact(
             'pageTitle','productos','categorias','categoriaId'
         ));
     }
@@ -69,14 +69,14 @@ class TiendaController
         }
         $variantes = $this->productoModel->findVariantes((int) $id);
         $pageTitle = $producto->nombre;
-        $this->render('producto.php', compact('pageTitle','producto','variantes'));
+        $this->render('Producto.php', compact('pageTitle','producto','variantes'));
     }
 
     public function carrito(): void
     {
         $pageTitle = 'Carrito';
         $zonas     = $this->zonaModel->findActivas();
-        $this->render('carrito.php', compact('pageTitle','zonas'));
+        $this->render('Carrito.php', compact('pageTitle','zonas'));
     }
 
     // ─────────────────────────────────────────────
@@ -296,7 +296,7 @@ class TiendaController
         $factConfig    = $this->ventaModel->getFacturacionConfig();
         $pageTitle     = 'Pedido confirmado';
 
-        $this->render('pedido_exitoso.php', compact(
+        $this->render('Pedido_Exitoso.php', compact(
             'pageTitle','pedido','detalle','ventaId','factConfig'
         ));
     }
@@ -308,7 +308,7 @@ class TiendaController
         $pedidos   = $this->pedidoModel->findByCliente(
             (int)$_SESSION['cliente']['id']
         );
-        $this->render('mis_pedidos.php', compact('pageTitle','pedidos'));
+        $this->render('Mis_Pedidos.php', compact('pageTitle','pedidos'));
     }
 
     public function citas(): void
@@ -325,7 +325,7 @@ class TiendaController
         foreach ($citasMes as $cita) {
             $citasPorFecha[$cita['fecha']][] = $cita;
         }
-        $this->render('citas.php', compact(
+        $this->render('Citas.php', compact(
             'pageTitle','config','servicios','anio','mes','citasPorFecha'
         ));
     }
@@ -397,7 +397,7 @@ class TiendaController
         unset($_SESSION['cita_exitosa']);
         $cita      = $this->citaModel->findById((int) $citaId);
         $pageTitle = 'Cita agendada';
-        $this->render('cita_exitosa.php', compact('pageTitle','cita'));
+        $this->render('Cita_Exitosa.php', compact('pageTitle','cita'));
     }
 
     public function misCitas(): void
@@ -407,7 +407,7 @@ class TiendaController
         $citas     = $this->citaModel->findByCliente(
             (int)$_SESSION['cliente']['id']
         );
-        $this->render('mis_citas.php', compact('pageTitle','citas'));
+        $this->render('Mis_Citas.php', compact('pageTitle','citas'));
     }
 
     public function registro(): void
@@ -417,7 +417,7 @@ class TiendaController
         }
         $pageTitle = 'Crear cuenta';
         $error     = $_GET['error'] ?? null;
-        $this->render('registro.php', compact('pageTitle','error'));
+        $this->render('Registro.php', compact('pageTitle','error'));
     }
 
     public function guardarRegistro(): void
@@ -476,7 +476,7 @@ class TiendaController
         }
         $pageTitle = 'Iniciar sesión';
         $error     = $_GET['error'] ?? null;
-        $this->render('login.php', compact('pageTitle','error'));
+        $this->render('Login.php', compact('pageTitle','error'));
     }
 
     public function procesarLogin(): void
