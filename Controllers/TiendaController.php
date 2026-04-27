@@ -302,7 +302,7 @@ class TiendaController
         $factConfig    = $this->ventaModel->getFacturacionConfig();
         $pageTitle     = 'Pedido confirmado';
 
-        $this->render('Pedido_Exitoso.php', compact(
+        $this->render('PedidoExitoso.php', compact(
             'pageTitle','pedido','detalle','ventaId','factConfig'
         ));
     }
