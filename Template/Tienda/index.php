@@ -397,57 +397,68 @@
 
     <!-- ─── FOOTER ─────────────────────────────────── -->
     <footer class="tienda-footer">
-        <div class="container">
-            <div class="row g-4">
-                <div class="col-12 col-md-4">
-                    <h5 class="text-white mb-3">
-                        <i class="fas fa-spa me-2" style="color:#de777d;"></i>
-                        Ana Marcol Makeup Studio
-                    </h5>
-                    <p style="font-size:0.85rem;">
-                        Tu estudio de maquillaje de confianza en Santa Barbara. Belleza profesional para cada ocasión.
-                    </p>
-                </div>
-                <div class="col-6 col-md-2">
-                    <h6 class="text-white mb-3">Tienda</h6>
-                    <ul class="list-unstyled" style="font-size:0.85rem;">
-                        <li><a href="<?= APP_URL ?>Tienda/catalogo">Catálogo</a></li>
-                        <li><a href="<?= APP_URL ?>Tienda/citas">Agendar cita</a></li>
-                        <li><a href="<?= APP_URL ?>Tienda/carrito">Carrito</a></li>
-                    </ul>
-                </div>
-                <div class="col-6 col-md-3">
-                    <h6 class="text-white mb-3">Contacto</h6>
-                    <ul class="list-unstyled" style="font-size:0.85rem;">
-                        <li><i class="fas fa-phone me-2" style="color:#de777d;"></i>9987-3125</li>
-                        <li class="mt-1">
-                            <i class="fab fa-whatsapp me-2" style="color:#25d366;"></i>
-                            <a href="https://wa.me/<?= WA_NUMBER ?>" target="_blank">WhatsApp</a>
-                        </li>
-                        <li class="mt-1">
-                            <i class="fas fa-map-marker-alt me-2" style="color:#de777d;"></i>
-                            Barrio Abajo, Av. La Libertad
-                        </li>
-                    </ul>
-                </div>
-                <div class="col-12 col-md-3">
-                    <h6 class="text-white mb-3">Síguenos</h6>
-                    <div class="d-flex gap-3" style="font-size:1.5rem;">
-                        <a href="#" title="Instagram"><i class="fab fa-instagram" style="color:#de777d;"></i></a>
-                        <a href="#" title="Facebook"><i class="fab fa-facebook" style="color:#de777d;"></i></a>
-                        <a href="https://wa.me/<?= WA_NUMBER ?>" target="_blank" title="WhatsApp">
-                            <i class="fab fa-whatsapp" style="color:#25d366;"></i>
-                        </a>
-                    </div>
-                </div>
+    <div class="container">
+        <div class="row g-4">
+            <div class="col-12 col-md-4">
+                <h5 class="text-white mb-3">
+                    <i class="fas fa-spa me-2" style="color:#de777d;"></i>
+                    Ana Marcol Makeup Studio
+                </h5>
+                <p style="font-size:0.85rem;">
+                    Tu estudio de maquillaje de confianza. Belleza profesional para cada ocasión.
+                </p>
             </div>
-            <hr style="border-color:#555; margin: 20px 0;">
-            <div class="text-center" style="font-size:0.8rem;">
-                &copy; <?= date('Y') ?> Ana Marcol Makeup Studio.
-                Desarrollado por <a href="#">DeskCod</a>
+            <div class="col-6 col-md-2">
+                <h6 class="text-white mb-3">Tienda</h6>
+                <ul class="list-unstyled" style="font-size:0.85rem;">
+                    <li><a href="<?= APP_URL ?>Tienda/catalogo">Catálogo</a></li>
+                    <li><a href="<?= APP_URL ?>Tienda/citas">Agendar cita</a></li>
+                    <li><a href="<?= APP_URL ?>Tienda/carrito">Carrito</a></li>
+                </ul>
+            </div>
+            <div class="col-6 col-md-3">
+                <h6 class="text-white mb-3">Contacto</h6>
+                <ul class="list-unstyled" style="font-size:0.85rem;">
+                    <li>
+                        <a href="https://wa.me/50499873125" target="_blank"
+                           style="color:#ccc; text-decoration:none;">
+                            <i class="fab fa-whatsapp me-2" style="color:#25d366;"></i>
+                            +(504) 9987-3125
+                        </a>
+                    </li>
+                    <li class="mt-2">
+                        <a href="https://www.instagram.com/anamarcol_makeupstudio?igsh=MWc2eGM0ZTJ2eGh0"
+                           target="_blank" style="color:#ccc; text-decoration:none;">
+                            <i class="fab fa-instagram me-2" style="color:#de777d;"></i>
+                            @anamarcol_makeupstudio
+                        </a>
+                    </li>
+                </ul>
+            </div>
+            <div class="col-12 col-md-3">
+                <h6 class="text-white mb-3">Síguenos</h6>
+                <div class="d-flex gap-3" style="font-size:1.5rem;">
+                    <a href="https://www.instagram.com/anamarcol_makeupstudio?igsh=MWc2eGM0ZTJ2eGh0"
+                       target="_blank" title="Instagram">
+                        <i class="fab fa-instagram" style="color:#de777d;"></i>
+                    </a>
+                    <a href="https://wa.me/50499873125" target="_blank" title="WhatsApp">
+                        <i class="fab fa-whatsapp" style="color:#25d366;"></i>
+                    </a>
+                </div>
+                <p class="mt-3" style="font-size:0.8rem;">
+                    Desarrollado por
+                    <a href="https://wa.me/50493429640" target="_blank">DeskCod</a>
+                </p>
             </div>
         </div>
-    </footer>
+        <hr style="border-color:#555; margin: 20px 0;">
+        <div class="text-center" style="font-size:0.8rem;">
+            &copy; <?= date('Y') ?> Ana Marcol Makeup Studio.
+            Todos los derechos reservados.
+        </div>
+    </div>
+</footer>
 
     <!-- Toast carrito -->
     <div class="toast-carrito" id="toastCarrito">
