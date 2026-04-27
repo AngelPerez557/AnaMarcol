@@ -98,17 +98,24 @@
                         <i class="fas fa-eye me-1"></i>Ver opciones
                     </a>
                     <?php else: ?>
-                    <button type="button"
-                            class="btn-rosa w-100"
-                            onclick="agregarAlCarrito(
-                                <?= $p->id ?>,
-                                '<?= addslashes(htmlspecialchars($p->nombre)) ?>',
-                                <?= $p->precio_base ?>,
-                                '<?= $p->getImageUrl() ?>',
-                                null, null)">
-                        <i class="fas fa-cart-plus me-1"></i>Agregar
-                    </button>
-                    <?php endif; ?>
+                <?php if ((int)$p->stock <= 0): ?>
+                <button type="button" class="btn-rosa w-100" disabled
+                        style="opacity:0.5; cursor:not-allowed; background:#aaa; border:none;">
+                    <i class="fas fa-times-circle me-1"></i>Agotado
+                </button>
+                <?php else: ?>
+                <button type="button"
+                        class="btn-rosa w-100"
+                        onclick="agregarAlCarrito(
+                            <?= $p->id ?>,
+                            '<?= addslashes(htmlspecialchars($p->nombre)) ?>',
+                            <?= $p->precio_base ?>,
+                            '<?= $p->getImageUrl() ?>',
+                            null, null)">
+                    <i class="fas fa-cart-plus me-1"></i>Agregar
+                </button>
+                <?php endif; ?>
+            <?php endif; ?>
                 </div>
             </div>
         </div>
