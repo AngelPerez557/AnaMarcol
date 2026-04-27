@@ -122,7 +122,20 @@
                                 <span style="color:#de777d;" id="resumenTotal">L. 0.00</span>
                             </div>
                         </div>
-
+                        <!-- Método de pago -->
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">Método de pago</label>
+                            <div class="d-flex gap-2">
+                                <button type="button" class="btn-tipo-entrega activo flex-fill"
+                                        data-metodo="Transferencia" id="btnTransferencia">
+                                    <i class="fas fa-mobile-alt me-1"></i>Transferencia
+                                </button>
+                                <button type="button" class="btn-tipo-entrega flex-fill"
+                                        data-metodo="Efectivo" id="btnEfectivo">
+                                    <i class="fas fa-money-bill me-1"></i>Efectivo
+                                </button>
+                            </div>
+                        </div>
                         <!-- Botón confirmar -->
                         <button type="button" class="btn-rosa w-100 mt-3" id="btnConfirmarPedido"
                                 style="padding:12px; font-size:1rem;">
