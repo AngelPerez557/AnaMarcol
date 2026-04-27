@@ -6,8 +6,8 @@
     <title><?= $pageTitle ?? APP_NAME ?> | Ana Marcol Makeup Studio</title>
     <link rel="icon" type="image/png" href="<?= APP_URL ?>Content/Demo/img/Logo2.png">
 
-    <!-- Bootstrap 5 -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap 5 (local) -->
+    <link href="<?= APP_URL ?>Content/Dist/css/bootstrap5.min.css" rel="stylesheet">
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- CSS Tienda -->
@@ -455,8 +455,8 @@
         <span id="toastCarritoMsg">Producto agregado</span>
     </div>
 
-    <!-- Bootstrap JS -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Bootstrap JS (local) -->
+    <script src="<?= APP_URL ?>Content/Dist/js/bootstrap5.bundle.min.js"></script>
     <!-- SweetAlert2 -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
