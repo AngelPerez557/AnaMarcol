@@ -546,11 +546,11 @@ class TiendaController
         $urlActual = strtolower(trim($_GET['url'] ?? '', '/'));
 
         ob_start();
-        require_once VIEWS_PATH . 'Tienda' . DS . $vista;
+        require VIEWS_PATH . 'Tienda' . DS . $vista;
         $content = ob_get_clean();
 
         ob_start();
-        require_once ROOT . 'Template' . DS . 'Tienda' . DS . 'index.php';
+        require ROOT . 'Template' . DS . 'Tienda' . DS . 'index.php';
         $template = ob_get_clean();
 
         $output = str_replace('{JBODY}',    $content, $template);
