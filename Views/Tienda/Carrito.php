@@ -20,7 +20,7 @@
             <!-- Lista de productos -->
             <div class="col-12 col-lg-7">
                 <div class="card">
-                    <div class="card-body p-0">
+                    <div class="card-body p-0 tabla-carrito-wrap">
                         <table class="table align-middle mb-0" id="tablaCarrito">
                             <thead>
                                 <tr style="background:rgba(222,119,125,0.08);">
@@ -166,6 +166,35 @@
     border-color: #de777d;
     background: #de777d;
     color: #fff;
+}
+
+/* ── Tabla carrito responsive ── */
+.tabla-carrito-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+
+@media (max-width: 575px) {
+    /* Ocultar columna precio unitario en móvil */
+    #tablaCarrito th:nth-child(3),
+    #tablaCarrito td:nth-child(3) { display: none; }
+
+    /* Texto más compacto */
+    #tablaCarrito { font-size: 0.82rem; min-width: 0; }
+    #tablaCarrito td, #tablaCarrito th { padding: 8px 6px; }
+
+    /* Imagen de producto más pequeña */
+    #tablaCarrito .d-flex > div:first-child {
+        width: 36px !important;
+        height: 36px !important;
+    }
+
+    /* Botones de cantidad */
+    #tablaCarrito button[onclick*="cambiarCantidad"] {
+        width: 22px !important;
+        height: 22px !important;
+        font-size: 0.8rem !important;
+    }
+
+    /* El card del resumen ocupa todo el ancho y queda legible */
+    .col-12.col-lg-5 .card-body { padding: 1rem !important; }
 }
 </style>
 

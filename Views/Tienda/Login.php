@@ -6,7 +6,7 @@
                     <div class="text-center mb-4">
                         <img src="<?= APP_URL ?>Content/Demo/img/Logo.png"
                              alt="<?= APP_NAME ?>"
-                             style="height:64px; width:auto; object-fit:contain; margin-bottom:12px;">
+                             style="height:44px; width:auto; object-fit:contain; margin-bottom:12px;">
                         <h4 class="fw-bold">Iniciar sesión</h4>
                         <p class="text-muted" style="font-size:0.85rem;">Accede a tu cuenta</p>
                     </div>

@@ -5,6 +5,14 @@ Options -Indexes
 ServerSignature Off
 
 # ─────────────────────────────────────────────
+# LÍMITES DE SUBIDA DE ARCHIVOS
+# ─────────────────────────────────────────────
+php_value upload_max_filesize 10M
+php_value post_max_size 15M
+php_value memory_limit 128M
+php_value max_execution_time 60
+
+# ─────────────────────────────────────────────
 # MOTOR DE REESCRITURA
 # ─────────────────────────────────────────────
 RewriteEngine On

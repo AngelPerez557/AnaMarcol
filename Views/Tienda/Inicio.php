@@ -48,7 +48,7 @@
         </a>
         <?php foreach ($categorias as $cat): ?>
         <?php if ($cat->activo): ?>
-        <a href="<?= APP_URL ?>Tienda/catalogo?categoria=<?= $cat->id ?>"
+        <a href="<?= APP_URL ?>Tienda/catalogo/<?= $cat->id ?>"
            class="chip-categoria">
             <?= htmlspecialchars($cat->nombre) ?>
         </a>
@@ -76,13 +76,13 @@
         <?php foreach ($productosDestacados as $p): ?>
         <div class="col-12 col-sm-6 col-md-4 col-lg-3">
             <div class="producto-card">
-                <a href="<?= APP_URL ?>Tienda/producto/<?= $p->id ?>">
+                <a href="<?= APP_URL ?>Tienda/producto/<?= $p->id ?>-<?= slugify($p->nombre) ?>">
                     <div class="producto-img"
                          style="background-image:url('<?= $p->getImageUrl() ?>');">
                     </div>
                 </a>
                 <div class="p-3">
-                    <a href="<?= APP_URL ?>Tienda/producto/<?= $p->id ?>"
+                    <a href="<?= APP_URL ?>Tienda/producto/<?= $p->id ?>-<?= slugify($p->nombre) ?>"
                        style="text-decoration:none; color:inherit;">
                         <h6 class="fw-semibold mb-1"><?= htmlspecialchars($p->nombre) ?></h6>
                     </a>
@@ -93,7 +93,7 @@
                         L. <?= number_format((float)$p->precio_base, 2) ?>
                     </div>
                     <?php if ($p->tieneVariantes()): ?>
-                    <a href="<?= APP_URL ?>Tienda/producto/<?= $p->id ?>"
+                    <a href="<?= APP_URL ?>Tienda/producto/<?= $p->id ?>-<?= slugify($p->nombre) ?>"
                        class="btn-rosa w-100 d-block text-center" style="border-radius:8px; padding:8px;">
                         <i class="fas fa-eye me-1"></i>Ver opciones
                     </a>
@@ -148,6 +148,39 @@
                         <?php endif; ?>
                     </div>
                 </div>
+            </div>
+            <?php endforeach; ?>
+        </div>
+    </div>
+</div>
+<?php endif; ?>
+
+<!-- ─── GALERÍA CLIENTES ──────────────────────── -->
+<?php if (!empty($galeria)): ?>
+<div style="background:#f5e6e7; padding:50px 0;">
+    <div class="container">
+        <h3 class="fw-bold mb-2 text-center">Nuestros trabajos</h3>
+        <p class="text-center text-muted mb-4" style="font-size:0.9rem;">Resultados reales de nuestras clientas</p>
+        <div class="row g-2">
+            <?php foreach ($galeria as $foto): ?>
+            <div class="col-6 col-sm-4 col-md-3">
+                <div style="
+                    height: 200px;
+                    border-radius: 12px;
+                    overflow: hidden;
+                    background-image: url('<?= APP_URL ?>Content/Demo/img/Galeria/<?= htmlspecialchars($foto['imagen_url']) ?>');
+                    background-size: cover;
+                    background-position: center;
+                    transition: transform 0.3s;
+                    cursor: pointer;"
+                    onmouseover="this.style.transform='scale(1.03)'"
+                    onmouseout="this.style.transform='scale(1)'">
+                </div>
+                <?php if (!empty($foto['descripcion'])): ?>
+                <small class="text-muted d-block text-center mt-1" style="font-size:0.75rem;">
+                    <?= htmlspecialchars($foto['descripcion']) ?>
+                </small>
+                <?php endif; ?>
             </div>
             <?php endforeach; ?>
         </div>

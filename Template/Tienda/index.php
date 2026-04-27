@@ -242,6 +242,58 @@
         .dia-disponible  { background: rgba(40,167,69,0.15) !important; border-color: #28a745 !important; cursor: pointer; }
         .dia-ocupado     { background: rgba(220,53,69,0.08) !important; color: #aaa !important; cursor: not-allowed; }
         .dia-no-laboral  { background: rgba(0,0,0,0.03) !important; color: #ccc !important; cursor: not-allowed; }
+
+        /* ── DROPDOWN CLIENTE (colores tienda) ── */
+        .dropdown-tienda .dropdown-toggle {
+            background: transparent;
+            border: 1.5px solid var(--rosa);
+            color: var(--rosa);
+            border-radius: 20px;
+            padding: 6px 14px;
+            font-weight: 600;
+            font-size: 0.85rem;
+            transition: all 0.2s;
+        }
+        .dropdown-tienda .dropdown-toggle:hover,
+        .dropdown-tienda .dropdown-toggle:focus,
+        .dropdown-tienda .dropdown-toggle:active,
+        .dropdown-tienda .show > .dropdown-toggle {
+            background: var(--rosa) !important;
+            color: #fff !important;
+            border-color: var(--rosa) !important;
+            box-shadow: none !important;
+        }
+        .dropdown-tienda .dropdown-menu {
+            background: #fff;
+            border: 1.5px solid var(--rosa-soft);
+            border-radius: 12px;
+            box-shadow: 0 8px 24px rgba(222,119,125,0.18);
+            padding: 6px;
+            min-width: 180px;
+            margin-top: 6px;
+        }
+        .dropdown-tienda .dropdown-item {
+            border-radius: 8px;
+            color: #555;
+            font-weight: 500;
+            padding: 8px 14px;
+            transition: all 0.15s;
+        }
+        .dropdown-tienda .dropdown-item:hover {
+            background: var(--rosa-soft);
+            color: var(--rosa);
+        }
+        .dropdown-tienda .dropdown-item i {
+            color: var(--rosa);
+        }
+        .dropdown-tienda .dropdown-divider {
+            border-color: var(--rosa-soft);
+            margin: 4px 0;
+        }
+        .dropdown-tienda .dropdown-item.text-danger:hover {
+            background: #fdecea;
+            color: #dc3545 !important;
+        }
     </style>
 </head>
 <body>
@@ -288,9 +340,9 @@
 
                     <!-- Cliente logueado -->
                     <?php if (!empty($_SESSION['cliente'])): ?>
-                    <div class="dropdown">
-                        <button class="btn btn-outline-secondary btn-sm dropdown-toggle" type="button"
-                                data-bs-toggle="dropdown">
+                    <div class="dropdown dropdown-tienda">
+                        <button class="dropdown-toggle" type="button"
+                                data-bs-toggle="dropdown" aria-expanded="false">
                             <i class="fas fa-user me-1"></i>
                             <?= htmlspecialchars($_SESSION['cliente']['nombre']) ?>
                         </button>

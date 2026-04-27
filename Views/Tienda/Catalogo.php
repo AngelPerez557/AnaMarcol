@@ -17,7 +17,7 @@
         </a>
         <?php foreach ($categorias as $cat): ?>
         <?php if ($cat->activo): ?>
-        <a href="<?= APP_URL ?>Tienda/catalogo?categoria=<?= $cat->id ?>"
+        <a href="<?= APP_URL ?>Tienda/catalogo/<?= $cat->id ?>"
            class="chip-categoria <?= $categoriaId === $cat->id ? 'activo' : '' ?>">
             <?= htmlspecialchars($cat->nombre) ?>
         </a>
@@ -50,13 +50,13 @@
         <div class="col-12 col-sm-6 col-md-4 col-lg-3 producto-item"
              data-nombre="<?= strtolower(htmlspecialchars($p->nombre)) ?>">
             <div class="producto-card h-100 d-flex flex-column">
-                <a href="<?= APP_URL ?>Tienda/producto/<?= $p->id ?>">
+                <a href="<?= APP_URL ?>Tienda/producto/<?= $p->id ?>-<?= slugify($p->nombre) ?>">
                     <div class="producto-img"
                          style="background-image:url('<?= $p->getImageUrl() ?>');">
                     </div>
                 </a>
                 <div class="p-3 flex-fill d-flex flex-column">
-                    <a href="<?= APP_URL ?>Tienda/producto/<?= $p->id ?>"
+                    <a href="<?= APP_URL ?>Tienda/producto/<?= $p->id ?>-<?= slugify($p->nombre) ?>"
                        style="text-decoration:none; color:inherit;">
                         <h6 class="fw-semibold mb-1"><?= htmlspecialchars($p->nombre) ?></h6>
                     </a>
@@ -72,7 +72,7 @@
                         L. <?= number_format((float)$p->precio_base, 2) ?>
                     </div>
                     <?php if ($p->tieneVariantes()): ?>
-                    <a href="<?= APP_URL ?>Tienda/producto/<?= $p->id ?>"
+                    <a href="<?= APP_URL ?>Tienda/producto/<?= $p->id ?>-<?= slugify($p->nombre) ?>"
                     class="btn-rosa d-block text-center text-decoration-none">
                         <i class="fas fa-eye me-1"></i>Ver opciones
                     </a>

@@ -139,3 +139,20 @@ if (APP_ENV === 'development') {
     error_reporting(0);
     ini_set('log_errors', 1);
 }
+
+// ─────────────────────────────────────────────
+// HELPERS GLOBALES
+// ─────────────────────────────────────────────
+
+if (!function_exists('slugify')) {
+    function slugify(string $text): string
+    {
+        $text = mb_strtolower($text, 'UTF-8');
+        $map  = ['á'=>'a','é'=>'e','í'=>'i','ó'=>'o','ú'=>'u',
+                 'ñ'=>'n','ü'=>'u','à'=>'a','è'=>'e','ì'=>'i','ò'=>'o','ù'=>'u'];
+        $text = strtr($text, $map);
+        $text = preg_replace('/[^a-z0-9\s-]/', '', $text);
+        $text = preg_replace('/[\s-]+/', '-', $text);
+        return trim($text, '-');
+    }
+}

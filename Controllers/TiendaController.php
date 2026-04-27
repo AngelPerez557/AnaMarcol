@@ -13,6 +13,7 @@ class TiendaController
     private ZonaModel         $zonaModel;
     private NotificacionModel $notifModel;
     private VentaModel        $ventaModel;
+    private GaleriaModel      $galeriaModel;
 
     public function __construct()
     {
@@ -27,6 +28,7 @@ class TiendaController
         $this->zonaModel      = new ZonaModel();
         $this->notifModel     = new NotificacionModel();
         $this->ventaModel     = new VentaModel();
+        $this->galeriaModel   = new GaleriaModel();
     }
 
     public function index(): void
@@ -36,16 +38,18 @@ class TiendaController
         $productos           = $this->productoModel->findActivos();
         $combos              = $this->comboModel->findActivos();
         $categorias          = $this->categoriaModel->findAll();
+        $galeria             = $this->galeriaModel->findActivas();
         $productosDestacados = array_slice($productos, 0, 8);
         $this->render('Inicio.php', compact(
-            'pageTitle','banners','productosDestacados','combos','categorias'
+            'pageTitle','banners','productosDestacados','combos','categorias','galeria'
         ));
     }
 
-    public function catalogo(): void
+    public function catalogo(string $catId = ''): void
     {
         $pageTitle   = 'Catálogo';
-        $categoriaId = (int) ($_GET['categoria'] ?? 0);
+        // Acepta /Tienda/catalogo/5 (segmento URL) o ?categoria=5 (query string)
+        $categoriaId = !empty($catId) ? (int)$catId : (int)($_GET['categoria'] ?? 0);
         $categorias  = $this->categoriaModel->findAll();
         $productos   = $this->productoModel->findActivos();
         if ($categoriaId > 0) {
@@ -60,14 +64,16 @@ class TiendaController
 
     public function producto(string $id = ''): void
     {
-        if (empty($id) || !is_numeric($id)) {
+        // Acepta /Tienda/producto/5 y /Tienda/producto/5-nombre-del-producto
+        $idNum = (int) $id;
+        if (!$idNum) {
             header('Location: ' . APP_URL . 'Tienda/catalogo'); exit();
         }
-        $producto = $this->productoModel->findById((int) $id);
+        $producto = $this->productoModel->findById($idNum);
         if (!$producto->Found || !$producto->activo) {
             header('Location: ' . APP_URL . 'Tienda/catalogo'); exit();
         }
-        $variantes = $this->productoModel->findVariantes((int) $id);
+        $variantes = $this->productoModel->findVariantes($idNum);
         $pageTitle = $producto->nombre;
         $this->render('Producto.php', compact('pageTitle','producto','variantes'));
     }

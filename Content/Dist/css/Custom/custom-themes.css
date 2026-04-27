@@ -210,6 +210,7 @@ aside.sidebar,
     width:      var(--sidebar-width);
     box-shadow: 4px 0 20px rgba(0,0,0,0.30);
     z-index:    calc(var(--z-sidebar) + 1);
+    overflow-y: auto;
 }
 
 /* Al expandirse en hover se restauran los textos */
