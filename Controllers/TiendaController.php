@@ -582,4 +582,13 @@ class TiendaController
         echo json_encode(['liked' => $liked]);
         exit();
     }
+    public function misFavoritos(): void
+    {
+        $this->requireCliente();
+        $pageTitle = 'Mis Favoritos';
+        $favoritos = $this->favoritoModel->findByCliente(
+            (int)$_SESSION['cliente']['id']
+        );
+        $this->render('MisFavoritos.php', compact('pageTitle', 'favoritos'));
+    }
 }
