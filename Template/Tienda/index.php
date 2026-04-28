@@ -358,7 +358,7 @@
                                 </a>
                             </li>
                             <!--<li>
-                                <a class="dropdown-item" href="<?= APP_URL ?>Tienda/misFavoritos">
+                                <a class="dropdown-item" href="<?//= APP_URL ?>Tienda/misFavoritos">
                                     <i class="fas fa-heart me-2" style="color:#de777d;"></i>Mis favoritos
                                 </a>
                             </li>-->

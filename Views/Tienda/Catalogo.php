@@ -58,7 +58,7 @@
                     </a>
                    <!-- <button type="button"
                             class="btn-favorito"
-                            data-id="<?= $p->id ?>"
+                            data-id="<?//= $p->id ?>"
                             title="Agregar a favoritos"
                             style="position:absolute; top:8px; right:8px;
                                 background:rgba(255,255,255,0.9); border:none;
