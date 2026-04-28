@@ -318,7 +318,7 @@ class TiendaController
         $pedidos   = $this->pedidoModel->findByCliente(
             (int)$_SESSION['cliente']['id']
         );
-        $this->render('Mis_Pedidos.php', compact('pageTitle','pedidos'));
+        $this->render('MisPedidos.php', compact('pageTitle','pedidos'));
     }
 
     public function citas(): void
@@ -407,7 +407,7 @@ class TiendaController
         unset($_SESSION['cita_exitosa']);
         $cita      = $this->citaModel->findById((int) $citaId);
         $pageTitle = 'Cita agendada';
-        $this->render('Cita_Exitosa.php', compact('pageTitle','cita'));
+        $this->render('CitaExitosa.php', compact('pageTitle','cita'));
     }
 
     public function misCitas(): void
@@ -417,7 +417,7 @@ class TiendaController
         $citas     = $this->citaModel->findByCliente(
             (int)$_SESSION['cliente']['id']
         );
-        $this->render('Mis_Citas.php', compact('pageTitle','citas'));
+        $this->render('MisCitas.php', compact('pageTitle','citas'));
     }
 
     public function registro(): void
