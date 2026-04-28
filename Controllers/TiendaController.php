@@ -203,17 +203,19 @@ class TiendaController
 
         // ── Crear pedido ──────────────────────────
         $pedidoId = $this->pedidoModel->insert([
-            'codigo'          => $codigo,
-            'cliente_id'      => $clienteId,
-            'wa_numero'       => $waNumero    ?: null,
-            'tipo_entrega'    => $tipoEntrega,
-            'direccion_envio' => $tipoEntrega === 'Envio' ? $direccion : null,
-            'zona_id'         => $zonaId,
-            'subtotal'        => $subtotal,
-            'costo_envio'     => $costoEnvio,
-            'total'           => $total,
-            'nota'            => $nota        ?: null,
-        ]);
+        'codigo'          => $codigo,
+        'cliente_id'      => $clienteId,
+        'wa_numero'       => $waNumero    ?: null,
+        'tipo_entrega'    => $tipoEntrega,
+        'metodo_pago'     => in_array($_POST['metodo_pago'] ?? '', ['Transferencia','Efectivo'])
+                                ? $_POST['metodo_pago'] : 'Transferencia',
+        'direccion_envio' => $tipoEntrega === 'Envio' ? $direccion : null,
+        'zona_id'         => $zonaId,
+        'subtotal'        => $subtotal,
+        'costo_envio'     => $costoEnvio,
+        'total'           => $total,
+        'nota'            => $nota ?: null,
+    ]);
 
         if ($pedidoId <= 0) {
             header('Location: ' . APP_URL . 'Tienda/carrito?error=1'); exit();

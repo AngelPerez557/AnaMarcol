@@ -49,11 +49,11 @@
                         <div class="mb-3">
                             <label class="form-label fw-semibold">Tipo de entrega</label>
                             <div class="d-flex gap-2">
-                                <button type="button" class="btn-tipo-entrega activo flex-fill"
+                                <button type="button" class="btn-selector activo flex-fill"
                                         data-tipo="Retiro" id="btnRetiro">
                                     <i class="fas fa-store me-1"></i>Retiro
                                 </button>
-                                <button type="button" class="btn-tipo-entrega flex-fill"
+                                <button type="button" class="btn-selector flex-fill"
                                         data-tipo="Envio" id="btnEnvio">
                                     <i class="fas fa-truck me-1"></i>Envío
                                 </button>
@@ -78,6 +78,21 @@
                                 <label class="form-label fw-semibold">Dirección de entrega</label>
                                 <textarea class="form-control" id="inputDireccion" rows="2"
                                           placeholder="Colonia, calle, referencia..."></textarea>
+                            </div>
+                        </div>
+
+                        <!-- Método de pago -->
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">Método de pago</label>
+                            <div class="d-flex gap-2">
+                                <button type="button" class="btn-selector activo flex-fill"
+                                        data-metodo="Transferencia" id="btnTransferencia">
+                                    <i class="fas fa-mobile-alt me-1"></i>Transferencia
+                                </button>
+                                <button type="button" class="btn-selector flex-fill"
+                                        data-metodo="Efectivo" id="btnEfectivo">
+                                    <i class="fas fa-money-bill me-1"></i>Efectivo
+                                </button>
                             </div>
                         </div>
 
@@ -122,20 +137,7 @@
                                 <span style="color:#de777d;" id="resumenTotal">L. 0.00</span>
                             </div>
                         </div>
-                        <!-- Método de pago -->
-                        <div class="mb-3">
-                            <label class="form-label fw-semibold">Método de pago</label>
-                            <div class="d-flex gap-2">
-                                <button type="button" class="btn-tipo-entrega activo flex-fill"
-                                        data-metodo="Transferencia" id="btnTransferencia">
-                                    <i class="fas fa-mobile-alt me-1"></i>Transferencia
-                                </button>
-                                <button type="button" class="btn-tipo-entrega flex-fill"
-                                        data-metodo="Efectivo" id="btnEfectivo">
-                                    <i class="fas fa-money-bill me-1"></i>Efectivo
-                                </button>
-                            </div>
-                        </div>
+
                         <!-- Botón confirmar -->
                         <button type="button" class="btn-rosa w-100 mt-3" id="btnConfirmarPedido"
                                 style="padding:12px; font-size:1rem;">
@@ -156,17 +158,19 @@
 
 <!-- Form oculto para enviar el pedido -->
 <form id="formCheckout" method="POST" action="<?= APP_URL ?>Tienda/checkout" style="display:none;">
-    <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['csrf_token'] ?? '') ?>">
-    <input type="hidden" name="tipo_entrega"    id="hTipoEntrega"    value="Retiro">
-    <input type="hidden" name="zona_id"         id="hZonaId"         value="">
-    <input type="hidden" name="direccion_envio" id="hDireccion"      value="">
-    <input type="hidden" name="wa_numero"       id="hWa"             value="">
-    <input type="hidden" name="nota"            id="hNota"           value="">
-    <input type="hidden" name="items"           id="hItems"          value="">
+    <input type="hidden" name="csrf_token"      value="<?= htmlspecialchars($_SESSION['csrf_token'] ?? '') ?>">
+    <input type="hidden" name="tipo_entrega"    id="hTipoEntrega"  value="Retiro">
+    <input type="hidden" name="metodo_pago"     id="hMetodoPago"   value="Transferencia">
+    <input type="hidden" name="zona_id"         id="hZonaId"       value="">
+    <input type="hidden" name="direccion_envio" id="hDireccion"    value="">
+    <input type="hidden" name="wa_numero"       id="hWa"           value="">
+    <input type="hidden" name="nota"            id="hNota"         value="">
+    <input type="hidden" name="items"           id="hItems"        value="">
 </form>
 
 <style>
-.btn-tipo-entrega {
+/* ── Botones selector (entrega y pago) ── */
+.btn-selector {
     padding: 8px 12px;
     border: 2px solid #dee2e6;
     border-radius: 8px;
@@ -175,38 +179,33 @@
     font-weight: 500;
     transition: all 0.2s;
 }
-.btn-tipo-entrega.activo {
+.btn-selector.activo {
     border-color: #de777d;
     background: #de777d;
     color: #fff;
+}
+.btn-selector:hover:not(.activo) {
+    border-color: #de777d;
+    color: #de777d;
 }
 
 /* ── Tabla carrito responsive ── */
 .tabla-carrito-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
 
 @media (max-width: 575px) {
-    /* Ocultar columna precio unitario en móvil */
     #tablaCarrito th:nth-child(3),
     #tablaCarrito td:nth-child(3) { display: none; }
-
-    /* Texto más compacto */
     #tablaCarrito { font-size: 0.82rem; min-width: 0; }
     #tablaCarrito td, #tablaCarrito th { padding: 8px 6px; }
-
-    /* Imagen de producto más pequeña */
     #tablaCarrito .d-flex > div:first-child {
         width: 36px !important;
         height: 36px !important;
     }
-
-    /* Botones de cantidad */
     #tablaCarrito button[onclick*="cambiarCantidad"] {
         width: 22px !important;
         height: 22px !important;
         font-size: 0.8rem !important;
     }
-
-    /* El card del resumen ocupa todo el ancho y queda legible */
     .col-12.col-lg-5 .card-body { padding: 1rem !important; }
 }
 </style>
@@ -215,6 +214,7 @@
 document.addEventListener('DOMContentLoaded', function () {
 
     let tipoEntrega = 'Retiro';
+    let metodoPago  = 'Transferencia';
     let costoEnvio  = 0;
 
     // ── Renderizar carrito ────────────────────────
@@ -294,20 +294,19 @@ document.addEventListener('DOMContentLoaded', function () {
         const carrito  = getCarrito();
         const subtotal = carrito.reduce((sum, i) => sum + i.precio * i.cantidad, 0);
         const total    = subtotal + costoEnvio;
-
         document.getElementById('resumenSubtotal').textContent = `L. ${subtotal.toFixed(2)}`;
         document.getElementById('resumenEnvio').textContent    = costoEnvio > 0 ? `L. ${costoEnvio.toFixed(2)}` : 'Gratis';
         document.getElementById('resumenTotal').textContent    = `L. ${total.toFixed(2)}`;
     }
 
-    // ── Tipo entrega ──────────────────────────────
-    document.querySelectorAll('.btn-tipo-entrega').forEach(btn => {
+    // ── Tipo de entrega ───────────────────────────
+    document.querySelectorAll('[data-tipo]').forEach(btn => {
         btn.addEventListener('click', function () {
-            document.querySelectorAll('.btn-tipo-entrega').forEach(b => b.classList.remove('activo'));
+            document.querySelectorAll('[data-tipo]').forEach(b => b.classList.remove('activo'));
             this.classList.add('activo');
             tipoEntrega = this.dataset.tipo;
 
-            const secEnvio = document.getElementById('seccionEnvio');
+            const secEnvio  = document.getElementById('seccionEnvio');
             const filaEnvio = document.getElementById('filaEnvio');
 
             if (tipoEntrega === 'Envio') {
@@ -322,6 +321,15 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     });
 
+    // ── Método de pago ────────────────────────────
+    document.querySelectorAll('[data-metodo]').forEach(btn => {
+        btn.addEventListener('click', function () {
+            document.querySelectorAll('[data-metodo]').forEach(b => b.classList.remove('activo'));
+            this.classList.add('activo');
+            metodoPago = this.dataset.metodo;
+        });
+    });
+
     // ── Zona de envío ─────────────────────────────
     document.getElementById('selectZona').addEventListener('change', function () {
         const option = this.options[this.selectedIndex];
@@ -333,44 +341,50 @@ document.addEventListener('DOMContentLoaded', function () {
     // ── Confirmar pedido ──────────────────────────
     document.getElementById('btnConfirmarPedido').addEventListener('click', function () {
         const carrito = getCarrito();
-        
+
         <?php if (empty($_SESSION['cliente'])): ?>
         window.location.href = '<?= APP_URL ?>Tienda/login';
         return;
         <?php endif; ?>
 
         if (carrito.length === 0) {
-            Swal.fire({ icon:'warning', title:'Carrito vacío',
-                confirmButtonColor:'#de777d' });
+            Swal.fire({ icon: 'warning', title: 'Carrito vacío',
+                confirmButtonColor: '#de777d' });
             return;
         }
 
         if (tipoEntrega === 'Envio') {
             const zonaId = document.getElementById('selectZona').value;
             if (!zonaId) {
-                Swal.fire({ icon:'warning', title:'Selecciona una zona de envío',
-                    confirmButtonColor:'#de777d' });
+                Swal.fire({ icon: 'warning', title: 'Selecciona una zona de envío',
+                    confirmButtonColor: '#de777d' });
                 return;
             }
             const direccion = document.getElementById('inputDireccion').value.trim();
             if (!direccion) {
-                Swal.fire({ icon:'warning', title:'Ingresa tu dirección',
-                    confirmButtonColor:'#de777d' });
+                Swal.fire({ icon: 'warning', title: 'Ingresa tu dirección',
+                    confirmButtonColor: '#de777d' });
                 return;
             }
-            document.getElementById('hZonaId').value   = zonaId;
+            document.getElementById('hZonaId').value    = zonaId;
             document.getElementById('hDireccion').value = direccion;
         }
 
         document.getElementById('hTipoEntrega').value = tipoEntrega;
+        document.getElementById('hMetodoPago').value  = metodoPago;
         document.getElementById('hWa').value          = document.getElementById('inputWa').value;
-        document.getElementById('hNota').value         = document.getElementById('inputNota').value;
-        document.getElementById('hItems').value        = JSON.stringify(carrito);
+        document.getElementById('hNota').value        = document.getElementById('inputNota').value;
+        document.getElementById('hItems').value       = JSON.stringify(carrito);
+
+        const totalFinal = (carrito.reduce((s, i) => s + i.precio * i.cantidad, 0) + costoEnvio).toFixed(2);
+        const iconMetodo = metodoPago === 'Efectivo' ? '💵' : '📱';
 
         Swal.fire({
             icon: 'question',
             title: '¿Confirmar pedido?',
-            text: `Total: L. ${(carrito.reduce((s,i)=>s+i.precio*i.cantidad,0)+costoEnvio).toFixed(2)}`,
+            html: `<b>Total:</b> L. ${totalFinal}<br>
+                   <small class="text-muted">${iconMetodo} Pago: ${metodoPago} &nbsp;|&nbsp;
+                   <i class="fas fa-${tipoEntrega === 'Envio' ? 'truck' : 'store'}"></i> ${tipoEntrega}</small>`,
             showCancelButton: true,
             confirmButtonColor: '#de777d',
             cancelButtonColor: '#6c757d',
@@ -378,7 +392,6 @@ document.addEventListener('DOMContentLoaded', function () {
             cancelButtonText: 'Revisar'
         }).then(result => {
             if (result.isConfirmed) {
-                // Limpiar carrito antes de enviar
                 localStorage.removeItem('carrito_anamarcol');
                 document.getElementById('formCheckout').submit();
             }

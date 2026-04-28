@@ -61,6 +61,7 @@ class PedidoModel extends BaseModel
             $data['cliente_id']      ?? null,
             $data['wa_numero']       ?? null,
             $data['tipo_entrega'],
+            $data['metodo_pago']     ?? 'Transferencia',
             $data['direccion_envio'] ?? null,
             $data['zona_id']         ?? null,
             $data['subtotal'],
