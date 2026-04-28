@@ -56,7 +56,7 @@
                             style="background-image:url('<?= $p->getImageUrl() ?>');">
                         </div>
                     </a>
-                    <button type="button"
+                   <!-- <button type="button"
                             class="btn-favorito"
                             data-id="<?= $p->id ?>"
                             title="Agregar a favoritos"
@@ -67,7 +67,7 @@
                                 cursor:pointer; box-shadow:0 2px 6px rgba(0,0,0,0.15);
                                 transition:all 0.2s; font-size:1rem;">
                         <i class="fas fa-heart" style="color:#ccc;"></i>
-                    </button>
+                    </button>-->
                 </div>
                 <div class="p-3 flex-fill d-flex flex-column">
                     <a href="<?= APP_URL ?>Tienda/producto/<?= $p->id ?>-<?= slugify($p->nombre) ?>"
