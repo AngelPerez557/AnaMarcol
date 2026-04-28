@@ -50,11 +50,25 @@
         <div class="col-12 col-sm-6 col-md-4 col-lg-3 producto-item"
              data-nombre="<?= strtolower(htmlspecialchars($p->nombre)) ?>">
             <div class="producto-card h-100 d-flex flex-column">
-                <a href="<?= APP_URL ?>Tienda/producto/<?= $p->id ?>-<?= slugify($p->nombre) ?>">
-                    <div class="producto-img"
-                         style="background-image:url('<?= $p->getImageUrl() ?>');">
-                    </div>
-                </a>
+                <div style="position:relative;">
+                    <a href="<?= APP_URL ?>Tienda/producto/<?= $p->id ?>-<?= slugify($p->nombre) ?>">
+                        <div class="producto-img"
+                            style="background-image:url('<?= $p->getImageUrl() ?>');">
+                        </div>
+                    </a>
+                    <button type="button"
+                            class="btn-favorito"
+                            data-id="<?= $p->id ?>"
+                            title="Agregar a favoritos"
+                            style="position:absolute; top:8px; right:8px;
+                                background:rgba(255,255,255,0.9); border:none;
+                                border-radius:50%; width:34px; height:34px;
+                                display:flex; align-items:center; justify-content:center;
+                                cursor:pointer; box-shadow:0 2px 6px rgba(0,0,0,0.15);
+                                transition:all 0.2s; font-size:1rem;">
+                        <i class="fas fa-heart" style="color:#ccc;"></i>
+                    </button>
+                </div>
                 <div class="p-3 flex-fill d-flex flex-column">
                     <a href="<?= APP_URL ?>Tienda/producto/<?= $p->id ?>-<?= slugify($p->nombre) ?>"
                        style="text-decoration:none; color:inherit;">
@@ -103,6 +117,8 @@
 
 <script>
 document.addEventListener('DOMContentLoaded', function () {
+
+    // ── Buscador ──────────────────────────────────
     const buscar   = document.getElementById('buscarProducto');
     const items    = document.querySelectorAll('.producto-item');
     const contador = document.getElementById('contadorProductos');
@@ -123,5 +139,44 @@ document.addEventListener('DOMContentLoaded', function () {
 
         contador.textContent = `${visible} producto${visible !== 1 ? 's' : ''}`;
     });
+
+    // ── Favoritos ─────────────────────────────────
+    document.querySelectorAll('.btn-favorito').forEach(btn => {
+        btn.addEventListener('click', function (e) {
+            e.preventDefault();
+            e.stopPropagation();
+
+            <?php if (empty($_SESSION['cliente'])): ?>
+            window.location.href = '<?= APP_URL ?>Tienda/login';
+            return;
+            <?php endif; ?>
+
+            const productoId = this.dataset.id;
+            const icon       = this.querySelector('i');
+            const self       = this;
+
+            fetch('<?= APP_URL ?>Tienda/toggleFavorito', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: `producto_id=${productoId}`
+            })
+            .then(r => r.json())
+            .then(data => {
+                if (data.error === 'no_auth') {
+                    window.location.href = '<?= APP_URL ?>Tienda/login';
+                    return;
+                }
+                if (data.liked) {
+                    icon.style.color = '#de777d';
+                    self.style.boxShadow = '0 2px 8px rgba(222,119,125,0.4)';
+                } else {
+                    icon.style.color = '#ccc';
+                    self.style.boxShadow = '0 2px 6px rgba(0,0,0,0.15)';
+                }
+            })
+            .catch(() => {});
+        });
+    });
+
 });
 </script>
