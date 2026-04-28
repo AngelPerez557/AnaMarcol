@@ -76,11 +76,25 @@
         <?php foreach ($productosDestacados as $p): ?>
         <div class="col-12 col-sm-6 col-md-4 col-lg-3">
             <div class="producto-card">
-                <a href="<?= APP_URL ?>Tienda/producto/<?= $p->id ?>-<?= slugify($p->nombre) ?>">
-                    <div class="producto-img"
-                         style="background-image:url('<?= $p->getImageUrl() ?>');">
-                    </div>
-                </a>
+                <div style="position:relative;">
+                    <a href="<?= APP_URL ?>Tienda/producto/<?= $p->id ?>-<?= slugify($p->nombre) ?>">
+                        <div class="producto-img"
+                            style="background-image:url('<?= $p->getImageUrl() ?>');">
+                        </div>
+                    </a>
+                    <button type="button"
+                            class="btn-favorito"
+                            data-id="<?= $p->id ?>"
+                            title="Agregar a favoritos"
+                            style="position:absolute; top:8px; right:8px;
+                                background:rgba(255,255,255,0.9); border:none;
+                                border-radius:50%; width:34px; height:34px;
+                                display:flex; align-items:center; justify-content:center;
+                                cursor:pointer; box-shadow:0 2px 6px rgba(0,0,0,0.15);
+                                transition:all 0.2s; font-size:1rem;">
+                        <i class="fas fa-heart" style="color:#ccc;"></i>
+                    </button>
+                </div>
                 <div class="p-3">
                     <a href="<?= APP_URL ?>Tienda/producto/<?= $p->id ?>-<?= slugify($p->nombre) ?>"
                        style="text-decoration:none; color:inherit;">

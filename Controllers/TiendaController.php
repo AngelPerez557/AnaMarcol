@@ -14,6 +14,7 @@ class TiendaController
     private NotificacionModel $notifModel;
     private VentaModel        $ventaModel;
     private GaleriaModel      $galeriaModel;
+    private FavoritoModel $favoritoModel;
 
     public function __construct()
     {
@@ -29,6 +30,7 @@ class TiendaController
         $this->notifModel     = new NotificacionModel();
         $this->ventaModel     = new VentaModel();
         $this->galeriaModel   = new GaleriaModel();
+        $this->favoritoModel = new FavoritoModel();
     }
 
     public function index(): void
@@ -558,5 +560,26 @@ class TiendaController
         $output = str_replace('{JBODY}',    $content, $template);
         $output = str_replace('{JSCRIPTS}', '',        $output);
         echo $output;
+    }
+
+    public function toggleFavorito(): void
+    {
+        header('Content-Type: application/json');
+
+        if (empty($_SESSION['cliente'])) {
+            echo json_encode(['error' => 'no_auth']);
+            exit();
+        }
+
+        $productoId = (int)($_POST['producto_id'] ?? 0);
+        if (!$productoId) {
+            echo json_encode(['error' => 'invalid']);
+            exit();
+        }
+
+        $clienteId = (int)$_SESSION['cliente']['id'];
+        $liked     = $this->favoritoModel->toggle($clienteId, $productoId);
+        echo json_encode(['liked' => $liked]);
+        exit();
     }
 }

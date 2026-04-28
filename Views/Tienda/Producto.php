@@ -5,7 +5,19 @@
         <ol class="breadcrumb">
             <li class="breadcrumb-item"><a href="<?= APP_URL ?>Tienda/index" style="color:#de777d;">Inicio</a></li>
             <li class="breadcrumb-item"><a href="<?= APP_URL ?>Tienda/catalogo" style="color:#de777d;">Catálogo</a></li>
-            <li class="breadcrumb-item active"><?= htmlspecialchars($producto->nombre) ?></li>
+            <div class="d-flex align-items-start justify-content-between mb-2">
+            <h2 class="fw-bold mb-0"><?= htmlspecialchars($producto->nombre) ?></h2>
+            <button type="button"
+                    class="btn-favorito ms-3"
+                    data-id="<?= $producto->id ?>"
+                    title="Agregar a favoritos"
+                    style="background:rgba(255,255,255,0.9); border:2px solid #f0e0e1;
+                        border-radius:50%; width:42px; height:42px; flex-shrink:0;
+                        display:flex; align-items:center; justify-content:center;
+                        cursor:pointer; transition:all 0.2s; font-size:1.1rem;">
+                <i class="fas fa-heart" style="color:#ccc;"></i>
+            </button>
+        </div>
         </ol>
     </nav>
 
