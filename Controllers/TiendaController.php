@@ -205,19 +205,19 @@ class TiendaController
 
         // ── Crear pedido ──────────────────────────
         $pedidoId = $this->pedidoModel->insert([
-        'codigo'          => $codigo,
-        'cliente_id'      => $clienteId,
-        'wa_numero'       => $waNumero    ?: null,
-        'tipo_entrega'    => $tipoEntrega,
-        'metodo_pago'     => in_array($_POST['metodo_pago'] ?? '', ['Transferencia','Efectivo'])
-                                ? $_POST['metodo_pago'] : 'Transferencia',
-        'direccion_envio' => $tipoEntrega === 'Envio' ? $direccion : null,
-        'zona_id'         => $zonaId,
-        'subtotal'        => $subtotal,
-        'costo_envio'     => $costoEnvio,
-        'total'           => $total,
-        'nota'            => $nota ?: null,
-    ]);
+            'codigo'          => $codigo,
+            'cliente_id'      => $clienteId,
+            'wa_numero'       => $waNumero    ?: null,
+            'tipo_entrega'    => $tipoEntrega,
+            'metodo_pago'     => in_array($_POST['metodo_pago'] ?? '', ['Transferencia','Efectivo'])
+                                    ? $_POST['metodo_pago'] : 'Transferencia',
+            'direccion_envio' => $tipoEntrega === 'Envio' ? $direccion : null,
+            'zona_id'         => $zonaId,
+            'subtotal'        => $subtotal,
+            'costo_envio'     => $costoEnvio,
+            'total'           => $total,
+            'nota'            => $nota ?: null,
+        ]);
 
         if ($pedidoId <= 0) {
             header('Location: ' . APP_URL . 'Tienda/carrito?error=1'); exit();
@@ -236,35 +236,6 @@ class TiendaController
             ]);
         }
 
-        // ── Crear venta en sistema (como caja) ────
-        // user_id = 1 (sistema/tienda) — ajustar si tienes un usuario sistema
-        $ventaId = $this->ventaModel->insert([
-            'cliente_id'     => $clienteId,
-            'user_id'        => 1,
-            'metodo_pago'    => 'Transferencia',
-            'subtotal'       => $subtotal,
-            'descuento'      => 0,
-            'total'          => $total,
-            'monto_recibido' => $total,
-            'cambio'         => 0,
-            'nota'           => "Pedido tienda en línea #{$codigo}",
-        ]);
-
-        if ($ventaId > 0) {
-            // Insertar detalle de venta
-            foreach ($items as $item) {
-                $this->ventaModel->insertDetalle([
-                    'venta_id'        => $ventaId,
-                    'producto_id'     => $item['id'],
-                    'variante_id'     => $item['varianteId'] ?? null,
-                    'nombre_producto' => $item['nombre'],
-                    'precio_unit'     => $item['precio'],
-                    'cantidad'        => $item['cantidad'],
-                    'subtotal'        => $item['precio'] * $item['cantidad'],
-                ]);
-            }
-        }
-
         // ── Descontar stock de cada producto ──────
         foreach ($items as $item) {
             $vid = (int)($item['varianteId'] ?? 0);
@@ -281,9 +252,10 @@ class TiendaController
         $this->notifModel->nuevoPedido($codigo, $clienteNombre, $total);
 
         // ── Guardar datos para vista de éxito ─────
+        // La venta se registra en caja cuando el admin confirma el pago
         $_SESSION['pedido_exitoso'] = [
             'pedido_id' => $pedidoId,
-            'venta_id'  => $ventaId,
+            'venta_id'  => 0,
         ];
 
         header('Location: ' . APP_URL . 'Tienda/pedidoExitoso');
@@ -590,5 +562,86 @@ class TiendaController
             (int)$_SESSION['cliente']['id']
         );
         $this->render('MisFavoritos.php', compact('pageTitle', 'favoritos'));
+    }
+    // ─────────────────────────────────────────────
+    // CONFIRMAR PAGO — (POST — JSON)
+    // URL: /Pedidos/confirmarPago
+    // Crea la venta en caja cuando el pago es verificado
+    // ─────────────────────────────────────────────
+    public function confirmarPago(): void
+    {
+        Auth::require('pedidos.gestionar');
+
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            http_response_code(405); exit();
+        }
+        if (!isset($_POST['csrf_token']) || $_SESSION['csrf_token'] !== $_POST['csrf_token']) {
+            http_response_code(403); exit();
+        }
+
+        $pedidoId = (int)($_POST['pedido_id'] ?? 0);
+        if (!$pedidoId) {
+            header('Content-Type: application/json');
+            echo json_encode(['success' => false, 'message' => 'Pedido inválido.']);
+            exit();
+        }
+
+        $pedido = $this->pedidoModel->findById($pedidoId);
+        if (!$pedido->Found) {
+            header('Content-Type: application/json');
+            echo json_encode(['success' => false, 'message' => 'Pedido no encontrado.']);
+            exit();
+        }
+
+        if ($pedido->pagado) {
+            header('Content-Type: application/json');
+            echo json_encode(['success' => false, 'message' => 'Este pedido ya fue pagado.']);
+            exit();
+        }
+
+        $detalle   = $this->pedidoModel->findDetalle($pedidoId);
+        $ventaModel = new VentaModel();
+
+        // Crear venta en caja
+        $ventaId = $ventaModel->insert([
+            'cliente_id'     => $pedido->cliente_id,
+            'user_id'        => Auth::id(),
+            'metodo_pago'    => $pedido->metodo_pago ?? 'Transferencia',
+            'subtotal'       => $pedido->subtotal,
+            'descuento'      => 0,
+            'total'          => $pedido->total,
+            'monto_recibido' => $pedido->total,
+            'cambio'         => 0,
+            'nota'           => "Pedido tienda en línea #{$pedido->codigo}",
+        ]);
+
+        if ($ventaId > 0) {
+            // Insertar detalle de venta
+            foreach ($detalle as $item) {
+                $ventaModel->insertDetalle([
+                    'venta_id'        => $ventaId,
+                    'producto_id'     => $item['producto_id'],
+                    'variante_id'     => $item['variante_id'] ?? null,
+                    'nombre_producto' => $item['nombre_producto'],
+                    'precio_unit'     => $item['precio_unit'],
+                    'cantidad'        => $item['cantidad'],
+                    'subtotal'        => $item['subtotal'],
+                ]);
+            }
+
+            // Marcar pedido como pagado y cambiar estado
+            $this->pedidoModel->marcarPagado($pedidoId, Auth::id());
+
+            header('Content-Type: application/json');
+            echo json_encode([
+                'success'  => true,
+                'message'  => 'Pago confirmado. Venta registrada en caja.',
+                'venta_id' => $ventaId,
+            ]);
+        } else {
+            header('Content-Type: application/json');
+            echo json_encode(['success' => false, 'message' => 'Error al registrar la venta.']);
+        }
+        exit();
     }
 }

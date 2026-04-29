@@ -175,7 +175,46 @@
              COLUMNA DERECHA — Estado e historial
              ───────────────────────────────────────────── -->
         <div class="col-12 col-lg-5">
-
+            <!-- Confirmar pago -->
+            <?php if (Auth::can('pedidos.gestionar') && !$pedido->pagado && $pedido->estado !== 'Cancelado'): ?>
+            <div class="card mb-3" style="border-color:rgba(40,167,69,0.3);">
+                <div class="card-header" style="background:rgba(40,167,69,0.08);">
+                    <i class="fas fa-money-bill-wave me-2" style="color:#28a745;"></i>
+                    Confirmar pago
+                </div>
+                <div class="card-body">
+                    <div class="d-flex align-items-center gap-2 mb-3">
+                        <span class="badge bg-warning text-dark">
+                            <i class="fas fa-clock me-1"></i>Pago pendiente
+                        </span>
+                        <span class="text-muted" style="font-size:0.85rem;">
+                            Método: <strong><?= htmlspecialchars($pedido->metodo_pago ?? 'Transferencia') ?></strong>
+                        </span>
+                    </div>
+                    <p class="text-muted mb-3" style="font-size:0.85rem;">
+                        Al confirmar el pago se registrará automáticamente una venta en caja 
+                        por <strong>L. <?= number_format((float)$pedido->total, 2) ?></strong>.
+                    </p>
+                    <button type="button"
+                            class="btn btn-success w-100"
+                            id="btnConfirmarPago"
+                            data-id="<?= $pedido->id ?>"
+                            data-csrf="<?= htmlspecialchars($_SESSION['csrf_token'] ?? '') ?>">
+                        <i class="fas fa-check-circle me-2"></i>Confirmar pago recibido
+                    </button>
+                </div>
+            </div>
+            <?php elseif ($pedido->pagado): ?>
+            <div class="card mb-3" style="border-color:rgba(40,167,69,0.3);">
+                <div class="card-body d-flex align-items-center gap-2">
+                    <i class="fas fa-check-circle fa-2x" style="color:#28a745;"></i>
+                    <div>
+                        <div class="fw-bold" style="color:#28a745;">Pago confirmado</div>
+                        <small class="text-muted">Venta registrada en caja</small>
+                    </div>
+                </div>
+            </div>
+            <?php endif; ?>
             <!-- Cambiar estado -->
             <?php if (Auth::can('pedidos.gestionar') && $pedido->estado !== 'Entregado' && $pedido->estado !== 'Cancelado'): ?>
             <div class="card mb-3">
@@ -332,6 +371,62 @@ document.addEventListener('DOMContentLoaded', function () {
             });
         });
     });
+
+    // ── Confirmar pago ────────────────────────────
+    const btnPago = document.getElementById('btnConfirmarPago');
+    if (btnPago) {
+        btnPago.addEventListener('click', function () {
+            const pedidoId = this.dataset.id;
+            const csrf     = this.dataset.csrf;
+
+            Swal.fire({
+                icon:  'question',
+                title: '¿Confirmar pago?',
+                html:  'Se registrará la venta en caja.<br><strong>Esta acción no se puede deshacer.</strong>',
+                showCancelButton:   true,
+                confirmButtonColor: '#28a745',
+                cancelButtonColor:  '#6c757d',
+                confirmButtonText:  'Sí, confirmar pago',
+                cancelButtonText:   'Cancelar'
+            }).then(result => {
+                if (!result.isConfirmed) return;
+
+                btnPago.disabled = true;
+                btnPago.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Procesando...';
+
+                const formData = new FormData();
+                formData.append('csrf_token', csrf);
+                formData.append('pedido_id',  pedidoId);
+
+                fetch(`${APP_URL}Pedidos/confirmarPago`, {
+                    method: 'POST',
+                    body:   formData
+                })
+                .then(r => r.json())
+                .then(data => {
+                    if (data.success) {
+                        Swal.fire({
+                            icon:  'success',
+                            title: 'Pago confirmado',
+                            text:  data.message,
+                            confirmButtonColor: '#28a745',
+                            timer: 2500,
+                            showConfirmButton: false
+                        }).then(() => location.reload());
+                    } else {
+                        Swal.fire({
+                            icon:  'error',
+                            title: 'Error',
+                            text:  data.message,
+                            confirmButtonColor: '#de777d'
+                        });
+                        btnPago.disabled = false;
+                        btnPago.innerHTML = '<i class="fas fa-check-circle me-2"></i>Confirmar pago recibido';
+                    }
+                });
+            });
+        });
+    }
 
 });
 </script>

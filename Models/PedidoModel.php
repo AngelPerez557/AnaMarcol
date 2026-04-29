@@ -109,4 +109,12 @@ class PedidoModel extends BaseModel
         $rows = $this->callSP('sp_pedidos_findByCliente', [$clienteId]);
         return array_map(fn($row) => PedidoEntity::fromArray($row), $rows);
     }
+
+    public function marcarPagado(int $pedidoId, int $userId): bool
+    {
+        $affected = $this->callSPExecute('sp_pedidos_marcarPagado', [
+            $pedidoId, $userId
+        ]);
+        return $affected >= 0;
+    }
 }

@@ -13,6 +13,8 @@ class PedidoEntity extends BaseEntity
     public ?string $direccion_envio = null;
     public ?int    $zona_id         = null;
     public ?string $estado          = 'Pendiente';
+    public ?int    $pagado          = 0;
+    public ?string $metodo_pago     = 'Transferencia'; 
     public ?float  $subtotal        = 0;
     public ?float  $costo_envio     = 0;
     public ?float  $total           = 0;
@@ -58,6 +60,7 @@ class PedidoEntity extends BaseEntity
     {
         return match($this->estado) {
             'Pendiente'       => 'bg-warning text-dark',
+            'Pagado'          => 'bg-success',    
             'En preparacion'  => 'bg-info text-dark',
             'Listo'           => 'bg-primary',
             'En camino'       => 'bg-purple text-white',
@@ -72,6 +75,7 @@ class PedidoEntity extends BaseEntity
     {
         return match($this->estado) {
             'Pendiente'       => 'fas fa-clock',
+            'Pagado'          => 'fas fa-money-bill-wave',
             'En preparacion'  => 'fas fa-box-open',
             'Listo'           => 'fas fa-check-circle',
             'En camino'       => 'fas fa-truck',
@@ -89,6 +93,7 @@ class PedidoEntity extends BaseEntity
             'En preparacion' => ['Listo'],
             'Listo'          => $this->esEnvio() ? ['En camino'] : ['Entregado'],
             'En camino'      => ['Entregado'],
+            'Pagado'         => ['En preparacion'],
             default          => [],
         };
     }
