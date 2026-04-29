@@ -9,10 +9,24 @@
                 <i class="fas fa-shopping-bag me-2" style="color:#de777d;"></i>
                 <?= htmlspecialchars($pageTitle) ?>
             </h4>
-            <span class="badge <?= $pedido->getBadgeEstado() ?> ms-1">
-                <i class="<?= $pedido->getIconoEstado() ?> me-1"></i>
-                <?= $pedido->estado ?>
-            </span>
+            <div class="d-flex align-items-center gap-2 mt-1">
+                <span class="badge bg-dark" style="font-size:0.9rem; letter-spacing:1px;">
+                    <?= htmlspecialchars($pedido->codigo) ?>
+                </span>
+                <span class="badge <?= $pedido->getBadgeEstado() ?>">
+                    <i class="<?= $pedido->getIconoEstado() ?> me-1"></i>
+                    <?= $pedido->estado ?>
+                </span>
+                <?php if ($pedido->pagado): ?>
+                <span class="badge bg-success">
+                    <i class="fas fa-money-bill-wave me-1"></i>Pagado
+                </span>
+                <?php else: ?>
+                <span class="badge bg-warning text-dark">
+                    <i class="fas fa-clock me-1"></i>Pago pendiente
+                </span>
+                <?php endif; ?>
+            </div>
         </div>
         <a href="<?= APP_URL ?>Pedidos/index" class="btn btn-outline-secondary">
             <i class="fas fa-arrow-left me-2"></i>Volver
