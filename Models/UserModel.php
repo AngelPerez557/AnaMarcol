@@ -136,4 +136,16 @@ class UserModel extends BaseModel
     {
         $this->callSPExecute('sp_users_activarTour', [$id]);
     }
+    public function updatePerfil(array $data): bool
+    {
+        $affected = $this->callSPExecute('sp_users_updatePerfil', [
+            $data['id'],
+            $data['nombre'],
+            $data['username'] ?? null,
+            $data['email'],
+            $data['telefono'] ?? null,
+            $data['foto']     ?? null,
+        ]);
+        return $affected >= 0;
+    }
 }

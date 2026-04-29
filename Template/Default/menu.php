@@ -225,7 +225,7 @@ function renderMenu(array $menu): void
                     </button>
                 </li>
                 <li>
-                    <a class="dropdown-item" href="<?= APP_URL ?>Perfil/index">
+                    <a class="dropdown-item" href="<?= APP_URL ?>Usuarios/perfil">
                         <i class="fas fa-user-circle me-2"></i>Mi perfil
                     </a>
                 </li>

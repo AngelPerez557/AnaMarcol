@@ -348,6 +348,11 @@
                         </button>
                         <ul class="dropdown-menu dropdown-menu-end">
                             <li>
+                                <a class="dropdown-item" href="<?= APP_URL ?>Tienda/miPerfil">
+                                    <i class="fas fa-user-edit me-2"></i>Mi perfil
+                                </a>
+                            </li>
+                            <li>
                                 <a class="dropdown-item" href="<?= APP_URL ?>Tienda/misPedidos">
                                     <i class="fas fa-box me-2"></i>Mis pedidos
                                 </a>

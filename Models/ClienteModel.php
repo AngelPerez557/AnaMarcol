@@ -104,4 +104,17 @@ class ClienteModel extends BaseModel
         $row = $this->callSPSingle('sp_clientes_emailExists', [$email]);
         return $row ? (int)$row['existe'] > 0 : false;
     }
+
+    public function updatePassword(int $id, string $hash): bool
+    {
+        $affected = $this->callSPExecute('sp_clientes_updatePassword', [$id, $hash]);
+        return $affected >= 0;
+    }
+
+    public function emailExistsForUpdate(string $email, int $excludeId): bool
+    {
+        $row = $this->callSPSingle('sp_clientes_emailExistsForUpdate', [$email, $excludeId]);
+        return $row && (int)$row['existe'] > 0;
+    }
+    
 }

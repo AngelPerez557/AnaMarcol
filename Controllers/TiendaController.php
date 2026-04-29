@@ -514,7 +514,121 @@ class TiendaController
             header('Location: ' . APP_URL . 'Tienda/login');
             exit();
         }
+    }// ─────────────────────────────────────────────
+// MI PERFIL — ver y editar datos del cliente
+// URL: /Tienda/miPerfil
+// ─────────────────────────────────────────────
+public function miPerfil(): void
+{
+    $this->requireCliente();
+    $pageTitle     = 'Mi Perfil';
+    $cliente       = $this->clienteModel->findById((int)$_SESSION['cliente']['id']);
+    $error         = $_GET['error']         ?? null;
+    $ok            = $_GET['ok']            ?? null;
+    $errorPassword = $_GET['errorPassword'] ?? null;
+    $okPassword    = $_GET['okPassword']    ?? null;
+    $this->render('MiPerfil.php', compact(
+        'pageTitle','cliente','error','ok','errorPassword','okPassword'
+    ));
+}
+
+// ─────────────────────────────────────────────
+// GUARDAR PERFIL — actualiza datos del cliente
+// URL: /Tienda/guardarPerfil  (POST)
+// ─────────────────────────────────────────────
+public function guardarPerfil(): void
+{
+    $this->requireCliente();
+
+    if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+        header('Location: ' . APP_URL . 'Tienda/miPerfil'); exit();
     }
+    if (!isset($_POST['csrf_token']) ||
+        !hash_equals($_SESSION['csrf_token'], $_POST['csrf_token'])) {
+        header('Location: ' . APP_URL . 'Tienda/miPerfil'); exit();
+    }
+
+    $clienteId = (int)$_SESSION['cliente']['id'];
+    $nombre    = htmlspecialchars(strip_tags(trim($_POST['nombre']    ?? '')));
+    $email     = htmlspecialchars(strip_tags(trim($_POST['email']     ?? '')));
+    $telefono  = htmlspecialchars(strip_tags(trim($_POST['telefono']  ?? '')));
+    $direccion = htmlspecialchars(strip_tags(trim($_POST['direccion'] ?? '')));
+
+    if (empty($nombre) || (empty($email) && empty($telefono))) {
+        header('Location: ' . APP_URL . 'Tienda/miPerfil?error=campos'); exit();
+    }
+
+    if (!empty($email) && !filter_var($email, FILTER_VALIDATE_EMAIL)) {
+        header('Location: ' . APP_URL . 'Tienda/miPerfil?error=email'); exit();
+    }
+
+    if (!empty($email) && $this->clienteModel->emailExistsForUpdate($email, $clienteId)) {
+        header('Location: ' . APP_URL . 'Tienda/miPerfil?error=duplicado'); exit();
+    }
+
+    $ok = $this->clienteModel->update([
+        'id'        => $clienteId,
+        'nombre'    => $nombre,
+        'email'     => $email    ?: null,
+        'telefono'  => $telefono ?: null,
+        'direccion' => $direccion ?: null,
+    ]);
+
+    if ($ok) {
+        // Actualizar sesión
+        $_SESSION['cliente']['nombre']   = $nombre;
+        $_SESSION['cliente']['email']    = $email;
+        $_SESSION['cliente']['telefono'] = $telefono;
+        header('Location: ' . APP_URL . 'Tienda/miPerfil?ok=1'); exit();
+    }
+
+    header('Location: ' . APP_URL . 'Tienda/miPerfil?error=servidor'); exit();
+}
+
+// ─────────────────────────────────────────────
+// CAMBIAR PASSWORD — actualiza contraseña cliente
+// URL: /Tienda/cambiarPassword  (POST)
+// ─────────────────────────────────────────────
+public function cambiarPassword(): void
+{
+    $this->requireCliente();
+
+    if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+        header('Location: ' . APP_URL . 'Tienda/miPerfil'); exit();
+    }
+    if (!isset($_POST['csrf_token']) ||
+        !hash_equals($_SESSION['csrf_token'], $_POST['csrf_token'])) {
+        header('Location: ' . APP_URL . 'Tienda/miPerfil'); exit();
+    }
+
+    $clienteId   = (int)$_SESSION['cliente']['id'];
+    $actual      = trim($_POST['password_actual']    ?? '');
+    $nueva       = trim($_POST['password_nueva']     ?? '');
+    $confirmar   = trim($_POST['password_confirmar'] ?? '');
+
+    $cliente = $this->clienteModel->findById($clienteId);
+
+    if (!password_verify($actual, $cliente->password ?? '')) {
+        header('Location: ' . APP_URL . 'Tienda/miPerfil?errorPassword=actual'); exit();
+    }
+    if ($nueva !== $confirmar) {
+        header('Location: ' . APP_URL . 'Tienda/miPerfil?errorPassword=coincide'); exit();
+    }
+    if (strlen($nueva) < 6) {
+        header('Location: ' . APP_URL . 'Tienda/miPerfil?errorPassword=corta'); exit();
+    }
+
+    $ok = $this->clienteModel->updatePassword(
+        $clienteId,
+        password_hash($nueva, PASSWORD_BCRYPT)
+    );
+
+    if ($ok) {
+        header('Location: ' . APP_URL . 'Tienda/miPerfil?okPassword=1'); exit();
+    }
+
+    header('Location: ' . APP_URL . 'Tienda/miPerfil?errorPassword=servidor'); exit();
+}
 
     private function render(string $vista, array $vars = []): void
     {
@@ -644,4 +758,6 @@ class TiendaController
         }
         exit();
     }
+
+    
 }

@@ -375,5 +375,164 @@ class UsuariosController
 
         return $nombreArchivo;
     }
-    
+    // ─────────────────────────────────────────────
+    // PERFIL — ver perfil propio
+    // URL: /Usuarios/perfil
+    // ─────────────────────────────────────────────
+    public function perfil(): void
+    {
+        Auth::check();
+        $pageTitle = 'Mi Perfil';
+        $usuario   = $this->userModel->findById(Auth::id());
+        require_once VIEWS_PATH . 'Usuarios' . DS . 'Perfil.php';
+    }
+
+    // ─────────────────────────────────────────────
+    // GUARDAR PERFIL — actualiza datos propios
+    // URL: /Usuarios/guardarPerfil  (POST)
+    // ─────────────────────────────────────────────
+    public function guardarPerfil(): void
+    {
+        Auth::check();
+
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            header('Location: ' . APP_URL . 'Usuarios/perfil'); exit();
+        }
+        if (!isset($_POST['csrf_token']) || $_SESSION['csrf_token'] !== $_POST['csrf_token']) {
+            header('Location: ' . APP_URL . 'Usuarios/perfil'); exit();
+        }
+
+        $id       = Auth::id();
+        $nombre   = htmlspecialchars(strip_tags(trim($_POST['nombre']   ?? '')));
+        $username = preg_replace('/[^a-zA-Z0-9_]/', '', trim($_POST['username'] ?? ''));
+        $email    = htmlspecialchars(strip_tags(trim($_POST['email']    ?? '')));
+        $telefono = htmlspecialchars(strip_tags(trim($_POST['telefono'] ?? '')));
+
+        if (empty($nombre) || empty($email)) {
+            $_SESSION['alert'] = [
+                'icon'  => 'warning',
+                'title' => 'Campos requeridos',
+                'text'  => 'El nombre y correo son obligatorios.',
+            ];
+            header('Location: ' . APP_URL . 'Usuarios/perfil'); exit();
+        }
+
+        if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            $_SESSION['alert'] = [
+                'icon'  => 'warning',
+                'title' => 'Correo inválido',
+                'text'  => 'El formato del correo no es válido.',
+            ];
+            header('Location: ' . APP_URL . 'Usuarios/perfil'); exit();
+        }
+
+        if ($this->userModel->emailExists($email, $id)) {
+            $_SESSION['alert'] = [
+                'icon'  => 'warning',
+                'title' => 'Correo duplicado',
+                'text'  => 'Ese correo ya está en uso por otro usuario.',
+            ];
+            header('Location: ' . APP_URL . 'Usuarios/perfil'); exit();
+        }
+
+        // Manejo de foto
+        $usuarioActual = $this->userModel->findById($id);
+        $foto = $usuarioActual->foto;
+
+        if (!empty($_FILES['foto']['name'])) {
+            $fotoNueva = $this->subirFoto($_FILES['foto']);
+            if ($fotoNueva === null) {
+                $_SESSION['alert'] = [
+                    'icon'  => 'error',
+                    'title' => 'Error de imagen',
+                    'text'  => 'Solo JPG, PNG o WEBP. Máximo 2MB.',
+                ];
+                header('Location: ' . APP_URL . 'Usuarios/perfil'); exit();
+            }
+            $foto = $fotoNueva;
+        }
+
+        $ok = $this->userModel->updatePerfil([
+            'id'       => $id,
+            'nombre'   => $nombre,
+            'username' => $username ?: null,
+            'email'    => $email,
+            'telefono' => $telefono ?: null,
+            'foto'     => $foto,
+        ]);
+
+        if ($ok) {
+            // Actualizar sesión
+            $_SESSION['user']['nombre']   = $nombre;
+            $_SESSION['user']['email']    = $email;
+            $_SESSION['user']['telefono'] = $telefono;
+            $_SESSION['user']['foto']     = $foto;
+        }
+
+        $_SESSION['alert'] = [
+            'icon'  => $ok ? 'success' : 'error',
+            'title' => $ok ? 'Éxito'   : 'Error',
+            'text'  => $ok ? 'Perfil actualizado correctamente.' : 'Error al actualizar.',
+        ];
+        header('Location: ' . APP_URL . 'Usuarios/perfil');
+        exit();
+    }
+
+    // ─────────────────────────────────────────────
+    // CAMBIAR PASSWORD — contraseña propia
+    // URL: /Usuarios/cambiarPassword  (POST)
+    // ─────────────────────────────────────────────
+    public function cambiarPassword(): void
+    {
+        Auth::check();
+
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            header('Location: ' . APP_URL . 'Usuarios/perfil'); exit();
+        }
+        if (!isset($_POST['csrf_token']) || $_SESSION['csrf_token'] !== $_POST['csrf_token']) {
+            header('Location: ' . APP_URL . 'Usuarios/perfil'); exit();
+        }
+
+        $id        = Auth::id();
+        $actual    = trim($_POST['password_actual']    ?? '');
+        $nueva     = trim($_POST['password_nueva']     ?? '');
+        $confirmar = trim($_POST['password_confirmar'] ?? '');
+
+        $usuario = $this->userModel->findById($id);
+
+        if (!password_verify($actual, $usuario->password ?? '')) {
+            $_SESSION['alert'] = [
+                'icon'  => 'warning',
+                'title' => 'Contraseña incorrecta',
+                'text'  => 'La contraseña actual no es correcta.',
+            ];
+            header('Location: ' . APP_URL . 'Usuarios/perfil'); exit();
+        }
+        if ($nueva !== $confirmar) {
+            $_SESSION['alert'] = [
+                'icon'  => 'warning',
+                'title' => 'No coinciden',
+                'text'  => 'Las contraseñas nuevas no coinciden.',
+            ];
+            header('Location: ' . APP_URL . 'Usuarios/perfil'); exit();
+        }
+        if (strlen($nueva) < 6) {
+            $_SESSION['alert'] = [
+                'icon'  => 'warning',
+                'title' => 'Contraseña muy corta',
+                'text'  => 'La nueva contraseña debe tener al menos 6 caracteres.',
+            ];
+            header('Location: ' . APP_URL . 'Usuarios/perfil'); exit();
+        }
+
+        $ok = $this->userModel->updatePassword($id, password_hash($nueva, PASSWORD_BCRYPT));
+
+        $_SESSION['alert'] = [
+            'icon'  => $ok ? 'success' : 'error',
+            'title' => $ok ? 'Éxito'   : 'Error',
+            'text'  => $ok ? 'Contraseña actualizada correctamente.' : 'Error al cambiar la contraseña.',
+        ];
+        header('Location: ' . APP_URL . 'Usuarios/perfil');
+        exit();
+    }
 }
