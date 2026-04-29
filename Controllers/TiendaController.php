@@ -527,7 +527,7 @@ public function miPerfil(): void
     $ok            = $_GET['ok']            ?? null;
     $errorPassword = $_GET['errorPassword'] ?? null;
     $okPassword    = $_GET['okPassword']    ?? null;
-    $this->render('MiPerfil.php', compact(
+    $this->render('Miperfil.php', compact(
         'pageTitle','cliente','error','ok','errorPassword','okPassword'
     ));
 }
