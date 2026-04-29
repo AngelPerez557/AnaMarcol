@@ -302,7 +302,7 @@
     <nav class="tienda-navbar">
         <div class="container">
             <div class="d-flex justify-content-between align-items-center">
-                <a href="<?= APP_URL ?>Tienda/index" class="tienda-brand">
+                <a href="<?= APP_URL ?>Tienda" class="tienda-brand">
                     <img src="<?= APP_URL ?>Content/Demo/img/Logo.png"
                          alt="<?= APP_NAME ?>"
                          style="height:40px; width:auto; object-fit:contain;
@@ -312,8 +312,8 @@
                 <!-- Menú desktop -->
                 <ul class="nav nav-tienda d-none d-md-flex align-items-center">
                     <li class="nav-item">
-                        <a href="<?= APP_URL ?>Tienda/index"
-                           class="nav-link <?= str_contains($urlActual ?? '', 'tienda/index') ? 'active' : '' ?>">
+                        <a href="<?= APP_URL ?>Tienda"
+                           class="nav-link <?= str_contains($urlActual ?? '', 'tienda') ? 'active' : '' ?>">
                             Inicio
                         </a>
                     </li>

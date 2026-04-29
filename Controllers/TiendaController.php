@@ -266,7 +266,7 @@ class TiendaController
     {
         $datos = $_SESSION['pedido_exitoso'] ?? null;
         if (!$datos) {
-            header('Location: ' . APP_URL . 'Tienda/index'); exit();
+            header('Location: ' . APP_URL . 'Tienda'); exit();
         }
         unset($_SESSION['pedido_exitoso']);
 
