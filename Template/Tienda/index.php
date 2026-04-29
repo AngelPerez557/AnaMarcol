@@ -441,21 +441,32 @@
                 </ul>
             </div>
             <div class="col-12 col-md-3">
-                <h6 class="text-white mb-3">Síguenos</h6>
-                <div class="d-flex gap-3" style="font-size:1.5rem;">
-                    <a href="https://www.instagram.com/anamarcol_makeupstudio?igsh=MWc2eGM0ZTJ2eGh0"
-                       target="_blank" title="Instagram">
-                        <i class="fab fa-instagram" style="color:#de777d;"></i>
-                    </a>
-                    <a href="https://wa.me/50499873125" target="_blank" title="WhatsApp">
-                        <i class="fab fa-whatsapp" style="color:#25d366;"></i>
-                    </a>
-                </div>
-                <p class="mt-3" style="font-size:0.8rem;">
-                    Desarrollado por
-                    <a href="https://wa.me/50493429640" target="_blank">DeskCod</a>
-                </p>
+            <h6 class="text-white mb-3">Síguenos</h6>
+            <div class="d-flex gap-3" style="font-size:1.5rem;">
+                <a href="https://www.instagram.com/anamarcol_makeupstudio?igsh=MWc2eGM0ZTJ2eGh0"
+                target="_blank" title="Instagram">
+                    <i class="fab fa-instagram" style="color:#de777d;"></i>
+                </a>
+                <a href="https://wa.me/50499873125" target="_blank" title="WhatsApp">
+                    <i class="fab fa-whatsapp" style="color:#25d366;"></i>
+                </a>
             </div>
+            <p class="mt-3" style="font-size:0.8rem;">
+                Desarrollado por
+                <a href="https://www.instagram.com/deskcod_" target="_blank" 
+                style="color:#de777d;">DeskCod</a>
+                <br>
+                <a href="https://wa.me/50493429640" target="_blank"
+                style="color:#ccc; text-decoration:none; font-size:0.78rem;">
+                    <i class="fab fa-whatsapp me-1" style="color:#25d366;"></i>+(504) 9342-964
+                </a>
+                <br>
+                <a href="https://www.instagram.com/deskcod_" target="_blank"
+                style="color:#ccc; text-decoration:none; font-size:0.78rem;">
+                    <i class="fab fa-instagram me-1" style="color:#de777d;"></i>@deskcod_
+                </a>
+            </p>
+        </div>
         </div>
         <hr style="border-color:#555; margin: 20px 0;">
         <div class="text-center" style="font-size:0.8rem;">
