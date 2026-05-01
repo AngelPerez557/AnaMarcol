@@ -33,6 +33,8 @@ class CajaController
         // Cargar categorías para el filtro
         $categoriaModel = new CategoriaModel();
         $categorias     = $categoriaModel->findActivas();
+        $descuentoModel = new DescuentoModel();
+        $descuentoActivo = $descuentoModel->getActivo();
 
         require_once VIEWS_PATH . 'Caja' . DS . 'index.php';
     }
@@ -179,13 +181,18 @@ class CajaController
             $subtotal += (float) $item['precio'] * (int) $item['cantidad'];
         }
 
-        $isv     = round($subtotal / 1.15 * 0.15, 2); // ISV 15% incluido en precio
-        $total   = round($subtotal, 2);
-        $cambio  = $metodoPago === 'Efectivo' && $montoRecibido
+        $descuentoPct   = (float) ($_POST['descuento_pct'] ?? 0);
+        $descuentoMonto = $descuentoPct > 0
+            ? round($subtotal * $descuentoPct / 100, 2)
+            : 0;
+
+        $isv    = round($subtotal / 1.15 * 0.15, 2);
+        $total  = round($subtotal - $descuentoMonto, 2);
+        $cambio = $metodoPago === 'Efectivo' && $montoRecibido
             ? round($montoRecibido - $total, 2)
             : null;
 
-        // Validar que el efectivo cubra el total
+        // Validar que el efectivo cubra el total con descuento
         if ($metodoPago === 'Efectivo' && $montoRecibido !== null && $montoRecibido < $total) {
             header('Content-Type: application/json');
             echo json_encode(['success' => false, 'message' => 'El monto recibido es insuficiente.']);
