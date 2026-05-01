@@ -104,6 +104,7 @@ class ProductosController
         $tieneVariantes = isset($_POST['tiene_variantes']) ? 1 : 0;
         $codigoBarras = trim($_POST['codigo_barras'] ?? '') ?: null;
         $stock          = $tieneVariantes ? 0 : (int) ($_POST['stock'] ?? 0);
+        $visibleTienda = isset($_POST['visible_tienda']) ? 1 : 0;
 
         // Validaciones básicas
         if (empty($nombre) || $categoriaId === 0) {
@@ -147,6 +148,7 @@ class ProductosController
             'stock'           => $stock,
             'codigo_barras'   => $codigoBarras,
             'image_url'       => $imageUrl,
+            'visible_tienda'  => $visibleTienda,
         ];
 
         if ($esEdicion) {
@@ -376,5 +378,30 @@ class ProductosController
         }
 
         return $nombreArchivo;
+    }
+
+    // ─────────────────────────────────────────────
+    // TOGGLE VISIBLE TIENDA — (POST — JSON)
+    // URL: /Productos/toggleVisible
+    // ─────────────────────────────────────────────
+    public function toggleVisible(): void
+    {
+        Auth::require('productos.editar');
+
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            http_response_code(405); exit();
+        }
+        if (!isset($_POST['csrf_token']) || $_SESSION['csrf_token'] !== $_POST['csrf_token']) {
+            http_response_code(403); exit();
+        }
+
+        $id      = (int) ($_POST['id']      ?? 0);
+        $visible = (int) ($_POST['visible'] ?? 0);
+
+        $ok = $this->productoModel->toggleVisibleTienda($id, $visible);
+
+        header('Content-Type: application/json');
+        echo json_encode(['success' => $ok]);
+        exit();
     }
 }

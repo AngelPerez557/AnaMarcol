@@ -13,6 +13,7 @@ class ProductoEntity extends BaseEntity
     public ?float  $precio_base      = null;
     public ?int    $tiene_variantes  = 0;
     public ?int    $stock            = 0;
+    public ?int    $visible_tienda   = 1;
     public ?string $image_url        = null;
     public ?int    $activo           = 1;
     public ?string $created_at       = null;
@@ -27,7 +28,11 @@ class ProductoEntity extends BaseEntity
     {
         return (int) $this->activo === 1;
     }
-
+    
+    public function isVisibleTienda(): bool
+    {
+        return (int) $this->visible_tienda === 1;
+    }
     // Retorna true si el producto maneja variantes
     public function tieneVariantes(): bool
     {

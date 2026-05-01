@@ -107,7 +107,23 @@
                                 </label>
                             </div>
                         </div>
-
+                        <!-- Visible en tienda -->
+                        <div class="mb-3">
+                            <div class="form-check form-switch">
+                                <input class="form-check-input"
+                                    type="checkbox"
+                                    role="switch"
+                                    id="visible_tienda"
+                                    name="visible_tienda"
+                                    <?= $producto->isVisibleTienda() ? 'checked' : '' ?>>
+                                <label class="form-check-label fw-semibold" for="visible_tienda">
+                                    Mostrar en tienda en línea
+                                    <small class="text-muted fw-normal d-block">
+                                        Desactiva si es un producto exclusivo para venta presencial
+                                    </small>
+                                </label>
+                            </div>
+                        </div>
                         <!-- ─────────────────────────────────────────────
                              SECCIÓN SIMPLE — se oculta si tiene variantes
                              ───────────────────────────────────────────── -->

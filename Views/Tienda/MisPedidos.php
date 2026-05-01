@@ -21,7 +21,7 @@
                     <div class="d-flex justify-content-between align-items-start flex-wrap gap-2">
                         <div>
                             <div class="fw-bold" style="color:#de777d; font-size:1.1rem;">
-                                <?= $pedido->getCodigoFormateado() ?>
+                                <?= htmlspecialchars($pedido->codigo) ?>
                             </div>
                             <small class="text-muted">
                                 <?= date('d/m/Y H:i', strtotime($pedido->created_at)) ?>
