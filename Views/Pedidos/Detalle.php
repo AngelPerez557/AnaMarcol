@@ -101,8 +101,9 @@
                     <table class="table table-sm align-middle mb-0">
                         <thead>
                             <tr style="background:rgba(222,119,125,0.08);">
-                                <th class="ps-3">Producto</th>
-                                <th class="text-center">Cantidad</th>
+                                <th class="ps-3" style="width:52px;"></th>
+                                <th>Producto</th>
+                                <th class="text-center">Cant.</th>
                                 <th class="text-end">P. Unit.</th>
                                 <th class="text-end pe-3">Subtotal</th>
                             </tr>
@@ -110,7 +111,22 @@
                         <tbody>
                             <?php foreach ($detalle as $item): ?>
                             <tr>
-                                <td class="ps-3 fw-semibold">
+                                <!-- Imagen -->
+                                <td class="ps-3">
+                                    <div style="
+                                        width:40px; height:40px;
+                                        border-radius:6px;
+                                        background-image:url('<?= !empty($item['image_url'])
+                                            ? APP_URL . 'Content/Demo/img/Productos/' . htmlspecialchars($item['image_url'])
+                                            : APP_URL . 'Content/Demo/img/default/producto_default.svg' ?>');
+                                        background-size:contain;
+                                        background-position:center;
+                                        background-repeat:no-repeat;
+                                        background-color:#fdf8f8;
+                                        border:1px solid #f0e0e1;">
+                                    </div>
+                                </td>
+                                <td class="fw-semibold">
                                     <?= htmlspecialchars($item['nombre_producto']) ?>
                                 </td>
                                 <td class="text-center"><?= $item['cantidad'] ?></td>
@@ -125,7 +141,7 @@
                         </tbody>
                         <tfoot>
                             <tr style="background:rgba(222,119,125,0.06);">
-                                <td colspan="3" class="text-end fw-bold ps-3">
+                                <td colspan="4" class="text-end fw-bold ps-3">
                                     <?php if ($pedido->costo_envio > 0): ?>
                                     Subtotal productos:
                                     <?php else: ?>
@@ -138,13 +154,13 @@
                             </tr>
                             <?php if ($pedido->costo_envio > 0): ?>
                             <tr>
-                                <td colspan="3" class="text-end ps-3 text-muted">Costo de envío:</td>
+                                <td colspan="4" class="text-end ps-3 text-muted">Costo de envío:</td>
                                 <td class="text-end pe-3 text-muted">
                                     L. <?= number_format((float)$pedido->costo_envio, 2) ?>
                                 </td>
                             </tr>
                             <tr style="background:rgba(222,119,125,0.06);">
-                                <td colspan="3" class="text-end fw-bold ps-3 fs-5">Total:</td>
+                                <td colspan="4" class="text-end fw-bold ps-3 fs-5">Total:</td>
                                 <td class="text-end pe-3 fw-bold fs-5" style="color:#de777d;">
                                     L. <?= number_format((float)$pedido->total, 2) ?>
                                 </td>
@@ -155,7 +171,7 @@
                 </div>
             </div>
 
-            <!-- Botón WhatsApp con mensaje del estado actual -->
+            <!-- Botón WhatsApp -->
             <?php if ($pedido->cliente_telefono || $pedido->wa_numero): ?>
             <div class="card">
                 <div class="card-body">
@@ -172,7 +188,6 @@
                             <i class="fab fa-whatsapp me-2"></i>Enviar por WhatsApp
                         </a>
                     </div>
-                    <!-- Preview del mensaje -->
                     <div class="mt-3 p-3 rounded" style="background:rgba(37,211,102,0.08); border:1px solid rgba(37,211,102,0.2);">
                         <small class="text-muted d-block mb-1">
                             <i class="fas fa-eye me-1"></i>Preview del mensaje:
@@ -189,6 +204,7 @@
              COLUMNA DERECHA — Estado e historial
              ───────────────────────────────────────────── -->
         <div class="col-12 col-lg-5">
+
             <!-- Confirmar pago -->
             <?php if (Auth::can('pedidos.gestionar') && !$pedido->pagado && $pedido->estado !== 'Cancelado'): ?>
             <div class="card mb-3" style="border-color:rgba(40,167,69,0.3);">
@@ -206,7 +222,7 @@
                         </span>
                     </div>
                     <p class="text-muted mb-3" style="font-size:0.85rem;">
-                        Al confirmar el pago se registrará automáticamente una venta en caja 
+                        Al confirmar el pago se registrará automáticamente una venta en caja
                         por <strong>L. <?= number_format((float)$pedido->total, 2) ?></strong>.
                     </p>
                     <button type="button"
@@ -229,6 +245,7 @@
                 </div>
             </div>
             <?php endif; ?>
+
             <!-- Cambiar estado -->
             <?php if (Auth::can('pedidos.gestionar') && $pedido->estado !== 'Entregado' && $pedido->estado !== 'Cancelado'): ?>
             <div class="card mb-3">
@@ -247,8 +264,6 @@
                             Pasar a: <strong><?= $siguienteEstado ?></strong>
                         </button>
                         <?php endforeach; ?>
-
-                        <!-- Cancelar siempre disponible si no está entregado -->
                         <?php if ($pedido->estado !== 'Cancelado'): ?>
                         <button type="button"
                                 class="btn btn-outline-danger btn-cambiar-estado"
@@ -259,8 +274,6 @@
                         </button>
                         <?php endif; ?>
                     </div>
-
-                    <!-- Nota opcional al cambiar estado -->
                     <div class="mt-3">
                         <label for="notaEstado" class="form-label text-muted" style="font-size:0.85rem;">
                             Nota (opcional)
@@ -321,7 +334,6 @@
     </div>
 </div>
 
-<!-- CSRF oculto -->
 <input type="hidden" id="csrfToken" value="<?= htmlspecialchars($_SESSION['csrf_token'] ?? '') ?>">
 <input type="hidden" id="appUrl"    value="<?= APP_URL ?>">
 
@@ -333,22 +345,20 @@ document.addEventListener('DOMContentLoaded', function () {
 
     document.querySelectorAll('.btn-cambiar-estado').forEach(function (btn) {
         btn.addEventListener('click', function () {
-            const id     = this.dataset.id;
-            const estado = this.dataset.estado;
-            const nota   = document.getElementById('notaEstado')?.value || '';
+            const id         = this.dataset.id;
+            const estado     = this.dataset.estado;
+            const nota       = document.getElementById('notaEstado')?.value || '';
             const esCancelar = estado === 'Cancelado';
 
             Swal.fire({
                 icon:  esCancelar ? 'warning' : 'question',
                 title: esCancelar ? '¿Cancelar pedido?' : `¿Cambiar a "${estado}"?`,
-                text:  esCancelar
-                    ? 'Esta acción no se puede deshacer.'
-                    : `El pedido pasará al estado "${estado}".`,
-                showCancelButton:    true,
-                confirmButtonColor:  esCancelar ? '#dc3545' : '#de777d',
-                cancelButtonColor:   '#6c757d',
-                confirmButtonText:   esCancelar ? 'Sí, cancelar' : 'Sí, cambiar',
-                cancelButtonText:    'No'
+                text:  esCancelar ? 'Esta acción no se puede deshacer.' : `El pedido pasará al estado "${estado}".`,
+                showCancelButton:   true,
+                confirmButtonColor: esCancelar ? '#dc3545' : '#de777d',
+                cancelButtonColor:  '#6c757d',
+                confirmButtonText:  esCancelar ? 'Sí, cancelar' : 'Sí, cambiar',
+                cancelButtonText:   'No'
             }).then(result => {
                 if (!result.isConfirmed) return;
 
@@ -358,35 +368,24 @@ document.addEventListener('DOMContentLoaded', function () {
                 formData.append('estado',     estado);
                 formData.append('nota',       nota);
 
-                fetch(`${APP_URL}Pedidos/cambiarEstado`, {
-                    method: 'POST',
-                    body:   formData
-                })
+                fetch(`${APP_URL}Pedidos/cambiarEstado`, { method:'POST', body:formData })
                 .then(r => r.json())
                 .then(data => {
                     if (data.success) {
                         Swal.fire({
-                            icon:  'success',
-                            title: 'Estado actualizado',
-                            text:  `Pedido en estado: ${data.estado}`,
+                            icon: 'success', title: 'Estado actualizado',
+                            text: `Pedido en estado: ${data.estado}`,
                             confirmButtonColor: '#de777d',
-                            timer: 2000,
-                            showConfirmButton: false
+                            timer: 2000, showConfirmButton: false
                         }).then(() => location.reload());
                     } else {
-                        Swal.fire({
-                            icon:  'error',
-                            title: 'Error',
-                            text:  data.message,
-                            confirmButtonColor: '#de777d'
-                        });
+                        Swal.fire({ icon:'error', title:'Error', text:data.message, confirmButtonColor:'#de777d' });
                     }
                 });
             });
         });
     });
 
-    // ── Confirmar pago ────────────────────────────
     const btnPago = document.getElementById('btnConfirmarPago');
     if (btnPago) {
         btnPago.addEventListener('click', function () {
@@ -394,9 +393,8 @@ document.addEventListener('DOMContentLoaded', function () {
             const csrf     = this.dataset.csrf;
 
             Swal.fire({
-                icon:  'question',
-                title: '¿Confirmar pago?',
-                html:  'Se registrará la venta en caja.<br><strong>Esta acción no se puede deshacer.</strong>',
+                icon: 'question', title: '¿Confirmar pago?',
+                html: 'Se registrará la venta en caja.<br><strong>Esta acción no se puede deshacer.</strong>',
                 showCancelButton:   true,
                 confirmButtonColor: '#28a745',
                 cancelButtonColor:  '#6c757d',
@@ -412,28 +410,17 @@ document.addEventListener('DOMContentLoaded', function () {
                 formData.append('csrf_token', csrf);
                 formData.append('pedido_id',  pedidoId);
 
-                fetch(`${APP_URL}Pedidos/confirmarPago`, {
-                    method: 'POST',
-                    body:   formData
-                })
+                fetch(`${APP_URL}Pedidos/confirmarPago`, { method:'POST', body:formData })
                 .then(r => r.json())
                 .then(data => {
                     if (data.success) {
                         Swal.fire({
-                            icon:  'success',
-                            title: 'Pago confirmado',
-                            text:  data.message,
+                            icon: 'success', title: 'Pago confirmado', text: data.message,
                             confirmButtonColor: '#28a745',
-                            timer: 2500,
-                            showConfirmButton: false
+                            timer: 2500, showConfirmButton: false
                         }).then(() => location.reload());
                     } else {
-                        Swal.fire({
-                            icon:  'error',
-                            title: 'Error',
-                            text:  data.message,
-                            confirmButtonColor: '#de777d'
-                        });
+                        Swal.fire({ icon:'error', title:'Error', text:data.message, confirmButtonColor:'#de777d' });
                         btnPago.disabled = false;
                         btnPago.innerHTML = '<i class="fas fa-check-circle me-2"></i>Confirmar pago recibido';
                     }
