@@ -3,48 +3,46 @@ $urlActual = strtolower(trim($_GET['url'] ?? '', '/'));
 
 $menu = [
     'Inicio' => ['Id'=>1,'Nombre'=>'Inicio','Url'=>APP_URL.'Dashboard/index','Icono'=>'fas fa-home','Permiso'=>''],
-    'Caja'   => ['Id'=>12,'Nombre'=>'Caja / Punto de Venta','Url'=>APP_URL.'Caja/index','Icono'=>'fas fa-cash-register','Permiso'=>'ventas.crear','TourId'=>'tour-caja-link'],
-    'Pedidos'=> ['Id'=>2,'Nombre'=>'Pedidos','Url'=>APP_URL.'Pedidos/index','Icono'=>'fas fa-shopping-bag','Permiso'=>'pedidos.ver','TourId'=>'tour-pedidos-link'],
-    'Catalogo'=> ['Id'=>3,'Nombre'=>'Catálogo','Url'=>'#','Icono'=>'fas fa-box-open','Permiso'=>'','Children'=>[
-        ['Id'=>31,'Nombre'=>'Productos', 'Url'=>APP_URL.'Productos/index', 'Icono'=>'fas fa-boxes',      'Permiso'=>'productos.ver'],
-        ['Id'=>32,'Nombre'=>'Categorías','Url'=>APP_URL.'Categorias/index','Icono'=>'fas fa-tags',        'Permiso'=>'categorias.ver'],
-        ['Id'=>33,'Nombre'=>'Combos',    'Url'=>APP_URL.'Combos/index',    'Icono'=>'fas fa-layer-group', 'Permiso'=>'combos.ver'],
+
+    'Caja' => ['Id'=>12,'Nombre'=>'Caja / Punto de Venta','Url'=>APP_URL.'Caja/index','Icono'=>'fas fa-cash-register','Permiso'=>'ventas.crear','TourId'=>'tour-caja-link'],
+
+    'Pedidos' => ['Id'=>2,'Nombre'=>'Pedidos','Url'=>APP_URL.'Pedidos/index','Icono'=>'fas fa-shopping-bag','Permiso'=>'pedidos.ver','TourId'=>'tour-pedidos-link'],
+
+    'Ventas' => ['Id'=>4,'Nombre'=>'Ventas','Url'=>'#','Icono'=>'fas fa-receipt','Permiso'=>'ventas.ver','Children'=>[
+        ['Id'=>41,'Nombre'=>'Historial',     'Url'=>APP_URL.'Ventas/index',   'Icono'=>'fas fa-history',             'Permiso'=>'ventas.ver'],
+        ['Id'=>71,'Nombre'=>'Facturas',      'Url'=>APP_URL.'Facturas/index', 'Icono'=>'fas fa-file-invoice-dollar', 'Permiso'=>'facturacion.ver'],
+        ['Id'=>72,'Nombre'=>'Configuración', 'Url'=>APP_URL.'Facturas/config','Icono'=>'fas fa-sliders-h',           'Permiso'=>'facturacion.configurar'],
     ]],
-    'Ventas'=> ['Id'=>4,'Nombre'=>'Ventas','Url'=>'#','Icono'=>'fas fa-receipt','Permiso'=>'ventas.ver','Children'=>[
-        ['Id'=>41,'Nombre'=>'Historial','Url'=>APP_URL.'Ventas/index','Icono'=>'fas fa-history','Permiso'=>'ventas.ver'],
+
+    'Catalogo' => ['Id'=>3,'Nombre'=>'Catálogo','Url'=>'#','Icono'=>'fas fa-box-open','Permiso'=>'','Children'=>[
+        ['Id'=>31,'Nombre'=>'Productos',  'Url'=>APP_URL.'Productos/index',  'Icono'=>'fas fa-boxes',      'Permiso'=>'productos.ver'],
+        ['Id'=>32,'Nombre'=>'Categorías', 'Url'=>APP_URL.'Categorias/index', 'Icono'=>'fas fa-tags',        'Permiso'=>'categorias.ver'],
+        ['Id'=>33,'Nombre'=>'Combos',     'Url'=>APP_URL.'Combos/index',     'Icono'=>'fas fa-layer-group', 'Permiso'=>'combos.ver'],
+        ['Id'=>34,'Nombre'=>'Descuentos', 'Url'=>APP_URL.'Descuentos/index', 'Icono'=>'fas fa-percent',     'Permiso'=>'productos.editar'],
     ]],
-    'Citas'=> ['Id'=>5,'Nombre'=>'Citas','Url'=>'#','Icono'=>'fas fa-calendar-alt','Permiso'=>'citas.ver','Children'=>[
-        ['Id'=>51,'Nombre'=>'Calendario','Url'=>APP_URL.'Citas/index',    'Icono'=>'fas fa-calendar',      'Permiso'=>'citas.ver','TourId'=>'tour-citas-link'],
-        ['Id'=>52,'Nombre'=>'Nueva cita', 'Url'=>APP_URL.'Citas/create',   'Icono'=>'fas fa-plus-circle',   'Permiso'=>'citas.crear'],
-        ['Id'=>53,'Nombre'=>'Servicios',  'Url'=>APP_URL.'Servicios/index','Icono'=>'fas fa-concierge-bell','Permiso'=>'citas.ver'],
+
+    'Clientes' => ['Id'=>6,'Nombre'=>'Clientes','Url'=>'#','Icono'=>'fas fa-users','Permiso'=>'clientes.ver','Children'=>[
+        ['Id'=>61,'Nombre'=>'Lista',      'Url'=>APP_URL.'Clientes/index',  'Icono'=>'fas fa-list',           'Permiso'=>'clientes.ver'],
+        ['Id'=>51,'Nombre'=>'Calendario', 'Url'=>APP_URL.'Citas/index',     'Icono'=>'fas fa-calendar',       'Permiso'=>'citas.ver','TourId'=>'tour-citas-link'],
+        ['Id'=>52,'Nombre'=>'Nueva cita', 'Url'=>APP_URL.'Citas/create',    'Icono'=>'fas fa-plus-circle',    'Permiso'=>'citas.crear'],
+        ['Id'=>53,'Nombre'=>'Servicios',  'Url'=>APP_URL.'Servicios/index', 'Icono'=>'fas fa-concierge-bell', 'Permiso'=>'citas.ver'],
     ]],
-    'Clientes'=> ['Id'=>6,'Nombre'=>'Clientes','Url'=>'#','Icono'=>'fas fa-users','Permiso'=>'clientes.ver','Children'=>[
-        ['Id'=>61,'Nombre'=>'Lista','Url'=>APP_URL.'Clientes/index','Icono'=>'fas fa-list','Permiso'=>'clientes.ver'],
+
+    'Tienda' => ['Id'=>8,'Nombre'=>'Tienda','Url'=>'#','Icono'=>'fas fa-store','Permiso'=>'','Children'=>[
+        ['Id'=>81,'Nombre'=>'Ver tienda',       'Url'=>APP_URL.'Tienda/index',  'Icono'=>'fas fa-external-link-alt','Permiso'=>''],
+        ['Id'=>82,'Nombre'=>'Banners',           'Url'=>APP_URL.'Banners/index', 'Icono'=>'fas fa-image',            'Permiso'=>'tienda.configurar'],
+        ['Id'=>84,'Nombre'=>'Fotos de clientes', 'Url'=>APP_URL.'Galeria/index', 'Icono'=>'fas fa-images',           'Permiso'=>'tienda.configurar'],
+        ['Id'=>83,'Nombre'=>'Zonas de envío',    'Url'=>APP_URL.'Zonas/index',   'Icono'=>'fas fa-map-marker-alt',   'Permiso'=>'tienda.configurar'],
     ]],
-    'Facturacion'=> ['Id'=>7,'Nombre'=>'Facturación','Url'=>'#','Icono'=>'fas fa-file-invoice','Permiso'=>'facturacion.ver','Children'=>[
-        ['Id'=>71,'Nombre'=>'Facturas',     'Url'=>APP_URL.'Facturas/index', 'Icono'=>'fas fa-file-invoice-dollar','Permiso'=>'facturacion.ver'],
-        ['Id'=>72,'Nombre'=>'Configuración','Url'=>APP_URL.'Facturas/config','Icono'=>'fas fa-sliders-h',          'Permiso'=>'facturacion.configurar'],
+
+    'Administracion' => ['Id'=>10,'Nombre'=>'Administración','Url'=>'#','Icono'=>'fas fa-cogs','Permiso'=>'','Children'=>[
+        ['Id'=>101,'Nombre'=>'Usuarios',           'Url'=>APP_URL.'Usuarios/index',      'Icono'=>'fas fa-user-cog',    'Permiso'=>'usuarios.ver'],
+        ['Id'=>102,'Nombre'=>'Roles',              'Url'=>APP_URL.'Roles/index',         'Icono'=>'fas fa-user-shield', 'Permiso'=>'roles.ver'],
+        ['Id'=>103,'Nombre'=>'Permisos',           'Url'=>APP_URL.'Permisos/index',      'Icono'=>'fas fa-key',         'Permiso'=>'roles.ver'],
+        ['Id'=>91, 'Nombre'=>'Reporte Ventas',     'Url'=>APP_URL.'Reportes/ventas',     'Icono'=>'fas fa-chart-line',  'Permiso'=>'reportes.ver'],
+        ['Id'=>92, 'Nombre'=>'Reporte Pedidos',    'Url'=>APP_URL.'Reportes/pedidos',    'Icono'=>'fas fa-shopping-bag','Permiso'=>'reportes.ver'],
+        ['Id'=>93, 'Nombre'=>'Reporte Inventario', 'Url'=>APP_URL.'Reportes/inventario', 'Icono'=>'fas fa-boxes',       'Permiso'=>'reportes.ver'],
     ]],
-    'Tienda'=> ['Id'=>8,'Nombre'=>'Tienda','Url'=>'#','Icono'=>'fas fa-store','Permiso'=>'','Children'=>[
-        ['Id'=>81,'Nombre'=>'Ver tienda',       'Url'=>APP_URL.'Tienda/index', 'Icono'=>'fas fa-external-link-alt','Permiso'=>''],
-        ['Id'=>82,'Nombre'=>'Banners',           'Url'=>APP_URL.'Banners/index','Icono'=>'fas fa-image',            'Permiso'=>'tienda.configurar'],
-        ['Id'=>84,'Nombre'=>'Fotos de clientes', 'Url'=>APP_URL.'Galeria/index','Icono'=>'fas fa-images',           'Permiso'=>'tienda.configurar'],
-        ['Id'=>83,'Nombre'=>'Zonas de envío',   'Url'=>APP_URL.'Zonas/index',  'Icono'=>'fas fa-map-marker-alt',   'Permiso'=>'tienda.configurar'],
-    ]],
-    'Reportes'=> ['Id'=>9,'Nombre'=>'Reportes','Url'=>'#','Icono'=>'fas fa-chart-bar','Permiso'=>'reportes.ver','TourId'=>'tour-reportes-link','Children'=>[
-        ['Id'=>91,'Nombre'=>'Ventas',    'Url'=>APP_URL.'Reportes/ventas',    'Icono'=>'fas fa-chart-line', 'Permiso'=>'reportes.ver'],
-        ['Id'=>92,'Nombre'=>'Pedidos',   'Url'=>APP_URL.'Reportes/pedidos',   'Icono'=>'fas fa-shopping-bag','Permiso'=>'reportes.ver'],
-        ['Id'=>93,'Nombre'=>'Inventario','Url'=>APP_URL.'Reportes/inventario','Icono'=>'fas fa-boxes',      'Permiso'=>'reportes.ver'],
-    ]],
-    'Administracion'=> ['Id'=>10,'Nombre'=>'Administración','Url'=>'#','Icono'=>'fas fa-cogs','Permiso'=>'','Children'=>[
-        ['Id'=>101,'Nombre'=>'Usuarios','Url'=>APP_URL.'Usuarios/index','Icono'=>'fas fa-user-cog',   'Permiso'=>'usuarios.ver'],
-        ['Id'=>102,'Nombre'=>'Roles',   'Url'=>APP_URL.'Roles/index',   'Icono'=>'fas fa-user-shield','Permiso'=>'roles.ver'],
-        ['Id'=>103,'Nombre'=>'Permisos','Url'=>APP_URL.'Permisos/index','Icono'=>'fas fa-key',        'Permiso'=>'roles.ver'],
-    ]]/*,
-    'Soporte'=> ['Id'=>11,'Nombre'=>'Soporte DeskCod','Url'=>'#','Icono'=>'fas fa-headset','Permiso'=>'','Children'=>[
-        ['Id'=>111,'Nombre'=>'Mis tickets', 'Url'=>APP_URL.'Tickets/index', 'Icono'=>'fas fa-ticket-alt','Permiso'=>''],
-        ['Id'=>112,'Nombre'=>'Nuevo ticket','Url'=>APP_URL.'Tickets/create','Icono'=>'fas fa-plus-circle','Permiso'=>''],
-    ]],*/
 ];
 
 function isActive(string $itemUrl): bool
@@ -69,18 +67,18 @@ function renderMenu(array $menu): void
             foreach ($item['Children'] as $child) {
                 if (isActive($child['Url'])) { $hayHijoActivo = true; break; }
             }
-            $submenuId   = 'submenu-' . $item['Id'];
+            $submenuId    = 'submenu-' . $item['Id'];
             $parentTourId = !empty($item['TourId']) ? ' data-tour="'.htmlspecialchars($item['TourId']).'"' : '';
             echo '<li class="nav-item">';
-            echo '<a class="nav-link"'.$parentTourId.' href="#" data-bs-toggle="collapse" data-bs-target="#'.$submenuId.'" aria-expanded="'.($hayHijoActivo?'true':'false').'" aria-controls="'.$submenuId.'">';
+            echo '<a class="nav-link accordion-toggle"'.$parentTourId.' href="#" data-bs-toggle="collapse" data-bs-target="#'.$submenuId.'" aria-expanded="'.($hayHijoActivo?'true':'false').'" aria-controls="'.$submenuId.'">';
             echo '<i class="'.htmlspecialchars($item['Icono']).'"></i>';
             echo '<span class="ms-2">'.htmlspecialchars($item['Nombre']).'</span>';
-            echo '<i class="fas fa-chevron-down ms-auto"></i></a>';
+            echo '<i class="fas fa-chevron-down ms-auto chevron-icon"></i></a>';
             echo '<div class="collapse'.($hayHijoActivo?' show':'').'" id="'.$submenuId.'"><ul class="nav flex-column">';
             foreach ($item['Children'] as $child) {
                 if (!empty($child['Permiso']) && !Auth::can($child['Permiso'])) continue;
-                $activeClass  = isActive($child['Url']) ? ' active' : '';
-                $childTourId  = !empty($child['TourId']) ? ' data-tour="'.htmlspecialchars($child['TourId']).'"' : '';
+                $activeClass = isActive($child['Url']) ? ' active' : '';
+                $childTourId = !empty($child['TourId']) ? ' data-tour="'.htmlspecialchars($child['TourId']).'"' : '';
                 echo '<li class="nav-item"><a class="nav-link'.$activeClass.'"'.$childTourId.' href="'.htmlspecialchars($child['Url']).'">';
                 echo '<i class="'.htmlspecialchars($child['Icono']).'"></i><span class="ms-2">'.htmlspecialchars($child['Nombre']).'</span></a></li>';
             }
@@ -102,7 +100,9 @@ function renderMenu(array $menu): void
 .sidebar.collapsed .sidebar-logo-full { display:none; }
 .sidebar.collapsed .sidebar-logo-icon { display:block; }
 
-/* ── Notificaciones ── */
+.accordion-toggle .chevron-icon { transition:transform 0.25s ease; }
+.accordion-toggle[aria-expanded="true"] .chevron-icon { transform:rotate(180deg); }
+
 .btn-notificaciones {
     position:relative; background:transparent; border:none;
     width:36px; height:36px; border-radius:50%;
@@ -151,7 +151,7 @@ function renderMenu(array $menu): void
         </button>
     </div>
     <nav class="sidebar-nav" id="tour-menu">
-        <ul class="nav flex-column"><?php renderMenu($menu); ?></ul>
+        <ul class="nav flex-column" id="sidebarMenu"><?php renderMenu($menu); ?></ul>
     </nav>
 </aside>
 
@@ -164,7 +164,6 @@ function renderMenu(array $menu): void
 
     <div class="d-flex align-items-center gap-2">
 
-        <!-- ── NOTIFICACIONES ──────────────────────── -->
         <div class="dropdown" id="tour-notif">
             <button type="button" class="btn-notificaciones"
                     id="btnNotificaciones" data-bs-toggle="dropdown" data-tour="tour-notif"
@@ -172,10 +171,8 @@ function renderMenu(array $menu): void
                 <i class="fas fa-bell"></i>
                 <span class="badge-notif d-none" id="badgeNotif">0</span>
             </button>
-
             <div class="dropdown-menu dropdown-menu-end dropdown-notif shadow"
                  id="dropdownNotif" aria-labelledby="btnNotificaciones">
-
                 <div class="notif-header">
                     <span class="fw-semibold" style="font-size:0.85rem;">
                         <i class="fas fa-bell me-1" style="color:#de777d;"></i>Notificaciones
@@ -185,26 +182,22 @@ function renderMenu(array $menu): void
                         Marcar todas como leídas
                     </button>
                 </div>
-
                 <div id="listaNotificaciones">
                     <div class="text-center py-4 text-muted" style="font-size:0.85rem;">
                         <i class="fas fa-bell-slash fa-2x mb-2 d-block" style="opacity:0.3;"></i>
                         Sin notificaciones
                     </div>
                 </div>
-
                 <div class="notif-footer">
                     <small class="text-muted" id="txtNoLeidas">0 sin leer</small>
                 </div>
             </div>
         </div>
 
-        <!-- Dark mode -->
         <button type="button" class="btn-theme-toggle" id="themeToggle" aria-label="Cambiar modo">
             <i class="fas <?= (isset($_SESSION['dark_mode']) && $_SESSION['dark_mode']) ? 'fa-sun' : 'fa-moon' ?>" id="themeIcon"></i>
         </button>
 
-        <!-- Perfil -->
         <div class="dropdown">
             <button class="btn btn-profile dropdown-toggle" type="button"
                     id="profileDropdown" data-bs-toggle="dropdown" aria-expanded="false">
@@ -220,7 +213,8 @@ function renderMenu(array $menu): void
                 </li>
                 <li><hr class="dropdown-divider"></li>
                 <li>
-                    <button class="dropdown-item" type="button" onclick="amActivarTour()" style="border:none; background:none; cursor:pointer; text-align:left;">
+                    <button class="dropdown-item" type="button" onclick="amActivarTour()"
+                            style="border:none; background:none; cursor:pointer; text-align:left;">
                         <i class="fas fa-graduation-cap me-2" style="color:#F06292;"></i>Repetir tour
                     </button>
                 </li>
@@ -241,11 +235,27 @@ function renderMenu(array $menu): void
     </div>
 </header>
 
-<!-- ── SCRIPT NOTIFICACIONES ─────────────────────────────────── -->
 <script>
 (function () {
     'use strict';
 
+    // ── Acordeón sidebar ─────────────────────────
+    document.addEventListener('DOMContentLoaded', function () {
+        const sidebar = document.getElementById('sidebarMenu');
+        if (!sidebar) return;
+        sidebar.addEventListener('show.bs.collapse', function (e) {
+            sidebar.querySelectorAll('.collapse.show').forEach(function (open) {
+                if (open !== e.target) {
+                    const bsCollapse = bootstrap.Collapse.getInstance(open);
+                    if (bsCollapse) bsCollapse.hide();
+                    const toggle = sidebar.querySelector('[data-bs-target="#' + open.id + '"]');
+                    if (toggle) toggle.setAttribute('aria-expanded', 'false');
+                }
+            });
+        });
+    });
+
+    // ── Notificaciones ────────────────────────────
     const APP_URL = '<?= APP_URL ?>';
     const csrf    = '<?= htmlspecialchars($_SESSION['csrf_token'] ?? '') ?>';
     const badge       = document.getElementById('badgeNotif');
@@ -254,9 +264,9 @@ function renderMenu(array $menu): void
     const btnMarcar   = document.getElementById('btnMarcarTodas');
 
     const iconos = {
-        cita:   { icono:'fas fa-calendar-check',     clase:'cita'   },
-        pedido: { icono:'fas fa-shopping-bag',        clase:'pedido' },
-        stock:  { icono:'fas fa-exclamation-triangle',clase:'stock'  },
+        cita:   { icono:'fas fa-calendar-check',      clase:'cita'   },
+        pedido: { icono:'fas fa-shopping-bag',         clase:'pedido' },
+        stock:  { icono:'fas fa-exclamation-triangle', clase:'stock'  },
     };
 
     function tiempoRelativo(fechaStr) {
@@ -275,13 +285,11 @@ function renderMenu(array $menu): void
             badge.classList.add('d-none');
         }
         txtNoLeidas.textContent = `${noLeidas} sin leer`;
-
         if (!notifs || notifs.length === 0) {
             lista.innerHTML = `<div class="text-center py-4 text-muted" style="font-size:0.85rem;">
                 <i class="fas fa-bell-slash fa-2x mb-2 d-block" style="opacity:0.3;"></i>Sin notificaciones</div>`;
             return;
         }
-
         lista.innerHTML = notifs.map(n => {
             const cfg    = iconos[n.tipo] ?? iconos.pedido;
             const noLeid = parseInt(n.leida) === 0 ? 'no-leida' : '';
@@ -335,7 +343,6 @@ function renderMenu(array $menu): void
     });
 
     document.getElementById('btnNotificaciones')?.addEventListener('click', cargarNotificaciones);
-
     cargarNotificaciones();
     setInterval(cargarNotificaciones, 30000);
 })();

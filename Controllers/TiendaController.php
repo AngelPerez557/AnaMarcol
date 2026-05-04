@@ -15,6 +15,7 @@ class TiendaController
     private VentaModel        $ventaModel;
     private GaleriaModel      $galeriaModel;
     private FavoritoModel $favoritoModel;
+    
 
     public function __construct()
     {
@@ -41,31 +42,36 @@ class TiendaController
         $combos              = $this->comboModel->findActivos();
         $categorias          = $this->categoriaModel->findAll();
         $galeria             = $this->galeriaModel->findActivas();
+        $descuentoModel  = new DescuentoModel();
+        $descuentoActivo = $descuentoModel->getActivo();
         $productosDestacados = array_slice($productos, 0, 8);
         $this->render('Inicio.php', compact(
-            'pageTitle','banners','productosDestacados','combos','categorias','galeria'
+            'pageTitle','banners','productosDestacados','combos','categorias','galeria','descuentoActivo'
         ));
     }
 
     public function catalogo(string $catId = ''): void
     {
         $pageTitle   = 'Catálogo';
-        // Acepta /Tienda/catalogo/5 (segmento URL) o ?categoria=5 (query string)
         $categoriaId = !empty($catId) ? (int)$catId : (int)($_GET['categoria'] ?? 0);
         $categorias  = $this->categoriaModel->findAll();
         $productos   = $this->productoModel->findActivos();
+        $descuentoModel  = new DescuentoModel();
+        $descuentoActivo = $descuentoModel->getActivo();
         if ($categoriaId > 0) {
             $productos = array_values(array_filter(
                 $productos, fn($p) => (int)$p->categoria_id === $categoriaId
             ));
         }
         $this->render('Catalogo.php', compact(
-            'pageTitle','productos','categorias','categoriaId'
+            'pageTitle','productos','categorias','categoriaId','descuentoActivo'
         ));
     }
 
     public function producto(string $id = ''): void
     {
+        $descuentoModel  = new DescuentoModel();
+        $descuentoActivo = $descuentoModel->getActivo();
         // Acepta /Tienda/producto/5 y /Tienda/producto/5-nombre-del-producto
         $idNum = (int) $id;
         if (!$idNum) {
@@ -77,7 +83,7 @@ class TiendaController
         }
         $variantes = $this->productoModel->findVariantes($idNum);
         $pageTitle = $producto->nombre;
-        $this->render('Producto.php', compact('pageTitle','producto','variantes'));
+        $this->render('Producto.php', compact('pageTitle','producto','variantes','descuentoActivo'));
     }
 
     public function carrito(): void
