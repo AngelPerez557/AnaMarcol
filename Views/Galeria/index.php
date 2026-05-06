@@ -123,34 +123,60 @@ document.addEventListener('DOMContentLoaded', function () {
         new bootstrap.Modal(document.getElementById('modalVerFoto')).show();
     };
 
+    // ── Toggle activo/inactivo ────────────────────
     document.querySelectorAll('input.toggle-activo').forEach(function (toggle) {
         toggle.addEventListener('change', function (e) {
             e.stopPropagation();
-            const self = this;
-            fetch(this.dataset.url, {
-                method:'POST', headers:{'Content-Type':'application/x-www-form-urlencoded'},
-                body:`id=${this.dataset.id}&activo=${this.checked?1:0}&csrf_token=${this.dataset.csrf}`
-            }).then(r=>r.json()).then(data=>{
-                if(!data.success) self.checked=!self.checked;
-            }).catch(()=>{self.checked=!self.checked;});
+            const self   = this;
+            const id     = this.dataset.id;
+            const url    = this.dataset.url;
+            const csrf   = this.dataset.csrf;
+            const activo = this.checked ? 1 : 0;
+
+            fetch(url, {
+                method:  'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body:    `id=${id}&activo=${activo}&csrf_token=${csrf}`
+            })
+            .then(r => r.json())
+            .then(data => {
+                if (!data.success) self.checked = !self.checked;
+            })
+            .catch(() => { self.checked = !self.checked; });
         });
     });
 
+    // ── Eliminar ──────────────────────────────────
     document.querySelectorAll('.btn-delete').forEach(function (btn) {
         btn.addEventListener('click', function () {
-            Swal.fire({icon:'warning',title:'¿Eliminar foto?',
-                showCancelButton:true,confirmButtonColor:'#dc3545',
-                confirmButtonText:'Sí',cancelButtonText:'Cancelar'})
-            .then(r=>{
-                if(r.isConfirmed){
-                    const form=document.createElement('form');
-                    form.method='POST'; form.action=this.dataset.url;
-                    form.innerHTML=`<input type="hidden" name="id" value="${this.dataset.id}">
-                                    <input type="hidden" name="csrf_token" value="${this.dataset.csrf}">`;
-                    document.body.appendChild(form); form.submit();
+            // Guardar datos ANTES del .then() — this no es confiable en callbacks async
+            const id   = this.dataset.id;
+            const url  = this.dataset.url;
+            const csrf = this.dataset.csrf;
+
+            Swal.fire({
+                icon:               'warning',
+                title:              '¿Eliminar foto?',
+                text:               'Esta acción no se puede deshacer.',
+                showCancelButton:   true,
+                confirmButtonColor: '#dc3545',
+                confirmButtonText:  'Sí, eliminar',
+                cancelButtonText:   'Cancelar'
+            }).then(r => {
+                if (r.isConfirmed) {
+                    const form = document.createElement('form');
+                    form.method = 'POST';
+                    form.action = url;
+                    form.innerHTML = `
+                        <input type="hidden" name="id"         value="${id}">
+                        <input type="hidden" name="csrf_token" value="${csrf}">
+                    `;
+                    document.body.appendChild(form);
+                    form.submit();
                 }
-            },this.bind(this));
+            });
         });
     });
+
 });
 </script>
