@@ -1,8 +1,6 @@
 <div class="container-fluid py-4">
 
-    <!-- ─────────────────────────────────────────────
-         CABECERA
-         ───────────────────────────────────────────── -->
+    <!-- CABECERA -->
     <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
             <h4 class="mb-0 fw-bold">
@@ -35,9 +33,7 @@
 
     <div class="row g-4">
 
-        <!-- ─────────────────────────────────────────────
-             COLUMNA IZQUIERDA — Info del pedido
-             ───────────────────────────────────────────── -->
+        <!-- COLUMNA IZQUIERDA -->
         <div class="col-12 col-lg-7">
 
             <!-- Datos del cliente -->
@@ -111,14 +107,13 @@
                         <tbody>
                             <?php foreach ($detalle as $item): ?>
                             <tr>
-                                <!-- Imagen -->
                                 <td class="ps-3">
                                     <div style="
                                         width:40px; height:40px;
                                         border-radius:6px;
                                         background-image:url('<?= !empty($item['image_url'])
                                             ? APP_URL . 'Content/Demo/img/Productos/' . htmlspecialchars($item['image_url'])
-                                            : APP_URL . 'Content/Demo/img/default/producto_default.svg' ?>');
+                                            : APP_URL . 'Content/Demo/img/Default/producto_default.svg' ?>');
                                         background-size:contain;
                                         background-position:center;
                                         background-repeat:no-repeat;
@@ -142,11 +137,7 @@
                         <tfoot>
                             <tr style="background:rgba(222,119,125,0.06);">
                                 <td colspan="4" class="text-end fw-bold ps-3">
-                                    <?php if ($pedido->costo_envio > 0): ?>
-                                    Subtotal productos:
-                                    <?php else: ?>
-                                    Total:
-                                    <?php endif; ?>
+                                    <?= $pedido->costo_envio > 0 ? 'Subtotal productos:' : 'Total:' ?>
                                 </td>
                                 <td class="text-end pe-3 fw-bold">
                                     L. <?= number_format((float)$pedido->subtotal, 2) ?>
@@ -171,8 +162,8 @@
                 </div>
             </div>
 
-            <!-- Botón WhatsApp -->
-            <?php if ($pedido->cliente_telefono || $pedido->wa_numero): ?>
+            <!-- Botón WhatsApp — solo visible para quien tiene permiso de gestionar -->
+            <?php if (Auth::can('pedidos.gestionar') && ($pedido->cliente_telefono || $pedido->wa_numero)): ?>
             <div class="card">
                 <div class="card-body">
                     <div class="d-flex align-items-center justify-content-between">
@@ -200,9 +191,7 @@
 
         </div>
 
-        <!-- ─────────────────────────────────────────────
-             COLUMNA DERECHA — Estado e historial
-             ───────────────────────────────────────────── -->
+        <!-- COLUMNA DERECHA -->
         <div class="col-12 col-lg-5">
 
             <!-- Confirmar pago -->

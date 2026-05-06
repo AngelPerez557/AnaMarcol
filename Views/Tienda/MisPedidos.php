@@ -43,12 +43,19 @@
                             <i class="fas <?= $pedido->esEnvio() ? 'fa-truck' : 'fa-store' ?> me-1"></i>
                             <?= $pedido->esEnvio() ? 'Envío a domicilio' : 'Retiro en tienda' ?>
                         </span>
-                        <?php if ($pedido->cliente_telefono || $pedido->wa_numero): ?>
-                        <a href="<?= $pedido->getWhatsAppUrl() ?>" target="_blank"
+
+                        <?php if ($pedido->pagado): ?>
+                        <span class="badge bg-success">
+                            <i class="fas fa-check-circle me-1"></i>Pagado
+                        </span>
+                        <?php endif; ?>
+
+                        <!-- Siempre escribe al número de Ana, no al del cliente -->
+                        <a href="https://wa.me/<?= WA_NUMBER ?>?text=<?= urlencode('Hola Ana 👋, quiero consultar el estado de mi pedido #' . ($pedido->codigo ?? '') . '. Gracias.') ?>"
+                           target="_blank"
                            class="badge bg-success text-decoration-none">
                             <i class="fab fa-whatsapp me-1"></i>Consultar estado
                         </a>
-                        <?php endif; ?>
                     </div>
                 </div>
             </div>
