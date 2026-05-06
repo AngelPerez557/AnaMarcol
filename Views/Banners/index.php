@@ -56,7 +56,8 @@
                         <a href="<?= APP_URL ?>Banners/registry/<?= $b['id'] ?>"
                            class="btn btn-sm btn-outline-primary"><i class="fas fa-edit"></i></a>
                         <button type="button" class="btn btn-sm btn-outline-danger btn-delete"
-                                data-id="<?= $b['id'] ?>" data-nombre="<?= htmlspecialchars($b['titulo'] ?? 'este banner') ?>"
+                                data-id="<?= $b['id'] ?>"
+                                data-nombre="<?= htmlspecialchars($b['titulo'] ?? 'este banner') ?>"
                                 data-url="<?= APP_URL ?>Banners/delete"
                                 data-csrf="<?= htmlspecialchars($_SESSION['csrf_token'] ?? '') ?>">
                             <i class="fas fa-trash"></i>
@@ -74,36 +75,67 @@
 
 <script>
 document.addEventListener('DOMContentLoaded', function () {
+
+    // ── Toggle activo/inactivo ────────────────────
     document.querySelectorAll('input.toggle-activo').forEach(function (toggle) {
         toggle.addEventListener('change', function (e) {
             e.stopPropagation();
-            const self = this;
-            fetch(this.dataset.url, {
-                method:'POST', headers:{'Content-Type':'application/x-www-form-urlencoded'},
-                body:`id=${this.dataset.id}&activo=${this.checked?1:0}&csrf_token=${this.dataset.csrf}`
-            }).then(r=>r.json()).then(data=>{
-                if(!data.success) self.checked=!self.checked;
-                else Swal.mixin({toast:true,position:'top-end',showConfirmButton:false,timer:2000})
-                    .fire({icon:'success',title:this.checked?'Activado':'Desactivado'});
-            }).catch(()=>{self.checked=!self.checked;});
+            const self   = this;
+            const id     = this.dataset.id;
+            const url    = this.dataset.url;
+            const csrf   = this.dataset.csrf;
+            const activo = this.checked ? 1 : 0;
+
+            fetch(url, {
+                method:  'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body:    `id=${id}&activo=${activo}&csrf_token=${csrf}`
+            })
+            .then(r => r.json())
+            .then(data => {
+                if (!data.success) {
+                    self.checked = !self.checked;
+                } else {
+                    Swal.mixin({ toast: true, position: 'top-end', showConfirmButton: false, timer: 2000 })
+                        .fire({ icon: 'success', title: activo ? 'Activado' : 'Desactivado' });
+                }
+            })
+            .catch(() => { self.checked = !self.checked; });
         });
     });
 
+    // ── Eliminar ──────────────────────────────────
     document.querySelectorAll('.btn-delete').forEach(function (btn) {
         btn.addEventListener('click', function () {
-            Swal.fire({icon:'warning',title:'¿Eliminar?',text:`"${this.dataset.nombre}" será eliminado.`,
-                showCancelButton:true,confirmButtonColor:'#dc3545',
-                confirmButtonText:'Sí',cancelButtonText:'Cancelar'})
-            .then(r=>{
-                if(r.isConfirmed){
-                    const form=document.createElement('form');
-                    form.method='POST'; form.action=this.dataset.url;
-                    form.innerHTML=`<input type="hidden" name="id" value="${this.dataset.id}">
-                                    <input type="hidden" name="csrf_token" value="${this.dataset.csrf}">`;
-                    document.body.appendChild(form); form.submit();
+            // Guardar datos ANTES del .then() — this no es confiable dentro del callback
+            const id     = this.dataset.id;
+            const url    = this.dataset.url;
+            const csrf   = this.dataset.csrf;
+            const nombre = this.dataset.nombre;
+
+            Swal.fire({
+                icon:               'warning',
+                title:              '¿Eliminar?',
+                text:               `"${nombre}" será eliminado permanentemente.`,
+                showCancelButton:   true,
+                confirmButtonColor: '#dc3545',
+                confirmButtonText:  'Sí, eliminar',
+                cancelButtonText:   'Cancelar'
+            }).then(r => {
+                if (r.isConfirmed) {
+                    const form = document.createElement('form');
+                    form.method = 'POST';
+                    form.action = url;
+                    form.innerHTML = `
+                        <input type="hidden" name="id"         value="${id}">
+                        <input type="hidden" name="csrf_token" value="${csrf}">
+                    `;
+                    document.body.appendChild(form);
+                    form.submit();
                 }
-            },this.bind(this));
+            });
         });
     });
+
 });
 </script>
