@@ -77,31 +77,75 @@ class BannersController
             $ok = $this->model->insert(['titulo'=>$titulo,'imagen_url'=>$imageUrl,'enlace'=>$enlace,'orden'=>$orden]) > 0;
         }
 
-        $_SESSION['alert'] = ['icon'=>$ok?'success':'error','title'=>$ok?'Éxito':'Error',
-            'text'=>$ok?'Banner guardado.':'Error al guardar.'];
+        $_SESSION['alert'] = [
+            'icon'  => $ok ? 'success' : 'error',
+            'title' => $ok ? 'Éxito'   : 'Error',
+            'text'  => $ok ? 'Banner guardado.' : 'Error al guardar.',
+        ];
         header('Location: ' . APP_URL . 'Banners/index');
         exit();
     }
 
+    // ─────────────────────────────────────────────
+    // TOGGLE — Activa/desactiva banner (POST — JSON)
+    // ─────────────────────────────────────────────
     public function toggle(): void
     {
-        Auth::require('banners.gestionar');
-        if ($_SERVER['REQUEST_METHOD'] !== 'POST') { http_response_code(405); exit(); }
-        if (!isset($_POST['csrf_token']) || $_SESSION['csrf_token'] !== $_POST['csrf_token']) { http_response_code(403); exit(); }
-        $ok = $this->model->toggleActivo((int)($_POST['id']??0), (int)($_POST['activo']??0));
+        // Header JSON PRIMERO
         header('Content-Type: application/json');
-        echo json_encode(['success'=>$ok]);
+
+        if (!Auth::can('banners.gestionar')) {
+            http_response_code(403);
+            echo json_encode(['success' => false, 'message' => 'Sin permiso.']);
+            exit();
+        }
+
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            http_response_code(405);
+            echo json_encode(['success' => false]);
+            exit();
+        }
+
+        if (!isset($_POST['csrf_token']) || $_SESSION['csrf_token'] !== $_POST['csrf_token']) {
+            http_response_code(403);
+            echo json_encode(['success' => false, 'message' => 'Token inválido.']);
+            exit();
+        }
+
+        $ok = $this->model->toggleActivo((int)($_POST['id'] ?? 0), (int)($_POST['activo'] ?? 0));
+        echo json_encode(['success' => $ok]);
         exit();
     }
 
+    // ─────────────────────────────────────────────
+    // DELETE — Elimina banner (POST)
+    // ─────────────────────────────────────────────
     public function delete(): void
     {
-        Auth::require('banners.gestionar');
-        if ($_SERVER['REQUEST_METHOD'] !== 'POST') { http_response_code(405); exit(); }
-        if (!isset($_POST['csrf_token']) || $_SESSION['csrf_token'] !== $_POST['csrf_token']) { http_response_code(403); exit(); }
-        $ok = $this->model->delete((int)($_POST['id']??0));
-        $_SESSION['alert'] = ['icon'=>$ok?'success':'error','title'=>$ok?'Eliminado':'Error',
-            'text'=>$ok?'Banner eliminado.':'Error al eliminar.'];
+        if (!Auth::can('banners.gestionar')) {
+            $_SESSION['alert'] = ['icon'=>'error','title'=>'Sin permiso','text'=>'No tienes permiso para eliminar banners.'];
+            header('Location: ' . APP_URL . 'Banners/index');
+            exit();
+        }
+
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            header('Location: ' . APP_URL . 'Banners/index');
+            exit();
+        }
+
+        if (!isset($_POST['csrf_token']) || $_SESSION['csrf_token'] !== $_POST['csrf_token']) {
+            $_SESSION['alert'] = ['icon'=>'error','title'=>'Token inválido','text'=>'Error de seguridad.'];
+            header('Location: ' . APP_URL . 'Banners/index');
+            exit();
+        }
+
+        $ok = $this->model->delete((int)($_POST['id'] ?? 0));
+
+        $_SESSION['alert'] = [
+            'icon'  => $ok ? 'success' : 'error',
+            'title' => $ok ? 'Eliminado' : 'Error',
+            'text'  => $ok ? 'Banner eliminado.' : 'Error al eliminar.',
+        ];
         header('Location: ' . APP_URL . 'Banners/index');
         exit();
     }

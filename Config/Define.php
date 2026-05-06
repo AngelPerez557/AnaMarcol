@@ -155,4 +155,5 @@ if (!function_exists('slugify')) {
         $text = preg_replace('/[\s-]+/', '-', $text);
         return trim($text, '-');
     }
+    
 }

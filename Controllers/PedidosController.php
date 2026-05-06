@@ -4,103 +4,60 @@ class PedidosController
 {
     private PedidoModel $pedidoModel;
 
-    // ─────────────────────────────────────────────
-    // CONSTRUCTOR
-    // ─────────────────────────────────────────────
     public function __construct()
     {
         Auth::check();
         $this->pedidoModel = new PedidoModel();
     }
 
-    // ─────────────────────────────────────────────
-    // INDEX — Todos los pedidos
-    // URL: /Pedidos/index
-    // ─────────────────────────────────────────────
     public function index(): void
     {
         Auth::require('pedidos.ver');
-
         $pageTitle = 'Todos los Pedidos';
         $pedidos   = $this->pedidoModel->findAll();
-
         require_once VIEWS_PATH . 'Pedidos' . DS . 'index.php';
     }
 
-    // ─────────────────────────────────────────────
-    // PENDIENTES
-    // URL: /Pedidos/pendientes
-    // ─────────────────────────────────────────────
     public function pendientes(): void
     {
         Auth::require('pedidos.ver');
-
         $pageTitle = 'Pedidos Pendientes';
         $pedidos   = $this->pedidoModel->findByEstado('Pendiente');
-
         require_once VIEWS_PATH . 'Pedidos' . DS . 'index.php';
     }
 
-    // ─────────────────────────────────────────────
-    // PREPARACION
-    // URL: /Pedidos/preparacion
-    // ─────────────────────────────────────────────
     public function preparacion(): void
     {
         Auth::require('pedidos.ver');
-
         $pageTitle = 'Pedidos En Preparación';
         $pedidos   = $this->pedidoModel->findByEstado('En preparacion');
-
         require_once VIEWS_PATH . 'Pedidos' . DS . 'index.php';
     }
 
-    // ─────────────────────────────────────────────
-    // LISTOS
-    // URL: /Pedidos/listos
-    // ─────────────────────────────────────────────
     public function listos(): void
     {
         Auth::require('pedidos.ver');
-
         $pageTitle = 'Pedidos Listos';
         $pedidos   = $this->pedidoModel->findByEstado('Listo');
-
         require_once VIEWS_PATH . 'Pedidos' . DS . 'index.php';
     }
 
-    // ─────────────────────────────────────────────
-    // EN CAMINO
-    // URL: /Pedidos/camino
-    // ─────────────────────────────────────────────
     public function camino(): void
     {
         Auth::require('pedidos.ver');
-
         $pageTitle = 'Pedidos En Camino';
         $pedidos   = $this->pedidoModel->findByEstado('En camino');
-
         require_once VIEWS_PATH . 'Pedidos' . DS . 'index.php';
     }
 
-    // ─────────────────────────────────────────────
-    // ENTREGADOS
-    // URL: /Pedidos/entregados
-    // ─────────────────────────────────────────────
     public function entregados(): void
     {
         Auth::require('pedidos.ver');
-
         $pageTitle = 'Pedidos Entregados';
         $pedidos   = $this->pedidoModel->findByEstado('Entregado');
-
         require_once VIEWS_PATH . 'Pedidos' . DS . 'index.php';
     }
 
-    // ─────────────────────────────────────────────
-    // DETALLE — Ver pedido completo
-    // URL: /Pedidos/detalle/{id}
-    // ─────────────────────────────────────────────
     public function detalle(string $id = ''): void
     {
         Auth::require('pedidos.ver');
@@ -113,11 +70,7 @@ class PedidosController
         $pedido = $this->pedidoModel->findById((int) $id);
 
         if (!$pedido->Found) {
-            $_SESSION['alert'] = [
-                'icon'  => 'error',
-                'title' => 'Error',
-                'text'  => 'El pedido no existe.',
-            ];
+            $_SESSION['alert'] = ['icon'=>'error','title'=>'Error','text'=>'El pedido no existe.'];
             header('Location: ' . APP_URL . 'Pedidos/index');
             exit();
         }
@@ -135,15 +88,24 @@ class PedidosController
     // ─────────────────────────────────────────────
     public function cambiarEstado(): void
     {
-        Auth::require('pedidos.gestionar');
+        // Header JSON PRIMERO — evita que Auth::can() devuelva HTML
+        header('Content-Type: application/json');
+
+        if (!Auth::can('pedidos.gestionar')) {
+            http_response_code(403);
+            echo json_encode(['success' => false, 'message' => 'Sin permiso.']);
+            exit();
+        }
 
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
             http_response_code(405);
+            echo json_encode(['success' => false, 'message' => 'Método no permitido.']);
             exit();
         }
 
         if (!isset($_POST['csrf_token']) || $_SESSION['csrf_token'] !== $_POST['csrf_token']) {
             http_response_code(403);
+            echo json_encode(['success' => false, 'message' => 'Token inválido.']);
             exit();
         }
 
@@ -153,14 +115,12 @@ class PedidosController
 
         $estadosValidos = ['Pendiente', 'En preparacion', 'Listo', 'En camino', 'Entregado', 'Cancelado'];
         if (!in_array($estado, $estadosValidos, true)) {
-            header('Content-Type: application/json');
             echo json_encode(['success' => false, 'message' => 'Estado inválido.']);
             exit();
         }
 
         $ok = $this->pedidoModel->updateEstado($id, $estado, Auth::id(), $nota);
 
-        header('Content-Type: application/json');
         echo json_encode([
             'success' => $ok,
             'message' => $ok ? 'Estado actualizado.' : 'Error al actualizar.',
@@ -172,12 +132,9 @@ class PedidosController
     // ─────────────────────────────────────────────
     // CONFIRMAR PAGO — (POST — JSON)
     // URL: /Pedidos/confirmarPago
-    // Crea la venta en caja cuando el pago es verificado
     // ─────────────────────────────────────────────
     public function confirmarPago(): void
     {
-        // Header JSON siempre primero — evita que cualquier error
-        // devuelva HTML y rompa el JSON.parse() del frontend
         header('Content-Type: application/json');
 
         if (!Auth::can('pedidos.gestionar')) {
@@ -221,7 +178,6 @@ class PedidosController
         try {
             $ventaModel->beginTransactionPublic();
 
-            // 1 — Crear cabecera de venta
             $ventaId = $ventaModel->insert([
                 'cliente_id'     => $pedido->cliente_id,
                 'user_id'        => Auth::id(),
@@ -238,7 +194,6 @@ class PedidosController
                 throw new \RuntimeException('Error al crear la venta.');
             }
 
-            // 2 — Insertar detalle de venta
             foreach ($detalle as $item) {
                 $ventaModel->insertDetalle([
                     'venta_id'        => $ventaId,
@@ -251,9 +206,7 @@ class PedidosController
                 ]);
             }
 
-            // 3 — Marcar pedido como pagado
             $this->pedidoModel->marcarPagado($pedidoId, Auth::id());
-
             $ventaModel->commitPublic();
 
             echo json_encode([
