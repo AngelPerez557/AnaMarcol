@@ -42,6 +42,7 @@ $menu = [
         ['Id'=>91, 'Nombre'=>'Reporte Ventas',     'Url'=>APP_URL.'Reportes/ventas',     'Icono'=>'fas fa-chart-line',  'Permiso'=>'reportes.ver'],
         ['Id'=>92, 'Nombre'=>'Reporte Pedidos',    'Url'=>APP_URL.'Reportes/pedidos',    'Icono'=>'fas fa-shopping-bag','Permiso'=>'reportes.ver'],
         ['Id'=>93, 'Nombre'=>'Reporte Inventario', 'Url'=>APP_URL.'Reportes/inventario', 'Icono'=>'fas fa-boxes',       'Permiso'=>'reportes.ver'],
+        ['Id'=>110,'Nombre'=>'Soporte',            'Url'=>APP_URL.'Soporte/index', 'Icono'=>'fas fa-headset', 'Permiso'=>'usuarios.ver'],
     ]],
 ];
 
