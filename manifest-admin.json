@@ -2,7 +2,7 @@
   "name": "Ana Marcol — Admin",
   "short_name": "AM Admin",
   "description": "Panel administrativo Ana Marcol Makeup Studio",
-  "start_url": "/Dashboard/index",
+  "start_url": "/Auth/login",
   "scope": "/",
   "display": "standalone",
   "orientation": "portrait",
