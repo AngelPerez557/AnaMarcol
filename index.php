@@ -131,12 +131,12 @@ $rutasCompletasSinTemplate = ['caja/recibo'];
 // Métodos que retornan JSON — no cargar template
 $metodosJson = ['toggle', 'delete', 'save', 'saveVariante', 'deleteVariante',
                 'darkMode', 'buscar', 'barras', 'cobrar', 'search',
-                'cambiarEstado', 'saveProductos', 'saveConfig',
+                'cambiarEstado', 'confirmarPago', 'saveProductos', 'saveConfig',
                 'dia', 'verificar', 'cambiarEstadoCita', 'saveConfigCitas',
                 'checkout', 'guardarRegistro', 'procesarLogin', 'agendarCita',
                 'obtener', 'marcarLeida', 'marcarTodas', 'eliminar',
-                'marcarTour', 'activarTour', 'verificarStock','toggleFavorito',
-                'guardarPerfil', 'cambiarPassword'];
+                'marcarTour', 'activarTour', 'verificarStock', 'toggleFavorito',
+                'guardarPerfil', 'cambiarPassword', 'confirmarPago', 'comentar'];
 
 $metodoActual     = strtolower(explode('/', $urlActual)[1] ?? '');
 $metodosJsonLower = array_map('strtolower', $metodosJson);
