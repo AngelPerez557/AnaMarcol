@@ -131,6 +131,9 @@
                                 <span class="fw-bold" style="color:#de777d;">
                                     #<?= str_pad($venta['id'], 8, '0', STR_PAD_LEFT) ?>
                                 </span>
+                                <?php if ((int)($venta['anulada'] ?? 0)): ?>
+                                <span class="badge bg-danger ms-1" style="font-size:0.65rem;">ANULADA</span>
+                                <?php endif; ?>
                             </td>
                             <td class="text-muted" style="font-size:0.85rem;">
                                 <?= date('d/m/Y H:i', strtotime($venta['created_at'])) ?>

@@ -73,7 +73,18 @@ class VentaModel extends BaseModel
         ]);
         return $affected >= 0;
     }
-    
+
+    // ─────────────────────────────────────────────
+    // ANULACIÓN
+    // No se elimina — obligatorio por ley fiscal HN
+    // Devuelve true si se anuló, false si ya estaba anulada
+    // ─────────────────────────────────────────────
+    public function anular(int $id, string $motivo, int $userId): bool
+    {
+        $row = $this->callSPSingle('sp_ventas_anular', [$id, $motivo, $userId]);
+        return $row && (int) $row['afectado'] > 0;
+    }
+
     public function updateFacturacionConfig(array $data): bool
     {
         $affected = $this->callSPExecute('sp_facturacion_updateConfig', [
@@ -90,23 +101,12 @@ class VentaModel extends BaseModel
         ]);
         return $affected >= 0;
     }
+
     // ─────────────────────────────────────────────
     // TRANSACCIONES PÚBLICAS
-    // El controlador las llama directamente
     // ─────────────────────────────────────────────
 
-    public function beginTransactionPublic(): void
-    {
-        $this->beginTransaction();
-    }
-
-    public function commitPublic(): void
-    {
-        $this->commit();
-    }
-
-    public function rollbackPublic(): void
-    {
-        $this->rollback();
-    }
+    public function beginTransactionPublic(): void { $this->beginTransaction(); }
+    public function commitPublic(): void           { $this->commit(); }
+    public function rollbackPublic(): void         { $this->rollback(); }
 }

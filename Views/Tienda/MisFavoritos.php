@@ -19,9 +19,9 @@
         </a>
     </div>
     <?php else: ?>
-    <div class="row g-3">
+    <div class="row g-3" id="gridFavoritos">
         <?php foreach ($favoritos as $p): ?>
-        <div class="col-12 col-sm-6 col-md-4 col-lg-3">
+        <div class="col-12 col-sm-6 col-md-4 col-lg-3" data-producto-id="<?= $p['id'] ?>">
             <div class="producto-card h-100 d-flex flex-column">
                 <div style="position:relative;">
                     <a href="<?= APP_URL ?>Tienda/producto/<?= $p['id'] ?>-<?= slugify($p['nombre']) ?>">
@@ -32,6 +32,7 @@
                     <button type="button"
                             class="btn-favorito"
                             data-id="<?= $p['id'] ?>"
+                            data-url="<?= APP_URL ?>Tienda/toggleFavorito"
                             title="Quitar de favoritos"
                             style="position:absolute; top:8px; right:8px;
                                    background:rgba(255,255,255,0.9); border:none;
@@ -83,3 +84,57 @@
     <?php endif; ?>
 
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+
+    document.querySelectorAll('.btn-favorito').forEach(function (btn) {
+        btn.addEventListener('click', function (e) {
+            e.preventDefault();
+            e.stopPropagation();
+
+            const productoId = this.dataset.id;
+            const url        = this.dataset.url;
+            const card       = this.closest('[data-producto-id]');
+            const self       = this;
+
+            // Feedback visual inmediato
+            self.style.opacity = '0.5';
+            self.disabled      = true;
+
+            fetch(url, {
+                method:  'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body:    `producto_id=${productoId}`
+            })
+            .then(r => r.json())
+            .then(data => {
+                if (data.error === 'no_auth') {
+                    window.location.href = '<?= APP_URL ?>Tienda/login';
+                    return;
+                }
+
+                // Quitar la card con animación
+                if (card) {
+                    card.style.transition = 'opacity 0.3s, transform 0.3s';
+                    card.style.opacity    = '0';
+                    card.style.transform  = 'scale(0.9)';
+                    setTimeout(function () {
+                        card.remove();
+                        // Si ya no quedan favoritos recargar para mostrar estado vacío
+                        if (!document.querySelector('[data-producto-id]')) {
+                            location.reload();
+                        }
+                    }, 300);
+                }
+            })
+            .catch(function () {
+                // Restaurar si falla
+                self.style.opacity = '1';
+                self.disabled      = false;
+            });
+        });
+    });
+
+});
+</script>

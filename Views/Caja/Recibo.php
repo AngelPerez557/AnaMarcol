@@ -6,9 +6,7 @@
     <title>Recibo #<?= str_pad($venta['id'] ?? 0, 8, '0', STR_PAD_LEFT) ?></title>
     <link rel="icon" type="image/png" href="<?= APP_URL ?>Content/Demo/img/Logo2.png">
     <style>
-        /* ── Optimizado para impresora térmica 80mm ── */
         * { margin: 0; padding: 0; box-sizing: border-box; }
-
         body {
             font-family: 'Courier New', Courier, monospace;
             font-size: 12px;
@@ -18,56 +16,74 @@
             color: #000;
             background: #fff;
         }
-
         .center  { text-align: center; }
         .right   { text-align: right; }
         .left    { text-align: left; }
         .bold    { font-weight: bold; }
         .line    { border-top: 1px dashed #000; margin: 4px 0; }
         .doble   { border-top: 2px solid #000; margin: 4px 0; }
-
-        .logo-empresa {
-            font-size: 14px;
-            font-weight: bold;
-            text-align: center;
-            margin-bottom: 2px;
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-
+        .logo-empresa { font-size: 14px; font-weight: bold; text-align: center; margin-bottom: 2px; }
+        table { width: 100%; border-collapse: collapse; }
         table td { padding: 1px 0; vertical-align: top; }
-
-        .col-desc  { width: 50%; }
-        .col-cant  { width: 15%; text-align: center; }
-        .col-precio{ width: 17%; text-align: right; }
-        .col-total { width: 18%; text-align: right; }
-
+        .col-desc   { width: 50%; }
+        .col-cant   { width: 15%; text-align: center; }
+        .col-precio { width: 17%; text-align: right; }
+        .col-total  { width: 18%; text-align: right; }
         .totales td { padding: 2px 0; }
+
+        /* ── Sello ANULADA ── */
+        .sello-anulada {
+            position:     fixed;
+            top:          50%;
+            left:         50%;
+            transform:    translate(-50%, -50%) rotate(-35deg);
+            font-size:    48px;
+            font-weight:  bold;
+            color:        rgba(220, 53, 69, 0.25);
+            border:       6px solid rgba(220, 53, 69, 0.25);
+            padding:      8px 20px;
+            border-radius: 8px;
+            pointer-events: none;
+            z-index:      999;
+            white-space:  nowrap;
+            letter-spacing: 6px;
+        }
+        .aviso-anulada {
+            background:   #dc3545;
+            color:        #fff;
+            text-align:   center;
+            font-weight:  bold;
+            padding:      4px;
+            margin-bottom: 4px;
+            font-size:    13px;
+            letter-spacing: 2px;
+        }
 
         @media print {
             body { margin: 0; padding: 2mm; }
             .no-print { display: none !important; }
-            @page {
-                size: 80mm auto;
-                margin: 0;
-            }
+            @page { size: 80mm auto; margin: 0; }
         }
     </style>
 </head>
 <body>
 
-    <!-- ── ENCABEZADO ── -->
+    <?php if ((int)($venta['anulada'] ?? 0) === 1): ?>
+    <!-- Sello diagonal de fondo -->
+    <div class="sello-anulada">ANULADA</div>
+    <!-- Aviso en la parte superior -->
+    <div class="aviso-anulada">★ FACTURA ANULADA ★</div>
+    <?php endif; ?>
+
+    <!-- ENCABEZADO -->
     <div class="logo-empresa"><?= htmlspecialchars($config['nombre_fiscal'] ?? 'ANA MARCOL MAKEUP STUDIO') ?></div>
     <div class="center">R.T.N: <?= htmlspecialchars($config['rtn'] ?? '') ?></div>
     <div class="center"><?= htmlspecialchars($config['direccion_fiscal'] ?? '') ?></div>
-    <div class="center">Tel: <?= htmlspecialchars('9987-3125') ?></div>
+    <div class="center">Tel: 9987-3125</div>
 
     <div class="line"></div>
 
-    <!-- ── DATOS CAI ── -->
+    <!-- DATOS CAI -->
     <div class="center bold">CAI: <?= htmlspecialchars($config['cai'] ?? '') ?></div>
     <div class="center bold">
         Factura # <?= htmlspecialchars(
@@ -79,15 +95,20 @@
 
     <div class="line"></div>
 
-    <!-- ── DATOS DE LA VENTA ── -->
+    <!-- DATOS DE LA VENTA -->
     <div>Fecha: <?= date('d/m/Y', strtotime($venta['created_at'] ?? 'now')) ?>
          &nbsp; Hora: <?= date('h:i:s a', strtotime($venta['created_at'] ?? 'now')) ?></div>
     <div>Cliente: <?= htmlspecialchars($venta['cliente_nombre'] ?? 'Consumidor final') ?></div>
     <div>RTN: N/A</div>
 
+    <?php if ((int)($venta['anulada'] ?? 0) === 1): ?>
+    <div class="line"></div>
+    <div class="bold">MOTIVO ANULACIÓN: <?= htmlspecialchars($venta['motivo_anulacion'] ?? '—') ?></div>
+    <?php endif; ?>
+
     <div class="line"></div>
 
-    <!-- ── DETALLE ── -->
+    <!-- DETALLE -->
     <div class="center bold">Descripción:</div>
     <table>
         <thead>
@@ -121,7 +142,7 @@
 
     <div class="line"></div>
 
-    <!-- ── TOTALES ── -->
+    <!-- TOTALES -->
     <?php
     $total          = (float)($venta['total'] ?? $subtotal);
     $subtotalSinIsv = $total / 1.15;
@@ -192,11 +213,10 @@
 
     <div class="line"></div>
 
-    <!-- ── SON ── -->
+    <!-- SON -->
     <?php
     function numeroALetras(float $numero): string {
         $entero  = (int) $numero;
-        $decimal = round(($numero - $entero) * 100);
         $unidades = ['','UN','DOS','TRES','CUATRO','CINCO','SEIS','SIETE','OCHO','NUEVE',
                      'DIEZ','ONCE','DOCE','TRECE','CATORCE','QUINCE','DIECISÉIS',
                      'DIECISIETE','DIECIOCHO','DIECINUEVE'];
@@ -204,23 +224,19 @@
                      'SESENTA','SETENTA','OCHENTA','NOVENTA'];
         $centenas = ['','CIENTO','DOSCIENTOS','TRESCIENTOS','CUATROCIENTOS','QUINIENTOS',
                      'SEISCIENTOS','SETECIENTOS','OCHOCIENTOS','NOVECIENTOS'];
-
         if ($entero === 0) return 'CERO';
         if ($entero < 20)  return $unidades[$entero];
         if ($entero < 100) {
-            $d = intdiv($entero, 10);
-            $u = $entero % 10;
+            $d = intdiv($entero, 10); $u = $entero % 10;
             return $decenas[$d] . ($u ? ' Y ' . $unidades[$u] : '');
         }
         if ($entero === 100) return 'CIEN';
         if ($entero < 1000) {
-            $c = intdiv($entero, 100);
-            $r = $entero % 100;
+            $c = intdiv($entero, 100); $r = $entero % 100;
             return $centenas[$c] . ($r ? ' ' . numeroALetras($r) : '');
         }
         if ($entero < 1000000) {
-            $m = intdiv($entero, 1000);
-            $r = $entero % 1000;
+            $m = intdiv($entero, 1000); $r = $entero % 1000;
             $miles = $m === 1 ? 'MIL' : numeroALetras($m) . ' MIL';
             return $miles . ($r ? ' ' . numeroALetras($r) : '');
         }
@@ -232,7 +248,7 @@
 
     <div class="line"></div>
 
-    <!-- ── DATOS FISCALES ── -->
+    <!-- DATOS FISCALES -->
     <div>No. Correlativo Orden Compra Exenta: ___________</div>
     <div>No. Correlativo Constancia de Reg. Exonerado: ___________</div>
     <div>No. Identificativo del Reg. De la Secretaria de estado de despacho SAG: ___________</div>
@@ -247,17 +263,24 @@
 
     <div class="center">Original: Cliente</div>
     <div class="center bold">Copia: Emisor Obligado Tributario</div>
+
+    <?php if ((int)($venta['anulada'] ?? 0) === 0): ?>
     <div class="center bold">¡La factura es beneficio de todos, Exíjala!</div>
+    <?php else: ?>
+    <div class="center bold" style="color:#dc3545;">★ DOCUMENTO ANULADO — NO VÁLIDO ★</div>
+    <?php endif; ?>
 
     <br>
 
-    <!-- ── BOTONES NO IMPRIMIBLES ── -->
+    <!-- BOTONES NO IMPRIMIBLES -->
     <div class="no-print" style="text-align:center; margin-top:20px;">
+        <?php if ((int)($venta['anulada'] ?? 0) === 0): ?>
         <button onclick="window.print()"
                 style="background:#de777d; color:#fff; border:none; padding:10px 24px;
                        border-radius:8px; font-size:14px; cursor:pointer; margin-right:8px;">
             <i class="fas fa-print"></i> Imprimir
         </button>
+        <?php endif; ?>
         <button onclick="window.close()"
                 style="background:#6c757d; color:#fff; border:none; padding:10px 24px;
                        border-radius:8px; font-size:14px; cursor:pointer;">

@@ -4,9 +4,6 @@ class VentasController
 {
     private VentaModel $ventaModel;
 
-    // ─────────────────────────────────────────────
-    // CONSTRUCTOR
-    // ─────────────────────────────────────────────
     public function __construct()
     {
         Auth::check();
@@ -23,8 +20,6 @@ class VentasController
 
         $pageTitle = 'Historial de Ventas';
         $ventas    = $this->ventaModel->findAll();
-
-        // Totales del día
         $totalHoy  = $this->ventaModel->totalHoy();
         $countHoy  = $this->ventaModel->countHoy();
 
@@ -49,11 +44,7 @@ class VentasController
         $config  = $this->ventaModel->getFacturacionConfig();
 
         if (!$venta) {
-            $_SESSION['alert'] = [
-                'icon'  => 'error',
-                'title' => 'Error',
-                'text'  => 'La venta no existe.',
-            ];
+            $_SESSION['alert'] = ['icon'=>'error','title'=>'Error','text'=>'La venta no existe.'];
             header('Location: ' . APP_URL . 'Ventas/index');
             exit();
         }
@@ -61,5 +52,66 @@ class VentasController
         $pageTitle = 'Detalle de Venta #' . str_pad($id, 8, '0', STR_PAD_LEFT);
 
         require_once VIEWS_PATH . 'Ventas' . DS . 'Detalle.php';
+    }
+
+    // ─────────────────────────────────────────────
+    // ANULAR — (POST — JSON)
+    // URL: /Ventas/anular
+    // No elimina el registro — ley fiscal Honduras
+    // ─────────────────────────────────────────────
+    public function anular(): void
+    {
+        header('Content-Type: application/json');
+
+        if (!Auth::can('ventas.eliminar')) {
+            http_response_code(403);
+            echo json_encode(['success' => false, 'message' => 'Sin permiso para anular ventas.']);
+            exit();
+        }
+
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            http_response_code(405);
+            echo json_encode(['success' => false, 'message' => 'Método no permitido.']);
+            exit();
+        }
+
+        if (!isset($_POST['csrf_token']) || $_SESSION['csrf_token'] !== $_POST['csrf_token']) {
+            http_response_code(403);
+            echo json_encode(['success' => false, 'message' => 'Token inválido.']);
+            exit();
+        }
+
+        $id     = (int) ($_POST['id'] ?? 0);
+        $motivo = htmlspecialchars(strip_tags(trim($_POST['motivo'] ?? '')));
+
+        if (!$id) {
+            echo json_encode(['success' => false, 'message' => 'Venta inválida.']);
+            exit();
+        }
+
+        if (empty($motivo)) {
+            echo json_encode(['success' => false, 'message' => 'El motivo de anulación es obligatorio.']);
+            exit();
+        }
+
+        // Verificar que la venta existe y no está ya anulada
+        $venta = $this->ventaModel->findById($id);
+        if (!$venta) {
+            echo json_encode(['success' => false, 'message' => 'La venta no existe.']);
+            exit();
+        }
+
+        if ((int) $venta['anulada'] === 1) {
+            echo json_encode(['success' => false, 'message' => 'Esta venta ya fue anulada.']);
+            exit();
+        }
+
+        $ok = $this->ventaModel->anular($id, $motivo, Auth::id());
+
+        echo json_encode([
+            'success' => $ok,
+            'message' => $ok ? 'Venta anulada correctamente.' : 'Error al anular la venta.',
+        ]);
+        exit();
     }
 }

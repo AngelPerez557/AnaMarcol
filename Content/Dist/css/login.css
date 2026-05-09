@@ -527,3 +527,10 @@
     .floating-label          { left: 2.75rem; }
     .input-icon              { left: 0.875rem; }
 }
+
+/* ── Fix iOS Safari 100vh ─────────────────────── */
+@supports (-webkit-touch-callout: none) {
+    .login-body {
+        min-height: -webkit-fill-available;
+    }
+}

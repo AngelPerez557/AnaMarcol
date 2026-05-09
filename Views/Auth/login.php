@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -13,6 +12,9 @@
     <title>Iniciar sesión | <?= APP_NAME ?></title>
     <link rel="icon" type="image/png" href="<?= APP_URL ?>Content/Demo/img/Logo2.png">
 
+    <!-- Fix iOS Safari 100vh — debe ir ANTES del CSS -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no, viewport-fit=cover">
+
     <!-- Bootstrap 5 -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet">
 
@@ -24,9 +26,17 @@
 
     <!-- CSS del login -->
     <link rel="stylesheet" href="<?= APP_URL ?>Content/Dist/css/login.css">
+
+    <style>
+    /* Fix iOS Safari — el 100vh incluye la barra de URL y descentra el contenido */
+    @supports (-webkit-touch-callout: none) {
+        .login-body {
+            min-height: -webkit-fill-available;
+        }
+    }
+    </style>
 </head>
 
-<!-- Dark mode se aplica desde PHP para evitar flash -->
 <body class="login-body<?= (isset($_SESSION['dark_mode']) && $_SESSION['dark_mode']) ? ' dark-mode' : '' ?>">
 
     <!-- Botón dark mode — independiente del layout principal -->
@@ -62,15 +72,14 @@
 
                 <!-- ── Mensaje de error desde sesión ────── -->
                 <?php if (!empty($error)): ?>
-                    <div class="alert alert-danger alert-dismissible fade show mt-3" role="alert">
-                        <i class="fas fa-exclamation-circle me-2"></i>
-                        <?= htmlspecialchars($error) ?>
-                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                    </div>
+                <div class="alert alert-danger alert-dismissible fade show mt-3" role="alert">
+                    <i class="fas fa-exclamation-circle me-2"></i>
+                    <?= htmlspecialchars($error) ?>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
                 <?php endif; ?>
 
                 <!-- ── Formulario de login ───────────────── -->
-                <!-- POST directo al AuthController via JRouter -->
                 <form id="loginForm"
                       action="<?= APP_URL ?>Auth/login"
                       method="POST"
@@ -81,12 +90,12 @@
                     <div class="form-floating-modern mb-3">
                         <div class="input-wrapper">
                             <input type="text"
-                                class="form-control form-control-modern"
-                                id="email"
-                                name="email"
-                                placeholder=" "
-                                autocomplete="username"
-                                required>
+                                   class="form-control form-control-modern"
+                                   id="email"
+                                   name="email"
+                                   placeholder=" "
+                                   autocomplete="username"
+                                   required>
                             <i class="input-icon fas fa-user"></i>
                             <label class="floating-label" for="email">Usuario o correo</label>
                             <span class="input-line"></span>
@@ -106,8 +115,6 @@
                             <i class="input-icon fas fa-lock"></i>
                             <label class="floating-label" for="password">Contraseña</label>
                             <span class="input-line"></span>
-
-                            <!-- Botón mostrar/ocultar contraseña -->
                             <button type="button"
                                     class="btn-toggle-password"
                                     id="togglePassword"
@@ -116,7 +123,7 @@
                             </button>
                         </div>
                     </div>
-                    
+
                     <!-- Botón submit -->
                     <button type="submit" class="btn btn-login-modern w-100" id="btnLogin">
                         <span class="btn-text">Iniciar sesión</span>
@@ -138,67 +145,47 @@
         </div>
     </div>
 
-    <!-- ─────────────────────────────────────────────
-         JAVASCRIPT
-         ───────────────────────────────────────────── -->
-
-    <!-- Variable global APP_URL para los scripts -->
     <script>const APP_URL = '<?= APP_URL ?>';</script>
-
-    <!-- Bootstrap bundle -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"></script>
-
-    <!-- SweetAlert2 -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-
-    <!-- Scripts del login -->
     <script src="<?= APP_URL ?>Content/Dist/js/login-theme.js"></script>
     <script src="<?= APP_URL ?>Content/Dist/js/login.js"></script>
 
-    <!-- Validación del formulario con SweetAlert -->
     <script>
-(function () {
-    'use strict';
+    (function () {
+        'use strict';
 
-    const form      = document.getElementById('loginForm');
-    const btnLogin  = document.getElementById('btnLogin');
+        const form     = document.getElementById('loginForm');
+        const btnLogin = document.getElementById('btnLogin');
 
-    if (form) {
-        form.addEventListener('submit', function (e) {
-            e.preventDefault();
+        if (form) {
+            form.addEventListener('submit', function (e) {
+                e.preventDefault();
 
-            const email    = document.getElementById('email').value.trim();
-            const password = document.getElementById('password').value.trim();
+                const email    = document.getElementById('email').value.trim();
+                const password = document.getElementById('password').value.trim();
 
-            if (email === '') {
-                Swal.fire({ icon: 'warning', title: 'Campo requerido', text: 'El correo electrónico es obligatorio.', confirmButtonText: 'Entendido', allowOutsideClick: false, allowEscapeKey: false });
-                return;
-            }
+                if (!email) {
+                    Swal.fire({ icon:'warning', title:'Campo requerido', text:'El correo electrónico es obligatorio.', confirmButtonText:'Entendido', allowOutsideClick:false, allowEscapeKey:false });
+                    return;
+                }
+                if (email.length < 3) {
+                    Swal.fire({ icon:'warning', title:'Campo inválido', text:'Ingresa tu usuario o correo electrónico.', confirmButtonText:'Entendido' });
+                    return;
+                }
+                if (!password) {
+                    Swal.fire({ icon:'warning', title:'Campo requerido', text:'La contraseña es obligatoria.', confirmButtonText:'Entendido', allowOutsideClick:false, allowEscapeKey:false });
+                    return;
+                }
 
-            // Acepta usuario o correo — solo verifica que no esté vacío
-            if (email.length < 3) {
-                Swal.fire({ 
-                    icon: 'warning', 
-                    title: 'Campo inválido', 
-                    text: 'Ingresa tu usuario o correo electrónico.', 
-                    confirmButtonText: 'Entendido' 
-                });
-                return;
-            }
+                btnLogin.disabled = true;
+                btnLogin.querySelector('.btn-text').style.display  = 'none';
+                btnLogin.querySelector('.btn-loader').style.display = 'inline-block';
+                form.submit();
+            });
+        }
+    })();
+    </script>
 
-            if (password === '') {
-                Swal.fire({ icon: 'warning', title: 'Campo requerido', text: 'La contraseña es obligatoria.', confirmButtonText: 'Entendido', allowOutsideClick: false, allowEscapeKey: false });
-                return;
-            }
-
-            btnLogin.disabled = true;
-            btnLogin.querySelector('.btn-text').style.display = 'none';
-            btnLogin.querySelector('.btn-loader').style.display = 'inline-block';
-            form.submit();
-        });
-    }
-
-})();
-</script>
 </body>
 </html>

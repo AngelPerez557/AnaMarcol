@@ -34,7 +34,7 @@ class TiendaController
         $this->favoritoModel = new FavoritoModel();
     }
 
-    public function index(): void
+   public function index(): void
     {
         $pageTitle           = 'Inicio';
         $banners             = $this->bannerModel->findActivos();
@@ -42,11 +42,19 @@ class TiendaController
         $combos              = $this->comboModel->findActivos();
         $categorias          = $this->categoriaModel->findAll();
         $galeria             = $this->galeriaModel->findActivas();
-        $descuentoModel  = new DescuentoModel();
-        $descuentoActivo = $descuentoModel->getActivo();
+        $descuentoModel      = new DescuentoModel();
+        $descuentoActivo     = $descuentoModel->getActivo();
         $productosDestacados = array_slice($productos, 0, 8);
+
+        // ── Cargar productos de cada combo ──────────
+        $comboProductos = [];
+        foreach ($combos as $combo) {
+            $comboProductos[$combo->id] = $this->comboModel->findProductos($combo->id);
+        }
+
         $this->render('Inicio.php', compact(
-            'pageTitle','banners','productosDestacados','combos','categorias','galeria','descuentoActivo'
+            'pageTitle','banners','productosDestacados','combos',
+            'categorias','galeria','descuentoActivo','comboProductos'
         ));
     }
 

@@ -4,8 +4,12 @@ $urlActual = strtolower(trim($_GET['url'] ?? '', '/'));
 $menu = [
     'Inicio' => ['Id'=>1,'Nombre'=>'Inicio','Url'=>APP_URL.'Dashboard/index','Icono'=>'fas fa-home','Permiso'=>''],
 
-    'Caja' => ['Id'=>12,'Nombre'=>'Caja / Punto de Venta','Url'=>APP_URL.'Caja/index','Icono'=>'fas fa-cash-register','Permiso'=>'ventas.crear','TourId'=>'tour-caja-link'],
-
+    'Caja' => ['Id'=>12,'Nombre'=>'Caja','Url'=>'#','Icono'=>'fas fa-cash-register','Permiso'=>'ventas.crear','TourId'=>'tour-caja-link','Children'=>[
+    ['Id'=>121,'Nombre'=>'Punto de Venta',   'Url'=>APP_URL.'Caja/index',    'Icono'=>'fas fa-cash-register',  'Permiso'=>'ventas.crear'],
+    ['Id'=>122,'Nombre'=>'Cerrar Caja',      'Url'=>APP_URL.'Caja/cierre',   'Icono'=>'fas fa-store-slash',    'Permiso'=>'ventas.crear'],
+    ['Id'=>123,'Nombre'=>'Historial de Caja','Url'=>APP_URL.'Caja/historial','Icono'=>'fas fa-book',           'Permiso'=>'ventas.ver'],
+    ]],
+    
     'Pedidos' => ['Id'=>2,'Nombre'=>'Pedidos','Url'=>APP_URL.'Pedidos/index','Icono'=>'fas fa-shopping-bag','Permiso'=>'pedidos.ver','TourId'=>'tour-pedidos-link'],
 
     'Ventas' => ['Id'=>4,'Nombre'=>'Ventas','Url'=>'#','Icono'=>'fas fa-receipt','Permiso'=>'ventas.ver','Children'=>[

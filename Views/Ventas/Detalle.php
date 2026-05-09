@@ -1,33 +1,58 @@
 <div class="container-fluid py-4">
 
-    <!-- ─────────────────────────────────────────────
-         CABECERA
-         ───────────────────────────────────────────── -->
+    <!-- CABECERA -->
     <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
             <h4 class="mb-0 fw-bold">
                 <i class="fas fa-receipt me-2" style="color:#de777d;"></i>
                 <?= htmlspecialchars($pageTitle) ?>
             </h4>
-            <small class="text-muted">
-                <?= date('d/m/Y H:i', strtotime($venta['created_at'])) ?>
-            </small>
+            <div class="d-flex align-items-center gap-2 mt-1">
+                <small class="text-muted">
+                    <?= date('d/m/Y H:i', strtotime($venta['created_at'])) ?>
+                </small>
+                <?php if ((int)($venta['anulada'] ?? 0) === 1): ?>
+                <span class="badge bg-danger">
+                    <i class="fas fa-ban me-1"></i>ANULADA
+                </span>
+                <?php endif; ?>
+            </div>
         </div>
         <div class="d-flex gap-2">
+            <?php if ((int)($venta['anulada'] ?? 0) === 0): ?>
             <a href="<?= APP_URL ?>Caja/recibo/<?= $venta['id'] ?>"
                target="_blank"
                class="btn btn-outline-secondary btn-sm">
                 <i class="fas fa-print me-1"></i>Imprimir
             </a>
+            <?php endif; ?>
             <a href="<?= APP_URL ?>Ventas/index" class="btn btn-outline-secondary btn-sm">
                 <i class="fas fa-arrow-left me-1"></i>Volver
             </a>
         </div>
     </div>
 
+    <?php if ((int)($venta['anulada'] ?? 0) === 1): ?>
+    <!-- AVISO ANULACIÓN -->
+    <div class="alert alert-danger d-flex align-items-start gap-3 mb-4">
+        <i class="fas fa-ban fa-2x mt-1"></i>
+        <div>
+            <div class="fw-bold fs-5">Esta venta fue anulada</div>
+            <div class="mt-1">
+                <strong>Motivo:</strong> <?= htmlspecialchars($venta['motivo_anulacion'] ?? '—') ?>
+            </div>
+            <?php if ($venta['anulada_at']): ?>
+            <small class="text-muted">
+                <?= date('d/m/Y H:i', strtotime($venta['anulada_at'])) ?>
+            </small>
+            <?php endif; ?>
+        </div>
+    </div>
+    <?php endif; ?>
+
     <div class="row g-4">
 
-        <!-- ── Columna izquierda — Info de la venta ── -->
+        <!-- Columna izquierda -->
         <div class="col-12 col-lg-4">
 
             <!-- Datos de la venta -->
@@ -72,7 +97,7 @@
             </div>
 
             <!-- Totales -->
-            <div class="card">
+            <div class="card mb-3">
                 <div class="card-header">
                     <i class="fas fa-calculator me-2"></i>Totales
                 </div>
@@ -95,9 +120,12 @@
                     <div class="d-flex justify-content-between fw-bold pt-2 border-top"
                          style="font-size:1.15rem;">
                         <span>Total</span>
-                        <span style="color:#de777d;">L. <?= number_format($total, 2) ?></span>
+                        <span style="color:<?= (int)($venta['anulada']??0) ? '#dc3545' : '#de777d' ?>;">
+                            L. <?= number_format($total, 2) ?>
+                            <?= (int)($venta['anulada']??0) ? '<small class="text-danger ms-1">(ANULADA)</small>' : '' ?>
+                        </span>
                     </div>
-                    <?php if ($venta['metodo_pago'] === 'Efectivo'): ?>
+                    <?php if ($venta['metodo_pago'] === 'Efectivo' && !(int)($venta['anulada']??0)): ?>
                     <div class="d-flex justify-content-between mt-2 text-muted">
                         <span>Recibido</span>
                         <span>L. <?= number_format($montoRecibido, 2) ?></span>
@@ -123,11 +151,43 @@
                 </div>
             </div>
 
+            <!-- Botón anular — solo si tiene permiso y no está anulada -->
+            <?php if (Auth::can('ventas.eliminar') && (int)($venta['anulada'] ?? 0) === 0): ?>
+            <div class="card border-danger">
+                <div class="card-header text-danger" style="background:rgba(220,53,69,0.06);">
+                    <i class="fas fa-ban me-2"></i>Zona de anulación
+                </div>
+                <div class="card-body">
+                    <p class="text-muted mb-3" style="font-size:0.85rem;">
+                        La anulación no elimina el registro — es obligatorio conservarlo por ley fiscal hondureña.
+                        Solo marca la venta como inválida.
+                    </p>
+                    <div class="mb-3">
+                        <label for="motivoAnulacion" class="form-label fw-semibold text-danger">
+                            Motivo de anulación <span class="text-danger">*</span>
+                        </label>
+                        <textarea id="motivoAnulacion"
+                                  class="form-control form-control-sm"
+                                  rows="3"
+                                  maxlength="500"
+                                  placeholder="Describe el motivo..."></textarea>
+                    </div>
+                    <button type="button"
+                            class="btn btn-danger w-100"
+                            id="btnAnular"
+                            data-id="<?= $venta['id'] ?>"
+                            data-csrf="<?= htmlspecialchars($_SESSION['csrf_token'] ?? '') ?>">
+                        <i class="fas fa-ban me-2"></i>Anular venta
+                    </button>
+                </div>
+            </div>
+            <?php endif; ?>
+
         </div>
 
-        <!-- ── Columna derecha — Productos vendidos ── -->
+        <!-- Columna derecha — Productos -->
         <div class="col-12 col-lg-8">
-            <div class="card">
+            <div class="card <?= (int)($venta['anulada']??0) ? 'opacity-75' : '' ?>">
                 <div class="card-header d-flex justify-content-between align-items-center">
                     <span>
                         <i class="fas fa-boxes me-2"></i>Productos vendidos
@@ -149,9 +209,7 @@
                         <tbody>
                             <?php if (empty($detalle)): ?>
                             <tr>
-                                <td colspan="4" class="text-center py-4 text-muted">
-                                    Sin detalle registrado.
-                                </td>
+                                <td colspan="4" class="text-center py-4 text-muted">Sin detalle registrado.</td>
                             </tr>
                             <?php else: ?>
                             <?php foreach ($detalle as $item): ?>
@@ -190,5 +248,63 @@
         </div>
 
     </div>
-
 </div>
+
+<input type="hidden" id="appUrl" value="<?= APP_URL ?>">
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const btnAnular = document.getElementById('btnAnular');
+    if (!btnAnular) return;
+
+    btnAnular.addEventListener('click', function () {
+        const id     = this.dataset.id;
+        const csrf   = this.dataset.csrf;
+        const motivo = document.getElementById('motivoAnulacion').value.trim();
+        const appUrl = document.getElementById('appUrl').value;
+
+        if (!motivo) {
+            Swal.fire({ icon:'warning', title:'Campo requerido', text:'Ingresa el motivo de anulación.', confirmButtonColor:'#dc3545' });
+            return;
+        }
+
+        Swal.fire({
+            icon:               'warning',
+            title:              '¿Anular esta venta?',
+            html:               'Esta acción <strong>no se puede deshacer</strong>.<br>El registro se conserva por ley fiscal.',
+            showCancelButton:   true,
+            confirmButtonColor: '#dc3545',
+            cancelButtonColor:  '#6c757d',
+            confirmButtonText:  'Sí, anular',
+            cancelButtonText:   'Cancelar'
+        }).then(result => {
+            if (!result.isConfirmed) return;
+
+            btnAnular.disabled    = true;
+            btnAnular.innerHTML   = '<i class="fas fa-spinner fa-spin me-2"></i>Anulando...';
+
+            const form = new FormData();
+            form.append('csrf_token', csrf);
+            form.append('id',         id);
+            form.append('motivo',     motivo);
+
+            fetch(`${appUrl}Ventas/anular`, { method:'POST', body:form })
+            .then(r => r.json())
+            .then(data => {
+                if (data.success) {
+                    Swal.fire({
+                        icon:'success', title:'Venta anulada',
+                        text: data.message,
+                        confirmButtonColor:'#de777d',
+                        timer:2000, showConfirmButton:false
+                    }).then(() => location.reload());
+                } else {
+                    Swal.fire({ icon:'error', title:'Error', text:data.message, confirmButtonColor:'#dc3545' });
+                    btnAnular.disabled  = false;
+                    btnAnular.innerHTML = '<i class="fas fa-ban me-2"></i>Anular venta';
+                }
+            });
+        });
+    });
+});
+</script>
