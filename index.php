@@ -8,7 +8,6 @@
 
 // ─────────────────────────────────────────────
 // 1. HEADERS DE SEGURIDAD HTTP
-// Se envían antes de cualquier output
 // ─────────────────────────────────────────────
 header('X-Content-Type-Options: nosniff');
 header('X-Frame-Options: SAMEORIGIN');
@@ -17,8 +16,6 @@ header('Referrer-Policy: strict-origin-when-cross-origin');
 
 // ─────────────────────────────────────────────
 // 2. CORE
-// Define.php primero — todo depende de sus constantes
-// Usar / en lugar de DS porque DS aún no está definido
 // ─────────────────────────────────────────────
 require_once __DIR__ . '/Config/Define.php';
 require_once __DIR__ . '/Config/AutoLoad.php';
@@ -31,9 +28,6 @@ AutoLoad::run();
 
 // ─────────────────────────────────────────────
 // 3. SESIÓN SEGURA
-// SESSION_NAME único evita conflictos entre proyectos
-// httponly → cookie inaccesible desde JS
-// samesite → protección básica contra CSRF
 // ─────────────────────────────────────────────
 session_name(SESSION_NAME);
 
@@ -48,7 +42,7 @@ session_set_cookie_params([
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
-// Genera el token una vez por sesión
+
 if (empty($_SESSION['csrf_token'])) {
     $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
 }
@@ -70,17 +64,12 @@ $_SESSION['ultima_actividad'] = time();
 
 // ─────────────────────────────────────────────
 // 4. RUTA ACTUAL
-// Extrae el primer segmento de la URL para
-// determinar si es pública o protegida
 // ─────────────────────────────────────────────
 $urlActual = strtolower(trim($_GET['url'] ?? '', '/'));
 $segmento  = explode('/', $urlActual)[0];
 
 // ─────────────────────────────────────────────
 // 5. IGNORAR ASSETS DEL NAVEGADOR
-// El navegador pide favicon.ico, robots.txt, etc.
-// automáticamente — si no los ignoramos se guardan
-// como redirect_after_login y corrompen la redirección
 // ─────────────────────────────────────────────
 $assetsIgnorados = ['favicon.ico', 'robots.txt', 'sitemap.xml', 'apple-touch-icon.png'];
 $requestUri      = strtolower($_SERVER['REQUEST_URI'] ?? '');
@@ -94,7 +83,6 @@ foreach ($assetsIgnorados as $asset) {
 
 // ─────────────────────────────────────────────
 // 6. LOGOUT
-// Se procesa antes de cualquier otra lógica
 // ─────────────────────────────────────────────
 if ($segmento === 'auth' && isset($_GET['url']) && strpos($_GET['url'], 'logout') !== false) {
     Auth::logout();
@@ -103,13 +91,10 @@ if ($segmento === 'auth' && isset($_GET['url']) && strpos($_GET['url'], 'logout'
 
 // ─────────────────────────────────────────────
 // 7. CONTROL DE ACCESO
-// PUBLIC_ROUTES definido en Define.php
-// Si no está logueado y la ruta no es pública → login
 // ─────────────────────────────────────────────
 $esRutaPublica = in_array($segmento, PUBLIC_ROUTES, true);
 
 if (!Auth::isLoggedIn() && !$esRutaPublica) {
-    // Guardar solo rutas limpias — sin extensiones de archivo
     $requestUriClean = $_SERVER['REQUEST_URI'] ?? '';
     if (!preg_match('/\.[a-z]{2,4}$/i', $requestUriClean)) {
         $_SESSION['redirect_after_login'] = $requestUriClean;
@@ -119,14 +104,39 @@ if (!Auth::isLoggedIn() && !$esRutaPublica) {
 }
 
 // ─────────────────────────────────────────────
-// 8. TEMPLATE + ROUTER
-// Rutas públicas NO cargan el Template del panel admin
-// Tienen su propio layout (Tienda, Login, Auth)
+// 8. VERIFICACIÓN DE CAJA ABIERTA
+// DEBE ir antes de cargar el template para evitar
+// "headers already sent" al hacer el redirect
+// ─────────────────────────────────────────────
+if (Auth::isLoggedIn() && $segmento === 'caja') {
+    $metodoUrl = explode('/', $urlActual)[1] ?? 'index';
+
+    // Solo verificamos en rutas que necesitan estado de caja
+    if (in_array($metodoUrl, ['index', 'cierre', 'apertura'], true)) {
+        $cajaSesionCheck = new CajaSesionModel();
+        $sesionCheck     = $cajaSesionCheck->getSesionAbierta(Auth::id());
+
+        // Sin caja abierta → solo puede ir a apertura
+        if (!$sesionCheck && $metodoUrl !== 'apertura') {
+            header('Location: ' . APP_URL . 'Caja/apertura');
+            exit();
+        }
+
+        // Con caja abierta → no puede ir a apertura (ya está abierta)
+        if ($sesionCheck && $metodoUrl === 'apertura') {
+            header('Location: ' . APP_URL . 'Caja/index');
+            exit();
+        }
+    }
+}
+
+// ─────────────────────────────────────────────
+// 9. TEMPLATE + ROUTER
 // ─────────────────────────────────────────────
 $rutasSinTemplate = ['login', 'auth', 'tienda', 'api'];
 
-// Rutas completas sin template (incluyen segmento + método)
-$rutasCompletasSinTemplate = ['caja/recibo'];
+// Rutas completas sin template
+$rutasCompletasSinTemplate = ['caja/recibo', 'caja/resumen'];
 
 // Métodos que retornan JSON — no cargar template
 $metodosJson = ['toggle', 'delete', 'save', 'saveVariante', 'deleteVariante',
@@ -136,13 +146,12 @@ $metodosJson = ['toggle', 'delete', 'save', 'saveVariante', 'deleteVariante',
                 'checkout', 'guardarRegistro', 'procesarLogin', 'agendarCita',
                 'obtener', 'marcarLeida', 'marcarTodas', 'eliminar',
                 'marcarTour', 'activarTour', 'verificarStock', 'toggleFavorito',
-                'guardarPerfil', 'cambiarPassword', 'confirmarPago', 'comentar', 
-                'anular','abrir', 'cerrar',];
+                'guardarPerfil', 'cambiarPassword', 'comentar',
+                'anular', 'abrir', 'cerrar'];
 
 $metodoActual     = strtolower(explode('/', $urlActual)[1] ?? '');
 $metodosJsonLower = array_map('strtolower', $metodosJson);
 
-// Verificar si la URL completa empieza con alguna ruta sin template
 $esRutaCompletaSinTemplate = (bool) array_filter(
     $rutasCompletasSinTemplate,
     fn($r) => str_starts_with($urlActual, $r)
