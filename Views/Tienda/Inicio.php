@@ -101,11 +101,26 @@ if (!function_exists('calcDesc')) {
                     <a href="<?= APP_URL ?>Tienda/producto/<?= $p->id ?>-<?= slugify($p->nombre) ?>">
                         <div class="producto-img" style="background-image:url('<?= $p->getImageUrl() ?>');"></div>
                     </a>
+
                     <?php if ($desc['aplica']): ?>
                     <span style="position:absolute;top:8px;left:8px;background:#dc3545;color:#fff;padding:3px 8px;border-radius:20px;font-size:0.72rem;font-weight:700;z-index:2;">
                         -<?= $desc['pct'] ?>% OFF
                     </span>
                     <?php endif; ?>
+
+                    <!-- Botón favorito -->
+                    <button type="button"
+                            class="btn-favorito"
+                            data-id="<?= $p->id ?>"
+                            title="Agregar a favoritos"
+                            style="position:absolute;top:8px;right:8px;
+                                   background:rgba(255,255,255,0.9);border:2px solid #f0e0e1;
+                                   border-radius:50%;width:34px;height:34px;
+                                   display:flex;align-items:center;justify-content:center;
+                                   cursor:pointer;box-shadow:0 2px 6px rgba(0,0,0,0.12);
+                                   transition:all 0.2s;font-size:0.9rem;z-index:2;">
+                        <i class="fas fa-heart" style="color:#ccc;"></i>
+                    </button>
                 </div>
                 <div class="p-3">
                     <a href="<?= APP_URL ?>Tienda/producto/<?= $p->id ?>-<?= slugify($p->nombre) ?>" style="text-decoration:none;color:inherit;">
@@ -172,8 +187,6 @@ if (!function_exists('calcDesc')) {
                         <?php endif; ?>
 
                         <?php if (!empty($productosCombo)): ?>
-
-                        <!-- Precio -->
                         <div class="fw-bold mb-2" style="color:#de777d;">
                             <?php if ($combo->tieneDescuento() && $precioOriginal > $precioCombo): ?>
                             <span class="text-decoration-line-through text-muted fw-normal" style="font-size:0.82rem;">
@@ -184,8 +197,6 @@ if (!function_exists('calcDesc')) {
                             L. <?= number_format($precioCombo, 2) ?>
                             <?php endif; ?>
                         </div>
-
-                        <!-- Productos incluidos -->
                         <div class="mb-3">
                             <?php foreach ($productosCombo as $pc): ?>
                             <small class="text-muted d-block" style="font-size:0.75rem;">
@@ -196,8 +207,6 @@ if (!function_exists('calcDesc')) {
                             </small>
                             <?php endforeach; ?>
                         </div>
-
-                        <!-- Botón agregar -->
                         <?php
                         $productosJson = json_encode(array_map(fn($pc) => [
                             'id'         => $pc['producto_id'],
@@ -215,7 +224,6 @@ if (!function_exists('calcDesc')) {
                                 data-productos='<?= htmlspecialchars($productosJson, ENT_QUOTES) ?>'>
                             <i class="fas fa-cart-plus me-1"></i>Agregar combo
                         </button>
-
                         <?php else: ?>
                         <button type="button" class="btn-rosa w-100 mt-auto" disabled
                                 style="opacity:0.5;cursor:not-allowed;background:#aaa;border:none;">

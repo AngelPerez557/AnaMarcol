@@ -20,8 +20,7 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <meta name="apple-mobile-web-app-title" content="Ana Marcol">
-    <link rel="apple-touch-icon"
-          href="<?= APP_URL ?>Content/Demo/img/icons/icon-tienda-192.png">
+    <link rel="apple-touch-icon" href="<?= APP_URL ?>Content/Demo/img/icon/icon-tienda-192.png">
 
     <style>
         :root {
@@ -56,7 +55,6 @@
             color: var(--rosa);
             text-decoration: none;
         }
-
         .tienda-brand:hover { color: var(--rosa-hover); }
 
         .nav-tienda .nav-link {
@@ -66,7 +64,6 @@
             border-radius: 20px;
             transition: all 0.2s;
         }
-
         .nav-tienda .nav-link:hover,
         .nav-tienda .nav-link.active {
             background: var(--rosa-soft);
@@ -84,23 +81,46 @@
             text-decoration: none;
             transition: background 0.2s;
         }
-
         .btn-carrito:hover { background: var(--rosa-hover); color: #fff; }
 
         .badge-carrito {
             position: absolute;
-            top: -6px;
-            right: -6px;
+            top: -6px; right: -6px;
             background: #dc3545;
             color: #fff;
             border-radius: 50%;
-            width: 20px;
-            height: 20px;
+            width: 20px; height: 20px;
             font-size: 0.65rem;
             display: flex;
             align-items: center;
             justify-content: center;
             font-weight: 700;
+        }
+
+        /* ── FIX 1 — Menú móvil heredaba color azul Bootstrap ── */
+        #menuMobile .nav-link {
+            color: #555555;
+            font-weight: 500;
+            padding: 8px 14px;
+            border-radius: 8px;
+            transition: background-color 0.2s, color 0.2s;
+        }
+        #menuMobile .nav-link:hover {
+            color: var(--rosa);
+            background-color: var(--rosa-soft);
+        }
+        #menuMobile .nav-link.active {
+            color: var(--rosa);
+            background-color: var(--rosa-soft);
+        }
+
+        /* ── FIX 4 — Botón hamburguesa con estilo del tema ── */
+        .tienda-navbar [data-bs-target="#menuMobile"] {
+            border-color: var(--rosa);
+            color: var(--rosa);
+        }
+        .tienda-navbar [data-bs-target="#menuMobile"]:hover {
+            background-color: var(--rosa-soft);
         }
 
         /* ── CARDS PRODUCTO ── */
@@ -111,12 +131,10 @@
             transition: transform 0.2s, box-shadow 0.2s;
             background: #fff;
         }
-
         .producto-card:hover {
             transform: translateY(-4px);
             box-shadow: 0 8px 24px rgba(222,119,125,0.2);
         }
-
         .producto-img {
             height: 200px;
             background-size: contain;
@@ -135,7 +153,6 @@
             transition: background 0.2s;
             cursor: pointer;
         }
-
         .btn-rosa:hover { background: var(--rosa-hover); color: #fff; }
 
         .btn-rosa-outline {
@@ -149,7 +166,6 @@
             cursor: pointer;
             text-decoration: none;
         }
-
         .btn-rosa-outline:hover {
             background: var(--rosa);
             color: #fff;
@@ -162,15 +178,24 @@
             padding: 40px 0 20px;
             margin-top: 60px;
         }
-
         .tienda-footer a { color: #de777d; text-decoration: none; }
         .tienda-footer a:hover { color: #f5a0a5; }
+
+        /* ── FIX 2 — Footer columnas desbordadas en móvil ── */
+        @media (max-width: 767px) {
+            .tienda-footer .row > div {
+                flex: 0 0 100%;
+                max-width: 100%;
+            }
+            .tienda-footer .col-6 a {
+                word-break: break-word;
+            }
+        }
 
         /* ── TOAST CARRITO ── */
         .toast-carrito {
             position: fixed;
-            bottom: 20px;
-            right: 20px;
+            bottom: 20px; right: 20px;
             z-index: 9999;
             background: #333;
             color: #fff;
@@ -182,7 +207,6 @@
             box-shadow: 0 4px 12px rgba(0,0,0,0.3);
             animation: slideIn 0.3s ease;
         }
-
         @keyframes slideIn {
             from { transform: translateY(20px); opacity: 0; }
             to   { transform: translateY(0);    opacity: 1; }
@@ -202,7 +226,6 @@
             transition: all 0.2s;
             text-decoration: none;
         }
-
         .chip-categoria:hover,
         .chip-categoria.activo {
             background: var(--rosa);
@@ -212,30 +235,12 @@
 
         /* ── Responsive móvil navbar tienda ── */
         @media (max-width: 767px) {
-            .tienda-navbar .container {
-                padding-left: 12px;
-                padding-right: 12px;
-            }
-            .tienda-brand img {
-                height: 36px !important;
-                max-width: 140px !important;
-            }
-            .btn-carrito {
-                padding: 6px 12px !important;
-                font-size: 0.85rem;
-            }
-            .btn-rosa-outline {
-                padding: 5px 10px !important;
-                font-size: 0.78rem !important;
-            }
-            .d-flex.align-items-center.gap-3 {
-                gap: 8px !important;
-            }
-            /* Hero section más compacto en móvil */
-            .tienda-footer {
-                padding: 30px 0 15px;
-                margin-top: 30px;
-            }
+            .tienda-navbar .container { padding-left: 12px; padding-right: 12px; }
+            .tienda-brand img { height: 36px !important; max-width: 140px !important; }
+            .btn-carrito { padding: 6px 12px !important; font-size: 0.85rem; }
+            .btn-rosa-outline { padding: 5px 10px !important; font-size: 0.78rem !important; }
+            .d-flex.align-items-center.gap-3 { gap: 8px !important; }
+            .tienda-footer { padding: 30px 0 15px; margin-top: 30px; }
         }
 
         /* ── DISPONIBILIDAD CITAS ── */
@@ -243,7 +248,7 @@
         .dia-ocupado     { background: rgba(220,53,69,0.08) !important; color: #aaa !important; cursor: not-allowed; }
         .dia-no-laboral  { background: rgba(0,0,0,0.03) !important; color: #ccc !important; cursor: not-allowed; }
 
-        /* ── DROPDOWN CLIENTE (colores tienda) ── */
+        /* ── DROPDOWN CLIENTE ── */
         .dropdown-tienda .dropdown-toggle {
             background: transparent;
             border: 1.5px solid var(--rosa);
@@ -279,21 +284,10 @@
             padding: 8px 14px;
             transition: all 0.15s;
         }
-        .dropdown-tienda .dropdown-item:hover {
-            background: var(--rosa-soft);
-            color: var(--rosa);
-        }
-        .dropdown-tienda .dropdown-item i {
-            color: var(--rosa);
-        }
-        .dropdown-tienda .dropdown-divider {
-            border-color: var(--rosa-soft);
-            margin: 4px 0;
-        }
-        .dropdown-tienda .dropdown-item.text-danger:hover {
-            background: #fdecea;
-            color: #dc3545 !important;
-        }
+        .dropdown-tienda .dropdown-item:hover { background: var(--rosa-soft); color: var(--rosa); }
+        .dropdown-tienda .dropdown-item i { color: var(--rosa); }
+        .dropdown-tienda .dropdown-divider { border-color: var(--rosa-soft); margin: 4px 0; }
+        .dropdown-tienda .dropdown-item.text-danger:hover { background: #fdecea; color: #dc3545 !important; }
     </style>
 </head>
 <body>
@@ -305,27 +299,33 @@
                 <a href="<?= APP_URL ?>Tienda" class="tienda-brand">
                     <img src="<?= APP_URL ?>Content/Demo/img/Logo.png"
                          alt="<?= APP_NAME ?>"
-                         style="height:40px; width:auto; object-fit:contain;
-                                max-width:160px;">
+                         style="height:40px; width:auto; object-fit:contain; max-width:160px;">
                 </a>
 
                 <!-- Menú desktop -->
+                <?php
+                // FIX 5 — active dinámico según ruta actual
+                $urlActual = strtolower(trim($_GET['url'] ?? '', '/'));
+                $esInicio   = $urlActual === 'tienda' || $urlActual === 'tienda/index' || $urlActual === '';
+                $esCatalogo = str_starts_with($urlActual, 'tienda/catalogo') || str_starts_with($urlActual, 'tienda/producto');
+                $esCitas    = str_starts_with($urlActual, 'tienda/citas');
+                ?>
                 <ul class="nav nav-tienda d-none d-md-flex align-items-center">
                     <li class="nav-item">
                         <a href="<?= APP_URL ?>Tienda"
-                           class="nav-link <?= str_contains($urlActual ?? '', 'tienda') ? 'active' : '' ?>">
+                           class="nav-link <?= $esInicio ? 'active' : '' ?>">
                             Inicio
                         </a>
                     </li>
                     <li class="nav-item">
                         <a href="<?= APP_URL ?>Tienda/catalogo"
-                           class="nav-link <?= str_contains($urlActual ?? '', 'tienda/catalogo') ? 'active' : '' ?>">
+                           class="nav-link <?= $esCatalogo ? 'active' : '' ?>">
                             Catálogo
                         </a>
                     </li>
                     <li class="nav-item">
                         <a href="<?= APP_URL ?>Tienda/citas"
-                           class="nav-link <?= str_contains($urlActual ?? '', 'tienda/citas') ? 'active' : '' ?>">
+                           class="nav-link <?= $esCitas ? 'active' : '' ?>">
                             Agendar Cita
                         </a>
                     </li>
@@ -347,32 +347,12 @@
                             <?= htmlspecialchars($_SESSION['cliente']['nombre']) ?>
                         </button>
                         <ul class="dropdown-menu dropdown-menu-end">
-                            <li>
-                                <a class="dropdown-item" href="<?= APP_URL ?>Tienda/miPerfil">
-                                    <i class="fas fa-user-edit me-2"></i>Mi perfil
-                                </a>
-                            </li>
-                            <li>
-                                <a class="dropdown-item" href="<?= APP_URL ?>Tienda/misPedidos">
-                                    <i class="fas fa-box me-2"></i>Mis pedidos
-                                </a>
-                            </li>
-                            <li>
-                                <a class="dropdown-item" href="<?= APP_URL ?>Tienda/misCitas">
-                                    <i class="fas fa-calendar me-2"></i>Mis citas
-                                </a>
-                            </li>
-                            <li>
-                                <a class="dropdown-item" href="<?= APP_URL ?>Tienda/misFavoritos">
-                                    <i class="fas fa-heart me-2" style="color:#de777d;"></i>Mis favoritos
-                                </a>
-                            </li>
+                            <li><a class="dropdown-item" href="<?= APP_URL ?>Tienda/miPerfil"><i class="fas fa-user-edit me-2"></i>Mi perfil</a></li>
+                            <li><a class="dropdown-item" href="<?= APP_URL ?>Tienda/misPedidos"><i class="fas fa-box me-2"></i>Mis pedidos</a></li>
+                            <li><a class="dropdown-item" href="<?= APP_URL ?>Tienda/misCitas"><i class="fas fa-calendar me-2"></i>Mis citas</a></li>
+                            <li><a class="dropdown-item" href="<?= APP_URL ?>Tienda/misFavoritos"><i class="fas fa-heart me-2" style="color:#de777d;"></i>Mis favoritos</a></li>
                             <li><hr class="dropdown-divider"></li>
-                            <li>
-                                <a class="dropdown-item text-danger" href="<?= APP_URL ?>Tienda/logout">
-                                    <i class="fas fa-sign-out-alt me-2"></i>Cerrar sesión
-                                </a>
-                            </li>
+                            <li><a class="dropdown-item text-danger" href="<?= APP_URL ?>Tienda/logout"><i class="fas fa-sign-out-alt me-2"></i>Cerrar sesión</a></li>
                         </ul>
                     </div>
                     <?php else: ?>
@@ -381,20 +361,21 @@
                     </a>
                     <?php endif; ?>
 
-                    <!-- Menú móvil -->
+                    <!-- FIX 4 — Botón hamburguesa con estilo del tema -->
                     <button class="btn btn-outline-secondary btn-sm d-md-none" type="button"
-                            data-bs-toggle="collapse" data-bs-target="#menuMobile">
+                            data-bs-toggle="collapse" data-bs-target="#menuMobile"
+                            aria-expanded="false" aria-controls="menuMobile">
                         <i class="fas fa-bars"></i>
                     </button>
                 </div>
             </div>
 
-            <!-- Menú móvil colapsable -->
+            <!-- FIX 1 — Menú móvil con estilos del tema -->
             <div class="collapse d-md-none mt-2" id="menuMobile">
                 <ul class="nav flex-column">
-                    <li><a href="<?= APP_URL ?>Tienda/index"   class="nav-link">Inicio</a></li>
-                    <li><a href="<?= APP_URL ?>Tienda/catalogo" class="nav-link">Catálogo</a></li>
-                    <li><a href="<?= APP_URL ?>Tienda/citas"    class="nav-link">Agendar Cita</a></li>
+                    <li><a href="<?= APP_URL ?>Tienda/index"    class="nav-link <?= $esInicio   ? 'active' : '' ?>">Inicio</a></li>
+                    <li><a href="<?= APP_URL ?>Tienda/catalogo" class="nav-link <?= $esCatalogo ? 'active' : '' ?>">Catálogo</a></li>
+                    <li><a href="<?= APP_URL ?>Tienda/citas"    class="nav-link <?= $esCitas    ? 'active' : '' ?>">Agendar Cita</a></li>
                 </ul>
             </div>
         </div>
@@ -407,79 +388,77 @@
 
     <!-- ─── FOOTER ─────────────────────────────────── -->
     <footer class="tienda-footer">
-    <div class="container">
-        <div class="row g-4">
-            <div class="col-12 col-md-4">
-                <h5 class="text-white mb-3">
-                    <i class="fas fa-spa me-2" style="color:#de777d;"></i>
-                    Ana Marcol Makeup Studio
-                </h5>
-                <p style="font-size:0.85rem;">
-                    Tu estudio de maquillaje de confianza. Belleza profesional para cada ocasión.
-                </p>
-            </div>
-            <div class="col-6 col-md-2">
-                <h6 class="text-white mb-3">Tienda</h6>
-                <ul class="list-unstyled" style="font-size:0.85rem;">
-                    <li><a href="<?= APP_URL ?>Tienda/catalogo">Catálogo</a></li>
-                    <li><a href="<?= APP_URL ?>Tienda/citas">Agendar cita</a></li>
-                    <li><a href="<?= APP_URL ?>Tienda/carrito">Carrito</a></li>
-                </ul>
-            </div>
-            <div class="col-6 col-md-3">
-                <h6 class="text-white mb-3">Contacto</h6>
-                <ul class="list-unstyled" style="font-size:0.85rem;">
-                    <li>
-                        <a href="https://wa.me/50499873125" target="_blank"
-                           style="color:#ccc; text-decoration:none;">
-                            <i class="fab fa-whatsapp me-2" style="color:#25d366;"></i>
-                            +(504) 9987-3125
+        <div class="container">
+            <div class="row g-4">
+                <div class="col-12 col-md-4">
+                    <h5 class="text-white mb-3">
+                        <i class="fas fa-spa me-2" style="color:#de777d;"></i>
+                        Ana Marcol Makeup Studio
+                    </h5>
+                    <p style="font-size:0.85rem;">
+                        Tu estudio de maquillaje de confianza. Belleza profesional para cada ocasión.
+                    </p>
+                </div>
+                <div class="col-6 col-md-2">
+                    <h6 class="text-white mb-3">Tienda</h6>
+                    <ul class="list-unstyled" style="font-size:0.85rem;">
+                        <li><a href="<?= APP_URL ?>Tienda/catalogo">Catálogo</a></li>
+                        <li><a href="<?= APP_URL ?>Tienda/citas">Agendar cita</a></li>
+                        <li><a href="<?= APP_URL ?>Tienda/carrito">Carrito</a></li>
+                    </ul>
+                </div>
+                <!-- FIX 2 — col-6 → col-12 en móvil via CSS, word-break para Instagram -->
+                <div class="col-6 col-md-3">
+                    <h6 class="text-white mb-3">Contacto</h6>
+                    <ul class="list-unstyled" style="font-size:0.85rem;">
+                        <li>
+                            <a href="https://wa.me/50499873125" target="_blank"
+                               style="color:#ccc; text-decoration:none;">
+                                <i class="fab fa-whatsapp me-2" style="color:#25d366;"></i>
+                                +(504) 9987-3125
+                            </a>
+                        </li>
+                        <li class="mt-2">
+                            <a href="https://www.instagram.com/anamarcol_makeupstudio"
+                               target="_blank" style="color:#ccc; text-decoration:none; word-break:break-word;">
+                                <i class="fab fa-instagram me-2" style="color:#de777d;"></i>
+                                @anamarcol_makeupstudio
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+                <div class="col-12 col-md-3">
+                    <h6 class="text-white mb-3">Síguenos</h6>
+                    <div class="d-flex gap-3" style="font-size:1.5rem;">
+                        <a href="https://www.instagram.com/anamarcol_makeupstudio" target="_blank" title="Instagram">
+                            <i class="fab fa-instagram" style="color:#de777d;"></i>
                         </a>
-                    </li>
-                    <li class="mt-2">
-                        <a href="https://www.instagram.com/anamarcol_makeupstudio?igsh=MWc2eGM0ZTJ2eGh0"
-                           target="_blank" style="color:#ccc; text-decoration:none;">
-                            <i class="fab fa-instagram me-2" style="color:#de777d;"></i>
-                            @anamarcol_makeupstudio
+                        <a href="https://wa.me/50499873125" target="_blank" title="WhatsApp">
+                            <i class="fab fa-whatsapp" style="color:#25d366;"></i>
                         </a>
-                    </li>
-                </ul>
+                    </div>
+                    <p class="mt-3" style="font-size:0.8rem;">
+                        Desarrollado por
+                        <a href="https://www.instagram.com/deskcod_" target="_blank" style="color:#de777d;">DeskCod</a>
+                        <br>
+                        <a href="https://wa.me/50493429640" target="_blank"
+                           style="color:#ccc; text-decoration:none; font-size:0.78rem;">
+                            <i class="fab fa-whatsapp me-1" style="color:#25d366;"></i>+(504) 9342-9640
+                        </a>
+                        <br>
+                        <a href="https://www.instagram.com/deskcod_" target="_blank"
+                           style="color:#ccc; text-decoration:none; font-size:0.78rem;">
+                            <i class="fab fa-instagram me-1" style="color:#de777d;"></i>@deskcod_
+                        </a>
+                    </p>
+                </div>
             </div>
-            <div class="col-12 col-md-3">
-            <h6 class="text-white mb-3">Síguenos</h6>
-            <div class="d-flex gap-3" style="font-size:1.5rem;">
-                <a href="https://www.instagram.com/anamarcol_makeupstudio?igsh=MWc2eGM0ZTJ2eGh0"
-                target="_blank" title="Instagram">
-                    <i class="fab fa-instagram" style="color:#de777d;"></i>
-                </a>
-                <a href="https://wa.me/50499873125" target="_blank" title="WhatsApp">
-                    <i class="fab fa-whatsapp" style="color:#25d366;"></i>
-                </a>
+            <hr style="border-color:#555; margin: 20px 0;">
+            <div class="text-center" style="font-size:0.8rem;">
+                &copy; <?= date('Y') ?> Ana Marcol Makeup Studio. Todos los derechos reservados.
             </div>
-            <p class="mt-3" style="font-size:0.8rem;">
-                Desarrollado por
-                <a href="https://www.instagram.com/deskcod_" target="_blank" 
-                style="color:#de777d;">DeskCod</a>
-                <br>
-                <a href="https://wa.me/50493429640" target="_blank"
-                style="color:#ccc; text-decoration:none; font-size:0.78rem;">
-                    <i class="fab fa-whatsapp me-1" style="color:#25d366;"></i>+(504) 9342-964
-                </a>
-                <br>
-                <a href="https://www.instagram.com/deskcod_" target="_blank"
-                style="color:#ccc; text-decoration:none; font-size:0.78rem;">
-                    <i class="fab fa-instagram me-1" style="color:#de777d;"></i>@deskcod_
-                </a>
-            </p>
         </div>
-        </div>
-        <hr style="border-color:#555; margin: 20px 0;">
-        <div class="text-center" style="font-size:0.8rem;">
-            &copy; <?= date('Y') ?> Ana Marcol Makeup Studio.
-            Todos los derechos reservados.
-        </div>
-    </div>
-</footer>
+    </footer>
 
     <!-- Toast carrito -->
     <div class="toast-carrito" id="toastCarrito">
@@ -495,43 +474,34 @@
     <script>
     const APP_URL = '<?= APP_URL ?>';
 
-    // ── Carrito localStorage ──────────────────────
     function getCarrito() {
         return JSON.parse(localStorage.getItem('carrito_anamarcol') || '[]');
     }
-
     function saveCarrito(carrito) {
         localStorage.setItem('carrito_anamarcol', JSON.stringify(carrito));
         actualizarBadge();
     }
-
     function actualizarBadge() {
         const carrito = getCarrito();
         const total   = carrito.reduce((sum, item) => sum + item.cantidad, 0);
         const badge   = document.getElementById('badgeCarrito');
         if (badge) badge.textContent = total;
     }
-
     function agregarAlCarrito(id, nombre, precio, imagen, varianteId, varianteNombre) {
         const carrito = getCarrito();
         const key     = `${id}-${varianteId || ''}`;
         const existe  = carrito.find(i => i.key === key);
-
         if (existe) {
             existe.cantidad++;
         } else {
-            carrito.push({
-                key, id, nombre, precio, imagen,
-                varianteId:     varianteId     || null,
+            carrito.push({ key, id, nombre, precio, imagen,
+                varianteId: varianteId || null,
                 varianteNombre: varianteNombre || null,
-                cantidad: 1
-            });
+                cantidad: 1 });
         }
-
         saveCarrito(carrito);
         mostrarToast(`"${nombre}" agregado al carrito`);
     }
-
     function mostrarToast(msg) {
         const toast = document.getElementById('toastCarrito');
         const texto = document.getElementById('toastCarritoMsg');
@@ -540,49 +510,47 @@
         toast.style.display = 'flex';
         setTimeout(() => { toast.style.display = 'none'; }, 2500);
     }
-
-    // Inicializar badge al cargar
     document.addEventListener('DOMContentLoaded', actualizarBadge);
 
     // ── Favoritos ─────────────────────────────────
-document.addEventListener('DOMContentLoaded', function () {
-    document.querySelectorAll('.btn-favorito').forEach(btn => {
-        btn.addEventListener('click', function (e) {
-            e.preventDefault();
-            e.stopPropagation();
+    document.addEventListener('DOMContentLoaded', function () {
+        document.querySelectorAll('.btn-favorito').forEach(btn => {
+            btn.addEventListener('click', function (e) {
+                e.preventDefault();
+                e.stopPropagation();
 
-            <?php if (empty($_SESSION['cliente'])): ?>
-            window.location.href = '<?= APP_URL ?>Tienda/login';
-            return;
-            <?php endif; ?>
+                <?php if (empty($_SESSION['cliente'])): ?>
+                window.location.href = '<?= APP_URL ?>Tienda/login';
+                return;
+                <?php endif; ?>
 
-            const productoId = this.dataset.id;
-            const icon       = this.querySelector('i');
-            const btn        = this;
+                const productoId = this.dataset.id;
+                const icon       = this.querySelector('i');
+                const self       = this;
 
-            fetch('<?= APP_URL ?>Tienda/toggleFavorito', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                body: `producto_id=${productoId}`
-            })
-            .then(r => r.json())
-            .then(data => {
-                if (data.error === 'no_auth') {
-                    window.location.href = '<?= APP_URL ?>Tienda/login';
-                    return;
-                }
-                if (data.liked) {
-                    icon.style.color = '#de777d';
-                    btn.style.boxShadow = '0 2px 8px rgba(222,119,125,0.4)';
-                } else {
-                    icon.style.color = '#ccc';
-                    btn.style.boxShadow = '0 2px 6px rgba(0,0,0,0.15)';
-                }
-            })
-            .catch(() => {});
+                fetch('<?= APP_URL ?>Tienda/toggleFavorito', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                    body: `producto_id=${productoId}`
+                })
+                .then(r => r.json())
+                .then(data => {
+                    if (data.error === 'no_auth') {
+                        window.location.href = '<?= APP_URL ?>Tienda/login';
+                        return;
+                    }
+                    if (data.liked) {
+                        icon.style.color = '#de777d';
+                        self.style.boxShadow = '0 2px 8px rgba(222,119,125,0.4)';
+                    } else {
+                        icon.style.color = '#ccc';
+                        self.style.boxShadow = '0 2px 6px rgba(0,0,0,0.15)';
+                    }
+                })
+                .catch(() => {});
+            });
         });
     });
-});
     </script>
 
     {JSCRIPTS}

@@ -151,6 +151,41 @@ function renderMenu(array $menu): void
 .notif-tiempo  { font-size:0.7rem; color:#aaa; margin-top:3px; }
 .notif-header  { padding:10px 14px; border-bottom:1px solid rgba(0,0,0,0.08); display:flex; justify-content:space-between; align-items:center; }
 .notif-footer  { padding:8px 14px; border-top:1px solid rgba(0,0,0,0.08); text-align:center; }
+
+/* FIX 3 — Badge notif con contraste */
+.badge-notif {
+    background: #c0392b !important;
+    border: 2px solid #fff;
+}
+
+/* FIX 4 — Logo móvil centrado */
+.navbar-brand-mobile {
+    display: none;
+    align-items: center;
+}
+@media (max-width: 991.98px) {
+    .navbar-brand-mobile {
+        display: flex !important;
+        position: absolute;
+        left: 50%;
+        transform: translateX(-50%);
+        pointer-events: none;
+    }
+    .navbar-brand-mobile img {
+        height: 32px;
+        width: auto;
+        object-fit: contain;
+        max-width: 140px;
+    }
+}
+
+/* FIX 8 — Botón luna más visible */
+.btn-theme-toggle {
+    border: 1.5px solid rgba(255,255,255,0.6) !important;
+}
+.btn-theme-toggle:hover {
+    background-color: rgba(255,255,255,0.25) !important;
+}
 </style>
 
 <!-- SIDEBAR -->
@@ -177,6 +212,12 @@ function renderMenu(array $menu): void
     <button type="button" class="btn-menu-toggle" id="btnMenuToggle" aria-label="Abrir menú">
         <i class="fas fa-bars"></i>
     </button>
+
+    <!-- FIX 4 — Logo centrado visible solo en móvil -->
+    <span class="navbar-brand-mobile">
+        <img src="<?= APP_URL ?>Content/Demo/img/Logo.png"
+             alt="<?= APP_NAME ?>">
+    </span>
 
     <div class="d-flex align-items-center gap-2">
 

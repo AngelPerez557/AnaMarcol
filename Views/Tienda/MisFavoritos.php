@@ -29,8 +29,9 @@
                              style="background-image:url('<?= APP_URL ?>Content/Demo/img/Productos/<?= htmlspecialchars($p['image_url'] ?? '') ?>');">
                         </div>
                     </a>
+                    <!-- Clase btn-quitar-favorito (distinta de btn-favorito del template) -->
                     <button type="button"
-                            class="btn-favorito"
+                            class="btn-quitar-favorito"
                             data-id="<?= $p['id'] ?>"
                             data-url="<?= APP_URL ?>Tienda/toggleFavorito"
                             title="Quitar de favoritos"
@@ -88,7 +89,8 @@
 <script>
 document.addEventListener('DOMContentLoaded', function () {
 
-    document.querySelectorAll('.btn-favorito').forEach(function (btn) {
+    // Clase específica para esta vista — no colisiona con btn-favorito del template
+    document.querySelectorAll('.btn-quitar-favorito').forEach(function (btn) {
         btn.addEventListener('click', function (e) {
             e.preventDefault();
             e.stopPropagation();
@@ -98,7 +100,6 @@ document.addEventListener('DOMContentLoaded', function () {
             const card       = this.closest('[data-producto-id]');
             const self       = this;
 
-            // Feedback visual inmediato
             self.style.opacity = '0.5';
             self.disabled      = true;
 
@@ -114,14 +115,12 @@ document.addEventListener('DOMContentLoaded', function () {
                     return;
                 }
 
-                // Quitar la card con animación
                 if (card) {
                     card.style.transition = 'opacity 0.3s, transform 0.3s';
                     card.style.opacity    = '0';
                     card.style.transform  = 'scale(0.9)';
                     setTimeout(function () {
                         card.remove();
-                        // Si ya no quedan favoritos recargar para mostrar estado vacío
                         if (!document.querySelector('[data-producto-id]')) {
                             location.reload();
                         }
@@ -129,7 +128,6 @@ document.addEventListener('DOMContentLoaded', function () {
                 }
             })
             .catch(function () {
-                // Restaurar si falla
                 self.style.opacity = '1';
                 self.disabled      = false;
             });

@@ -905,3 +905,66 @@ body.dark-mode .accordion-button::after {
     width: 0;
     background: transparent;
 }
+/* ── FIX 3 — Badge notificaciones con mejor contraste ─────── */
+.badge-notif {
+    background-color: #c0392b !important; /* rojo oscuro — alto contraste sobre rosa */
+    color:            #ffffff !important;
+    border:           2px solid #ffffff;  /* borde blanco para separarlo del fondo */
+}
+ 
+/* ── FIX 8 — Botón modo oscuro más visible en topbar ──────── */
+.btn-theme-toggle {
+    border:        1.5px solid rgba(255,255,255,0.6) !important;
+    border-radius: var(--border-radius-md);
+    padding:       6px 10px;
+}
+.btn-theme-toggle:hover {
+    background-color: rgba(255,255,255,0.25) !important;
+    border-color:     rgba(255,255,255,0.9) !important;
+}
+ 
+/* ── FIX 4 — Logo visible en topbar móvil ─────────────────── */
+.navbar-brand-mobile {
+    display:     none;
+    align-items: center;
+}
+@media (max-width: 991.98px) {
+    .navbar-brand-mobile {
+        display:    flex !important;
+        position:   absolute;
+        left:       50%;
+        transform:  translateX(-50%);
+        pointer-events: none; /* no bloquea clicks en botones del header */
+    }
+    .navbar-brand-mobile img {
+        height:     32px;
+        width:      auto;
+        object-fit: contain;
+        max-width:  140px;
+    }
+}
+ 
+/* ── FIX 2 — Detalle venta: th sin wrap + total sin corte ──── */
+.table th {
+    white-space: nowrap;
+}
+/* Celda total en pie de tabla */
+.table tfoot td {
+    white-space: nowrap;
+}
+ 
+/* ── FIX 7 — Botones de acción en tablas estandarizados ───── */
+/* Usar estas clases en Ventas/index, Caja/Historial, Facturas */
+.btn-accion-ver {
+    /* igual que btn-outline-primary pero consistente entre vistas */
+}
+/* Forzar btn-outline-secondary en todos los botones de imprimir */
+.btn-imprimir {
+    color:        #6c757d !important;
+    border-color: #6c757d !important;
+    background:   transparent !important;
+}
+.btn-imprimir:hover {
+    color:       #fff !important;
+    background:  #6c757d !important;
+}
