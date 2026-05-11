@@ -1,201 +1,255 @@
 <div class="container-fluid py-4">
 
-    <!-- ─────────────────────────────────────────────
-         CABECERA
-         ───────────────────────────────────────────── -->
     <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
             <h4 class="mb-0 fw-bold">
-                <i class="fas fa-shopping-bag me-2" style="color:#de777d;"></i>
+                <i class="fas fa-history me-2" style="color:#de777d;"></i>
                 <?= htmlspecialchars($pageTitle) ?>
             </h4>
             <small class="text-muted">
-                <?= count($pedidos) ?> pedido<?= count($pedidos) !== 1 ? 's' : '' ?>
+                <?= count($ventas) ?> venta<?= count($ventas) !== 1 ? 's' : '' ?> registrada<?= count($ventas) !== 1 ? 's' : '' ?>
             </small>
         </div>
+        <a href="<?= APP_URL ?>Caja/index" class="btn btn-primary btn-sm">
+            <i class="fas fa-cash-register me-1"></i>Ir a Caja
+        </a>
     </div>
 
-    <!-- ─────────────────────────────────────────────
-         TABS DE ESTADOS
-         ───────────────────────────────────────────── -->
-    <div class="mb-4">
-        <div class="d-flex gap-2 flex-wrap">
-            <a href="<?= APP_URL ?>Pedidos/index"
-               class="btn btn-sm <?= $pageTitle === 'Todos los Pedidos' ? 'btn-primary' : 'btn-outline-secondary' ?>">
-                <i class="fas fa-list me-1"></i>Todos
-            </a>
-            <a href="<?= APP_URL ?>Pedidos/pendientes"
-               class="btn btn-sm <?= $pageTitle === 'Pedidos Pendientes' ? 'btn-warning' : 'btn-outline-warning' ?>">
-                <i class="fas fa-clock me-1"></i>Pendientes
-            </a>
-            <a href="<?= APP_URL ?>Pedidos/preparacion"
-               class="btn btn-sm <?= $pageTitle === 'Pedidos En Preparación' ? 'btn-info' : 'btn-outline-info' ?>">
-                <i class="fas fa-box-open me-1"></i>En preparación
-            </a>
-            <a href="<?= APP_URL ?>Pedidos/listos"
-               class="btn btn-sm <?= $pageTitle === 'Pedidos Listos' ? 'btn-primary' : 'btn-outline-primary' ?>">
-                <i class="fas fa-check-circle me-1"></i>Listos
-            </a>
-            <a href="<?= APP_URL ?>Pedidos/camino"
-               class="btn btn-sm <?= $pageTitle === 'Pedidos En Camino' ? 'btn-secondary' : 'btn-outline-secondary' ?>">
-                <i class="fas fa-truck me-1"></i>En camino
-            </a>
-            <a href="<?= APP_URL ?>Pedidos/entregados"
-               class="btn btn-sm <?= $pageTitle === 'Pedidos Entregados' ? 'btn-success' : 'btn-outline-success' ?>">
-                <i class="fas fa-check-double me-1"></i>Entregados
-            </a>
+    <!-- Cards resumen -->
+    <div class="row g-3 mb-4">
+        <div class="col-12 col-sm-6 col-md-3">
+            <div class="card h-100">
+                <div class="card-body d-flex align-items-center gap-3">
+                    <div class="rounded-circle d-flex align-items-center justify-content-center"
+                         style="width:48px;height:48px;background:rgba(222,119,125,0.12);flex-shrink:0;">
+                        <i class="fas fa-shopping-cart" style="color:#de777d;"></i>
+                    </div>
+                    <div>
+                        <div class="text-muted" style="font-size:0.8rem;">Ventas hoy</div>
+                        <div class="fw-bold fs-4"><?= $countHoy ?></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-12 col-sm-6 col-md-3">
+            <div class="card h-100">
+                <div class="card-body d-flex align-items-center gap-3">
+                    <div class="rounded-circle d-flex align-items-center justify-content-center"
+                         style="width:48px;height:48px;background:rgba(40,167,69,0.12);flex-shrink:0;">
+                        <i class="fas fa-money-bill-wave" style="color:#28a745;"></i>
+                    </div>
+                    <div>
+                        <div class="text-muted" style="font-size:0.8rem;">Total hoy</div>
+                        <div class="fw-bold fs-5" style="color:#28a745;">L. <?= number_format($totalHoy, 2) ?></div>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 
-    <!-- ─────────────────────────────────────────────
-         BUSCADOR
-         ───────────────────────────────────────────── -->
+    <!-- Filtros -->
     <div class="card mb-4">
         <div class="card-body py-2">
             <div class="row g-2 align-items-center">
-                <div class="col-12 col-md-5">
+                <div class="col-12 col-md-4">
                     <div class="input-group">
-                        <span class="input-group-text bg-transparent">
-                            <i class="fas fa-search text-muted"></i>
-                        </span>
-                        <input type="text"
-                               class="form-control border-start-0"
-                               id="buscarPedido"
-                               placeholder="Buscar por código o cliente...">
+                        <span class="input-group-text bg-transparent"><i class="fas fa-search text-muted"></i></span>
+                        <input type="text" class="form-control border-start-0" id="buscarVenta" placeholder="Buscar por cliente o cajero...">
                     </div>
                 </div>
-                <div class="col-6 col-md-3">
-                    <select class="form-select" id="filtroEntrega">
-                        <option value="">Todos los tipos</option>
-                        <option value="Retiro">Retiro en tienda</option>
-                        <option value="Envio">Envío a domicilio</option>
+                <div class="col-6 col-md-2">
+                    <select class="form-select" id="filtroMetodo">
+                        <option value="">Todos los métodos</option>
+                        <option value="Efectivo">Efectivo</option>
+                        <option value="Tarjeta">Tarjeta</option>
+                        <option value="Transferencia">Transferencia</option>
                     </select>
                 </div>
-                <div class="col-6 col-md-4 text-end">
-                    <small class="text-muted" id="contadorVisible">
-                        Mostrando <?= count($pedidos) ?>
-                    </small>
+                <div class="col-6 col-md-2">
+                    <input type="date" class="form-control" id="filtroFecha">
+                </div>
+                <div class="col-6 col-md-2">
+                    <select class="form-select" id="filtroAnulada">
+                        <option value="">Todas</option>
+                        <option value="0">Solo activas</option>
+                        <option value="1">Solo anuladas</option>
+                    </select>
+                </div>
+                <div class="col-6 col-md-2 d-flex align-items-center justify-content-end gap-2">
+                    <small class="text-muted" id="contadorVisible"><?= count($ventas) ?></small>
+                    <select class="form-select form-select-sm" id="porPagina" style="width:auto;">
+                        <option value="15">15</option>
+                        <option value="25" selected>25</option>
+                        <option value="50">50</option>
+                    </select>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- ─────────────────────────────────────────────
-         LISTADO
-         ───────────────────────────────────────────── -->
-    <?php if (empty($pedidos)): ?>
-    <div class="text-center py-5 text-muted">
-        <i class="fas fa-shopping-bag fa-3x mb-3 d-block" style="color:#de777d;opacity:0.4;"></i>
-        No hay pedidos en esta categoría.
-    </div>
-    <?php else: ?>
-    <div class="row g-3" id="gridPedidos">
-        <?php foreach ($pedidos as $pedido): ?>
-        <div class="col-12 col-md-6 col-xl-4 pedido-item"
-             data-codigo="<?= strtolower($pedido->codigo ?? '') ?>"
-             data-cliente="<?= strtolower(htmlspecialchars($pedido->cliente_nombre ?? 'consumidor final')) ?>"
-             data-entrega="<?= $pedido->tipo_entrega ?>">
-            <div class="card h-100">
-                <div class="card-header d-flex justify-content-between align-items-center py-2">
-                    <span class="fw-bold" style="color:#de777d;">
-                        <?= $pedido->getCodigoFormateado() ?>
-                    </span>
-                    <span class="badge <?= $pedido->getBadgeEstado() ?>">
-                        <i class="<?= $pedido->getIconoEstado() ?> me-1"></i>
-                        <?= $pedido->estado ?>
-                    </span>
-                </div>
-                <div class="card-body py-2">
-                    <!-- Cliente -->
-                    <div class="d-flex align-items-center gap-2 mb-2">
-                        <i class="fas fa-user text-muted" style="width:16px;"></i>
-                        <span class="fw-semibold">
-                            <?= htmlspecialchars($pedido->cliente_nombre ?? 'Consumidor final') ?>
-                        </span>
-                    </div>
-                    <!-- Tipo entrega -->
-                    <div class="d-flex align-items-center gap-2 mb-2">
-                        <i class="fas <?= $pedido->esEnvio() ? 'fa-truck' : 'fa-store' ?> text-muted"
-                           style="width:16px;"></i>
-                        <span class="text-muted" style="font-size:0.85rem;">
-                            <?= $pedido->esEnvio() ? 'Envío a domicilio' : 'Retiro en tienda' ?>
-                        </span>
-                    </div>
-                    <!-- Fecha -->
-                    <div class="d-flex align-items-center gap-2 mb-2">
-                        <i class="fas fa-clock text-muted" style="width:16px;"></i>
-                        <span class="text-muted" style="font-size:0.85rem;">
-                            <?= date('d/m/Y H:i', strtotime($pedido->created_at)) ?>
-                        </span>
-                    </div>
-                    <!-- Total -->
-                    <div class="d-flex justify-content-between align-items-center mt-2 pt-2 border-top">
-                        <span class="text-muted" style="font-size:0.85rem;">Total</span>
-                        <span class="fw-bold" style="color:#de777d; font-size:1.1rem;">
-                            <?= $pedido->getTotalFormateado() ?>
-                        </span>
-                    </div>
-                </div>
-                <div class="card-footer d-flex gap-2 justify-content-between align-items-center py-2">
-                    <!-- Botón WhatsApp si tiene teléfono -->
-                    <?php if ($pedido->cliente_telefono || $pedido->wa_numero): ?>
-                    <a href="<?= $pedido->getWhatsAppUrl() ?>"
-                       target="_blank"
-                       class="btn btn-sm btn-outline-success"
-                       title="Notificar por WhatsApp">
-                        <i class="fab fa-whatsapp me-1"></i>WhatsApp
-                    </a>
-                    <?php else: ?>
-                    <span></span>
-                    <?php endif; ?>
-
-                    <a href="<?= APP_URL ?>Pedidos/detalle/<?= $pedido->id ?>"
-                       class="btn btn-sm btn-primary">
-                        <i class="fas fa-eye me-1"></i>Ver detalle
-                    </a>
-                </div>
+    <!-- Tabla -->
+    <div class="card" id="tablaVentas">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead>
+                        <tr style="background:rgba(222,119,125,0.08);">
+                            <th class="ps-4"># Venta</th>
+                            <th>Fecha</th>
+                            <th>Cliente</th>
+                            <th>Cajero</th>
+                            <th>Método</th>
+                            <th class="text-end">Total</th>
+                            <th class="text-center">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php if (empty($ventas)): ?>
+                        <tr><td colspan="7" class="text-center py-5 text-muted">
+                            <i class="fas fa-history fa-2x mb-3 d-block" style="color:#de777d;opacity:0.4;"></i>
+                            No hay ventas registradas.
+                        </td></tr>
+                        <?php else: ?>
+                        <?php foreach ($ventas as $venta): ?>
+                        <tr class="venta-row"
+                            data-cliente="<?= strtolower(htmlspecialchars($venta['cliente_nombre'] ?? 'consumidor final')) ?>"
+                            data-cajero="<?= strtolower(htmlspecialchars($venta['cajero_nombre'] ?? '')) ?>"
+                            data-metodo="<?= htmlspecialchars($venta['metodo_pago'] ?? '') ?>"
+                            data-fecha="<?= date('Y-m-d', strtotime($venta['created_at'])) ?>"
+                            data-anulada="<?= (int)($venta['anulada'] ?? 0) ?>">
+                            <td class="ps-4">
+                                <span class="fw-bold" style="color:#de777d;">#<?= str_pad($venta['id'], 8, '0', STR_PAD_LEFT) ?></span>
+                                <?php if ((int)($venta['anulada'] ?? 0)): ?>
+                                <span class="badge bg-danger ms-1" style="font-size:0.65rem;">ANULADA</span>
+                                <?php endif; ?>
+                            </td>
+                            <td class="text-muted" style="font-size:0.85rem;"><?= date('d/m/Y H:i', strtotime($venta['created_at'])) ?></td>
+                            <td><div class="fw-semibold"><?= htmlspecialchars($venta['cliente_nombre'] ?? 'Consumidor final') ?></div></td>
+                            <td class="text-muted"><?= htmlspecialchars($venta['cajero_nombre'] ?? '—') ?></td>
+                            <td>
+                                <?php $iconos = ['Efectivo'=>'fa-money-bill-wave text-success','Tarjeta'=>'fa-credit-card text-primary','Transferencia'=>'fa-mobile-alt text-info']; ?>
+                                <span class="badge bg-light text-dark border">
+                                    <i class="fas <?= $iconos[$venta['metodo_pago']] ?? 'fa-circle' ?> me-1"></i>
+                                    <?= htmlspecialchars($venta['metodo_pago'] ?? '—') ?>
+                                </span>
+                            </td>
+                            <td class="text-end fw-bold" style="color:#de777d;">L. <?= number_format((float)$venta['total'], 2) ?></td>
+                            <td class="text-center">
+                                <div class="d-flex gap-2 justify-content-center">
+                                    <a href="<?= APP_URL ?>Ventas/detalle/<?= $venta['id'] ?>" class="btn btn-sm btn-outline-primary" title="Ver detalle"><i class="fas fa-eye"></i></a>
+                                    <a href="<?= APP_URL ?>Caja/recibo/<?= $venta['id'] ?>" target="_blank" class="btn btn-sm btn-outline-secondary" title="Imprimir"><i class="fas fa-print"></i></a>
+                                </div>
+                            </td>
+                        </tr>
+                        <?php endforeach; ?>
+                        <?php endif; ?>
+                    </tbody>
+                </table>
             </div>
         </div>
-        <?php endforeach; ?>
     </div>
-    <?php endif; ?>
+
+    <!-- Paginación -->
+    <div class="d-flex justify-content-between align-items-center mt-4 flex-wrap gap-2" id="paginacionWrap">
+        <small class="text-muted" id="infoPagina"></small>
+        <nav><ul class="pagination pagination-sm mb-0" id="navPagina"></ul></nav>
+    </div>
 
 </div>
 
 <script>
 document.addEventListener('DOMContentLoaded', function () {
+    const filas      = [...document.querySelectorAll('.venta-row')];
+    const contador   = document.getElementById('contadorVisible');
+    const infoPagina = document.getElementById('infoPagina');
+    const navPagina  = document.getElementById('navPagina');
+    const porPagSel  = document.getElementById('porPagina');
 
-    const buscar       = document.getElementById('buscarPedido');
-    const filtroEntrega= document.getElementById('filtroEntrega');
-    const contador     = document.getElementById('contadorVisible');
-    const items        = document.querySelectorAll('.pedido-item');
+    let porPagina   = 25;
+    let pagActual   = 1;
+    let filtradas   = filas.map((_, i) => i);
 
-    function filtrar() {
-        const texto   = buscar.value.toLowerCase();
-        const entrega = filtroEntrega.value;
-        let visible   = 0;
+    // ── Filtros ──────────────────────────────────
+    const buscar       = document.getElementById('buscarVenta');
+    const filtroMetodo = document.getElementById('filtroMetodo');
+    const filtroFecha  = document.getElementById('filtroFecha');
+    const filtroAnul   = document.getElementById('filtroAnulada');
 
-        items.forEach(item => {
-            const codigo   = item.dataset.codigo   || '';
-            const cliente  = item.dataset.cliente  || '';
-            const tipoEnt  = item.dataset.entrega  || '';
+    function aplicarFiltros() {
+        const txt    = buscar.value.toLowerCase();
+        const met    = filtroMetodo.value;
+        const fecha  = filtroFecha.value;
+        const anul   = filtroAnul.value;
 
-            const okTexto   = codigo.includes(texto) || cliente.includes(texto);
-            const okEntrega = !entrega || tipoEnt === entrega;
-
-            if (okTexto && okEntrega) {
-                item.style.display = '';
-                visible++;
-            } else {
-                item.style.display = 'none';
-            }
+        filtradas = [];
+        filas.forEach((fila, i) => {
+            const ok =
+                (!txt   || fila.dataset.cliente.includes(txt) || fila.dataset.cajero.includes(txt)) &&
+                (!met   || fila.dataset.metodo   === met) &&
+                (!fecha || fila.dataset.fecha     === fecha) &&
+                (!anul  || fila.dataset.anulada   === anul);
+            if (ok) filtradas.push(i);
         });
-
-        contador.textContent = `Mostrando ${visible}`;
+        pagActual = 1;
+        render();
     }
 
-    buscar.addEventListener('input', filtrar);
-    filtroEntrega.addEventListener('change', filtrar);
+    buscar.addEventListener('input',           aplicarFiltros);
+    filtroMetodo.addEventListener('change',    aplicarFiltros);
+    filtroFecha.addEventListener('change',     aplicarFiltros);
+    filtroAnul.addEventListener('change',      aplicarFiltros);
+    porPagSel.addEventListener('change', () => { porPagina = parseInt(porPagSel.value); pagActual = 1; render(); });
 
+    // ── Render ───────────────────────────────────
+    function render() {
+        const total   = filtradas.length;
+        const paginas = Math.max(1, Math.ceil(total / porPagina));
+        if (pagActual > paginas) pagActual = paginas;
+
+        const inicio   = (pagActual - 1) * porPagina;
+        const fin      = Math.min(inicio + porPagina, total);
+        const visibles = new Set(filtradas.slice(inicio, fin));
+
+        filas.forEach((el, i) => { el.style.display = visibles.has(i) ? '' : 'none'; });
+
+        contador.textContent  = `${total}`;
+        infoPagina.textContent = total > 0 ? `Página ${pagActual} de ${paginas} — ${inicio + 1}–${fin} de ${total}` : 'Sin resultados';
+
+        renderNav(paginas);
+    }
+
+    function renderNav(paginas) {
+        navPagina.innerHTML = '';
+        if (paginas <= 1) return;
+
+        const btn = (label, page, disabled, active) => {
+            const li = document.createElement('li');
+            li.className = `page-item${disabled?' disabled':''}${active?' active':''}`;
+            const a = document.createElement('a');
+            a.className = 'page-link'; a.href = '#'; a.innerHTML = label;
+            if (!disabled && !active) a.addEventListener('click', e => { e.preventDefault(); pagActual = page; render(); document.getElementById('tablaVentas').scrollIntoView({behavior:'smooth',block:'start'}); });
+            li.appendChild(a); return li;
+        };
+
+        navPagina.appendChild(btn('&laquo;', pagActual - 1, pagActual === 1, false));
+
+        let nums = paginas <= 7 ? Array.from({length:paginas},(_,i)=>i+1) : [1];
+        if (paginas > 7) {
+            if (pagActual > 3) nums.push('…');
+            for (let i = Math.max(2, pagActual-1); i <= Math.min(paginas-1, pagActual+1); i++) nums.push(i);
+            if (pagActual < paginas - 2) nums.push('…');
+            nums.push(paginas);
+        }
+
+        nums.forEach(n => {
+            if (n === '…') { const li = document.createElement('li'); li.className='page-item disabled'; li.innerHTML='<a class="page-link">…</a>'; navPagina.appendChild(li); }
+            else navPagina.appendChild(btn(n, n, false, n === pagActual));
+        });
+
+        navPagina.appendChild(btn('&raquo;', pagActual + 1, pagActual === paginas, false));
+    }
+
+    filtradas = filas.map((_, i) => i);
+    render();
 });
 </script>
