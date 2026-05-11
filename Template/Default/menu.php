@@ -6,9 +6,6 @@ $menu = [
 
     'Caja' => ['Id'=>12,'Nombre'=>'Caja','Url'=>'#','Icono'=>'fas fa-cash-register','Permiso'=>'ventas.crear','TourId'=>'tour-caja-link','Children'=>[
         ['Id'=>121,'Nombre'=>'Punto de Venta',   'Url'=>APP_URL.'Caja/index',    'Icono'=>'fas fa-cash-register','Permiso'=>'ventas.crear'],
-        // ── Estado dinámico de caja ──────────────────────────────
-        // Si hay sesión abierta → mostrar "Cerrar Caja"
-        // Si no hay sesión → mostrar "Abrir Caja"
         ...(Auth::can('ventas.crear') ? (function() {
             $cajaSesionMenu = new CajaSesionModel();
             $sesionMenu     = $cajaSesionMenu->getSesionAbierta(Auth::id());
@@ -31,9 +28,9 @@ $menu = [
 
     'Catalogo' => ['Id'=>3,'Nombre'=>'Catálogo','Url'=>'#','Icono'=>'fas fa-box-open','Permiso'=>'','Children'=>[
         ['Id'=>31,'Nombre'=>'Productos',  'Url'=>APP_URL.'Productos/index',  'Icono'=>'fas fa-boxes',      'Permiso'=>'productos.ver'],
-        ['Id'=>32,'Nombre'=>'Categorías', 'Url'=>APP_URL.'Categorias/index', 'Icono'=>'fas fa-tags',        'Permiso'=>'categorias.ver'],
-        ['Id'=>33,'Nombre'=>'Combos',     'Url'=>APP_URL.'Combos/index',     'Icono'=>'fas fa-layer-group', 'Permiso'=>'combos.ver'],
-        ['Id'=>34,'Nombre'=>'Descuentos', 'Url'=>APP_URL.'Descuentos/index', 'Icono'=>'fas fa-percent',     'Permiso'=>'productos.editar'],
+        ['Id'=>32,'Nombre'=>'Categorías', 'Url'=>APP_URL.'Categorias/index', 'Icono'=>'fas fa-tags',       'Permiso'=>'categorias.ver'],
+        ['Id'=>33,'Nombre'=>'Combos',     'Url'=>APP_URL.'Combos/index',     'Icono'=>'fas fa-layer-group','Permiso'=>'combos.ver'],
+        ['Id'=>34,'Nombre'=>'Descuentos', 'Url'=>APP_URL.'Descuentos/index', 'Icono'=>'fas fa-percent',    'Permiso'=>'productos.editar'],
     ]],
 
     'Clientes' => ['Id'=>6,'Nombre'=>'Clientes','Url'=>'#','Icono'=>'fas fa-users','Permiso'=>'clientes.ver','Children'=>[
@@ -51,13 +48,13 @@ $menu = [
     ]],
 
     'Administracion' => ['Id'=>10,'Nombre'=>'Administración','Url'=>'#','Icono'=>'fas fa-cogs','Permiso'=>'','Children'=>[
-        ['Id'=>101,'Nombre'=>'Usuarios',           'Url'=>APP_URL.'Usuarios/index',      'Icono'=>'fas fa-user-cog',    'Permiso'=>'usuarios.ver'],
-        ['Id'=>102,'Nombre'=>'Roles',              'Url'=>APP_URL.'Roles/index',         'Icono'=>'fas fa-user-shield', 'Permiso'=>'roles.ver'],
-        ['Id'=>103,'Nombre'=>'Permisos',           'Url'=>APP_URL.'Permisos/index',      'Icono'=>'fas fa-key',         'Permiso'=>'roles.ver'],
-        ['Id'=>91, 'Nombre'=>'Reporte Ventas',     'Url'=>APP_URL.'Reportes/ventas',     'Icono'=>'fas fa-chart-line',  'Permiso'=>'reportes.ver'],
-        ['Id'=>92, 'Nombre'=>'Reporte Pedidos',    'Url'=>APP_URL.'Reportes/pedidos',    'Icono'=>'fas fa-shopping-bag','Permiso'=>'reportes.ver'],
-        ['Id'=>93, 'Nombre'=>'Reporte Inventario', 'Url'=>APP_URL.'Reportes/inventario', 'Icono'=>'fas fa-boxes',       'Permiso'=>'reportes.ver'],
-        ['Id'=>110,'Nombre'=>'Soporte',            'Url'=>APP_URL.'Soporte/index', 'Icono'=>'fas fa-headset', 'Permiso'=>'usuarios.ver'],
+        ['Id'=>101,'Nombre'=>'Usuarios',           'Url'=>APP_URL.'Usuarios/index',       'Icono'=>'fas fa-user-cog',    'Permiso'=>'usuarios.ver'],
+        ['Id'=>102,'Nombre'=>'Roles',              'Url'=>APP_URL.'Roles/index',          'Icono'=>'fas fa-user-shield', 'Permiso'=>'roles.ver'],
+        ['Id'=>103,'Nombre'=>'Permisos',           'Url'=>APP_URL.'Permisos/index',       'Icono'=>'fas fa-key',         'Permiso'=>'roles.ver'],
+        ['Id'=>91, 'Nombre'=>'Reporte Ventas',     'Url'=>APP_URL.'Reportes/ventas',      'Icono'=>'fas fa-chart-line',  'Permiso'=>'reportes.ver'],
+        ['Id'=>92, 'Nombre'=>'Reporte Pedidos',    'Url'=>APP_URL.'Reportes/pedidos',     'Icono'=>'fas fa-shopping-bag','Permiso'=>'reportes.ver'],
+        ['Id'=>93, 'Nombre'=>'Reporte Inventario', 'Url'=>APP_URL.'Reportes/inventario',  'Icono'=>'fas fa-boxes',       'Permiso'=>'reportes.ver'],
+        ['Id'=>110,'Nombre'=>'Soporte',            'Url'=>APP_URL.'Soporte/index',        'Icono'=>'fas fa-headset',     'Permiso'=>'usuarios.ver'],
     ]],
 ];
 
@@ -111,91 +108,150 @@ function renderMenu(array $menu): void
 ?>
 
 <style>
-.sidebar .sidebar-logo-full { display:block; }
-.sidebar .sidebar-logo-icon { display:none; }
-.sidebar.collapsed .sidebar-logo-full { display:none; }
-.sidebar.collapsed .sidebar-logo-icon { display:block; }
+/* ── Logo CSS — modo texto, sin imágenes ── */
+.logo-icono {
+    font-size:     1.6rem;
+    line-height:   1;
+    flex-shrink:   0;
+    filter:        drop-shadow(0 1px 2px rgba(0,0,0,0.3));
+}
+.logo-texto {
+    display:        flex;
+    flex-direction: column;
+    line-height:    1.1;
+    overflow:       hidden;
+    transition:     opacity 0.2s, width 0.2s;
+}
+.logo-nombre {
+    font-size:   1rem;
+    font-weight: 800;
+    color:       #de777d;
+    letter-spacing: 0.5px;
+    white-space: nowrap;
+}
+.logo-sub {
+    font-size:     0.55rem;
+    font-weight:   600;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color:         rgba(255,255,255,0.55);
+    white-space:   nowrap;
+}
 
-.accordion-toggle .chevron-icon { transition:transform 0.25s ease; }
-.accordion-toggle[aria-expanded="true"] .chevron-icon { transform:rotate(180deg); }
+/* Modo claro — ajusta colores del texto */
+body:not(.dark-mode) .logo-nombre { color: #de777d; }
+body:not(.dark-mode) .logo-sub    { color: rgba(60,60,60,0.5); }
 
+/* Sidebar colapsado — oculta el texto, muestra solo el ícono */
+.sidebar.collapsed .logo-texto {
+    opacity: 0;
+    width:   0;
+    margin:  0;
+}
+/* Hover sobre sidebar colapsado — restaura el texto */
+.sidebar.collapsed:hover .logo-texto {
+    opacity: 1;
+    width:   auto;
+    margin-left: 0.5rem;
+}
+
+/* ── Acordeón ── */
+.accordion-toggle .chevron-icon { transition: transform 0.25s ease; }
+.accordion-toggle[aria-expanded="true"] .chevron-icon { transform: rotate(180deg); }
+
+/* ── Notificaciones ── */
 .btn-notificaciones {
-    position:relative; background:transparent; border:none;
-    width:36px; height:36px; border-radius:50%;
-    display:flex; align-items:center; justify-content:center;
-    color:var(--text-muted,#fff); transition:background 0.2s; cursor:pointer;
+    position:   relative;
+    background: rgba(255,255,255,0.15);
+    border:     1px solid rgba(255,255,255,0.3);
+    width:      36px; height: 36px;
+    border-radius: 50%;
+    display:    flex; align-items: center; justify-content: center;
+    color:      #fff;
+    transition: background 0.2s, border-color 0.2s;
+    cursor:     pointer;
 }
-.btn-notificaciones:hover { background:rgba(0,0,0,0.06); }
+.btn-notificaciones:hover {
+    background:   rgba(255,255,255,0.3);
+    border-color: rgba(255,255,255,0.6);
+}
 .badge-notif {
-    position:absolute; top:2px; right:2px;
-    background:#de777d; color:#fff; border-radius:50%;
-    width:18px; height:18px; font-size:0.65rem;
-    display:flex; align-items:center; justify-content:center;
-    font-weight:700; line-height:1;
+    position:      absolute; top: 2px; right: 2px;
+    background:    #c0392b !important;
+    color:         #fff;
+    border:        2px solid #fff;
+    border-radius: 50%;
+    width: 18px; height: 18px;
+    font-size:   0.62rem;
+    display:     flex; align-items: center; justify-content: center;
+    font-weight: 700; line-height: 1;
 }
-.dropdown-notif { width:340px; max-height:420px; overflow-y:auto; padding:0; }
+
+/* ── Dropdown notificaciones ── */
+.dropdown-notif { width: 340px; max-height: 420px; overflow-y: auto; padding: 0; }
 .notif-item {
-    padding:10px 14px; border-bottom:1px solid rgba(0,0,0,0.06);
-    cursor:pointer; transition:background 0.15s;
-    display:flex; gap:10px; align-items:flex-start;
+    padding: 10px 14px; border-bottom: 1px solid rgba(0,0,0,0.06);
+    cursor: pointer; transition: background 0.15s;
+    display: flex; gap: 10px; align-items: flex-start;
 }
-.notif-item:hover { background:rgba(222,119,125,0.06); }
-.notif-item.no-leida { background:rgba(222,119,125,0.05); }
-.notif-item.no-leida .notif-titulo { font-weight:700; }
-.notif-icono { width:36px; height:36px; flex-shrink:0; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:1rem; }
-.notif-icono.cita   { background:rgba(13,202,240,0.15);  color:#0dcaf0; }
-.notif-icono.pedido { background:rgba(222,119,125,0.15); color:#de777d; }
-.notif-icono.stock  { background:rgba(255,193,7,0.15);   color:#ffc107; }
-.notif-titulo  { font-size:0.82rem; line-height:1.3; }
-.notif-mensaje { font-size:0.76rem; color:#888; line-height:1.3; margin-top:2px; }
-.notif-tiempo  { font-size:0.7rem; color:#aaa; margin-top:3px; }
-.notif-header  { padding:10px 14px; border-bottom:1px solid rgba(0,0,0,0.08); display:flex; justify-content:space-between; align-items:center; }
-.notif-footer  { padding:8px 14px; border-top:1px solid rgba(0,0,0,0.08); text-align:center; }
+.notif-item:hover         { background: rgba(222,119,125,0.06); }
+.notif-item.no-leida      { background: rgba(222,119,125,0.05); }
+.notif-item.no-leida .notif-titulo { font-weight: 700; }
+.notif-icono {
+    width: 36px; height: 36px; flex-shrink: 0;
+    border-radius: 50%; display: flex; align-items: center; justify-content: center;
+    font-size: 1rem;
+}
+.notif-icono.cita   { background: rgba(13,202,240,0.15);  color: #0dcaf0; }
+.notif-icono.pedido { background: rgba(222,119,125,0.15); color: #de777d; }
+.notif-icono.stock  { background: rgba(255,193,7,0.15);   color: #ffc107; }
+.notif-titulo  { font-size: 0.82rem; line-height: 1.3; }
+.notif-mensaje { font-size: 0.76rem; color: #888; line-height: 1.3; margin-top: 2px; }
+.notif-tiempo  { font-size: 0.7rem; color: #aaa; margin-top: 3px; }
+.notif-header  { padding: 10px 14px; border-bottom: 1px solid rgba(0,0,0,0.08); display: flex; justify-content: space-between; align-items: center; }
+.notif-footer  { padding: 8px 14px; border-top: 1px solid rgba(0,0,0,0.08); text-align: center; }
 
-/* FIX 3 — Badge notif con contraste */
-.badge-notif {
-    background: #c0392b !important;
-    border: 2px solid #fff;
-}
-
-/* FIX 4 — Logo móvil centrado */
-.navbar-brand-mobile {
-    display: none;
-    align-items: center;
-}
-@media (max-width: 991.98px) {
-    .navbar-brand-mobile {
-        display: flex !important;
-        position: absolute;
-        left: 50%;
-        transform: translateX(-50%);
-        pointer-events: none;
-    }
-    .navbar-brand-mobile img {
-        height: 32px;
-        width: auto;
-        object-fit: contain;
-        max-width: 140px;
-    }
-}
-
-/* FIX 8 — Botón luna más visible */
+/* ── Botón modo oscuro ── */
 .btn-theme-toggle {
     border: 1.5px solid rgba(255,255,255,0.6) !important;
 }
 .btn-theme-toggle:hover {
     background-color: rgba(255,255,255,0.25) !important;
+    border-color:     rgba(255,255,255,0.9)  !important;
+}
+
+/* ── Logo móvil en topbar ── */
+.navbar-brand-mobile {
+    display: none;
+    align-items: center;
+    gap: 8px;
+}
+@media (max-width: 991.98px) {
+    .navbar-brand-mobile {
+        display:    flex !important;
+        position:   absolute;
+        left:       50%;
+        transform:  translateX(-50%);
+        pointer-events: none;
+    }
+    .navbar-brand-mobile .logo-nombre { font-size: 0.9rem; }
+    .navbar-brand-mobile .logo-sub    { display: none; }
 }
 </style>
 
 <!-- SIDEBAR -->
 <aside class="sidebar" id="sidebar" data-tour="tour-menu">
     <div class="sidebar-header">
-        <a class="sidebar-brand d-flex align-items-center justify-content-center" href="<?= APP_URL ?>Dashboard/index">
-            <img src="<?= APP_URL ?>Content/Demo/img/Logo.png" alt="<?= APP_NAME ?>"
-                 class="sidebar-logo-full" style="height:48px; width:auto; object-fit:contain; max-width:100%;">
-            <img src="<?= APP_URL ?>Content/Demo/img/Logo2.png" alt="<?= APP_NAME ?>"
-                 class="sidebar-logo-icon" style="height:36px; width:auto; object-fit:contain;">
+        <a class="sidebar-brand d-flex align-items-center gap-2"
+           href="<?= APP_URL ?>Dashboard/index"
+           style="text-decoration:none; overflow:hidden;">
+            <!-- Ícono siempre visible — incluso en modo colapsado -->
+            <span class="logo-icono">💄</span>
+            <!-- Texto — se oculta al colapsar, vuelve al hover -->
+            <span class="logo-texto">
+                <span class="logo-nombre">Ana Marcol</span>
+                <span class="logo-sub">Makeup Studio</span>
+            </span>
         </a>
         <button class="btn-close-sidebar d-lg-none" id="btnCloseSidebar" aria-label="Cerrar menú">
             <i class="fas fa-times"></i>
@@ -213,10 +269,12 @@ function renderMenu(array $menu): void
         <i class="fas fa-bars"></i>
     </button>
 
-    <!-- FIX 4 — Logo centrado visible solo en móvil -->
+    <!-- Logo centrado visible solo en móvil -->
     <span class="navbar-brand-mobile">
-        <img src="<?= APP_URL ?>Content/Demo/img/Logo.png"
-             alt="<?= APP_NAME ?>">
+        <span class="logo-icono" style="font-size:1.3rem;">💄</span>
+        <span class="logo-texto">
+            <span class="logo-nombre" style="color:#fff;">Ana Marcol</span>
+        </span>
     </span>
 
     <div class="d-flex align-items-center gap-2">
@@ -296,7 +354,7 @@ function renderMenu(array $menu): void
 (function () {
     'use strict';
 
-    // ── Acordeón sidebar ─────────────────────────
+    // ── Acordeón sidebar — un submenu abierto a la vez ──────
     document.addEventListener('DOMContentLoaded', function () {
         const sidebar = document.getElementById('sidebarMenu');
         if (!sidebar) return;
@@ -312,26 +370,26 @@ function renderMenu(array $menu): void
         });
     });
 
-    // ── Notificaciones ────────────────────────────
-    const APP_URL = '<?= APP_URL ?>';
-    const csrf    = '<?= htmlspecialchars($_SESSION['csrf_token'] ?? '') ?>';
+    // ── Notificaciones ────────────────────────────────────────
+    const APP_URL     = '<?= APP_URL ?>';
+    const csrf        = '<?= htmlspecialchars($_SESSION['csrf_token'] ?? '') ?>';
     const badge       = document.getElementById('badgeNotif');
     const lista       = document.getElementById('listaNotificaciones');
     const txtNoLeidas = document.getElementById('txtNoLeidas');
     const btnMarcar   = document.getElementById('btnMarcarTodas');
 
     const iconos = {
-        cita:   { icono:'fas fa-calendar-check',      clase:'cita'   },
-        pedido: { icono:'fas fa-shopping-bag',         clase:'pedido' },
-        stock:  { icono:'fas fa-exclamation-triangle', clase:'stock'  },
+        cita:   { icono: 'fas fa-calendar-check',      clase: 'cita'   },
+        pedido: { icono: 'fas fa-shopping-bag',         clase: 'pedido' },
+        stock:  { icono: 'fas fa-exclamation-triangle', clase: 'stock'  },
     };
 
     function tiempoRelativo(fechaStr) {
-        const diff = Math.floor((new Date() - new Date(fechaStr.replace(' ','T'))) / 1000);
+        const diff = Math.floor((new Date() - new Date(fechaStr.replace(' ', 'T'))) / 1000);
         if (diff < 60)    return 'Hace un momento';
-        if (diff < 3600)  return `Hace ${Math.floor(diff/60)} min`;
-        if (diff < 86400) return `Hace ${Math.floor(diff/3600)}h`;
-        return `Hace ${Math.floor(diff/86400)}d`;
+        if (diff < 3600)  return `Hace ${Math.floor(diff / 60)} min`;
+        if (diff < 86400) return `Hace ${Math.floor(diff / 3600)}h`;
+        return `Hace ${Math.floor(diff / 86400)}d`;
     }
 
     function renderNotificaciones(notifs, noLeidas) {
@@ -369,9 +427,9 @@ function renderMenu(array $menu): void
 
     function cargarNotificaciones() {
         fetch(`${APP_URL}Notificaciones/obtener`)
-        .then(r => r.json())
-        .then(data => renderNotificaciones(data.notificaciones, data.no_leidas))
-        .catch(() => {});
+            .then(r => r.json())
+            .then(data => renderNotificaciones(data.notificaciones, data.no_leidas))
+            .catch(() => {});
     }
 
     lista.addEventListener('click', function (e) {
@@ -379,16 +437,20 @@ function renderMenu(array $menu): void
         if (btnEl) {
             e.stopPropagation();
             const fd = new FormData();
-            fd.append('csrf_token', csrf); fd.append('id', btnEl.dataset.id);
-            fetch(`${APP_URL}Notificaciones/eliminar`, {method:'POST',body:fd}).then(()=>cargarNotificaciones());
+            fd.append('csrf_token', csrf);
+            fd.append('id', btnEl.dataset.id);
+            fetch(`${APP_URL}Notificaciones/eliminar`, { method: 'POST', body: fd })
+                .then(() => cargarNotificaciones());
             return;
         }
         const item = e.target.closest('.notif-item');
         if (!item) return;
         if (item.dataset.leida === '0') {
             const fd = new FormData();
-            fd.append('csrf_token', csrf); fd.append('id', item.dataset.id);
-            fetch(`${APP_URL}Notificaciones/marcarLeida`, {method:'POST',body:fd}).then(()=>cargarNotificaciones());
+            fd.append('csrf_token', csrf);
+            fd.append('id', item.dataset.id);
+            fetch(`${APP_URL}Notificaciones/marcarLeida`, { method: 'POST', body: fd })
+                .then(() => cargarNotificaciones());
         }
         if (item.dataset.url && item.dataset.url !== '#') window.location.href = item.dataset.url;
     });
@@ -396,7 +458,8 @@ function renderMenu(array $menu): void
     btnMarcar?.addEventListener('click', function () {
         const fd = new FormData();
         fd.append('csrf_token', csrf);
-        fetch(`${APP_URL}Notificaciones/marcarTodas`, {method:'POST',body:fd}).then(()=>cargarNotificaciones());
+        fetch(`${APP_URL}Notificaciones/marcarTodas`, { method: 'POST', body: fd })
+            .then(() => cargarNotificaciones());
     });
 
     document.getElementById('btnNotificaciones')?.addEventListener('click', cargarNotificaciones);

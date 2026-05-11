@@ -133,13 +133,15 @@
 
     <br>
 
-    <div class="no-print" style="text-align:center; margin-top:20px;">
+    <div class="no-print" style="text-align:center; margin-top:20px; display:flex; gap:8px; justify-content:center; flex-wrap:wrap;">
         <button onclick="window.print()"
-                style="background:#de777d;color:#fff;border:none;padding:10px 24px;border-radius:8px;font-size:14px;cursor:pointer;margin-right:8px;">
+                style="background:#de777d;color:#fff;border:none;padding:10px 24px;
+                    border-radius:8px;font-size:14px;cursor:pointer;white-space:nowrap;">
             <i class="fas fa-print"></i> Imprimir
         </button>
         <a href="<?= APP_URL ?>Caja/historial"
-           style="background:#6c757d;color:#fff;border:none;padding:10px 24px;border-radius:8px;font-size:14px;cursor:pointer;text-decoration:none;">
+        style="background:#6c757d;color:#fff;padding:10px 24px;
+                border-radius:8px;font-size:14px;text-decoration:none;white-space:nowrap;">
             Volver al historial
         </a>
     </div>
