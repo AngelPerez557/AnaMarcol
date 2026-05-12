@@ -97,7 +97,7 @@
             font-weight: 700;
         }
 
-        /* ── FIX 1 — Menú móvil heredaba color azul Bootstrap ── */
+        /* ── FIX 1 — Menú móvil ── */
         #menuMobile .nav-link {
             color: #555555;
             font-weight: 500;
@@ -105,23 +105,12 @@
             border-radius: 8px;
             transition: background-color 0.2s, color 0.2s;
         }
-        #menuMobile .nav-link:hover {
-            color: var(--rosa);
-            background-color: var(--rosa-soft);
-        }
-        #menuMobile .nav-link.active {
-            color: var(--rosa);
-            background-color: var(--rosa-soft);
-        }
+        #menuMobile .nav-link:hover { color: var(--rosa); background-color: var(--rosa-soft); }
+        #menuMobile .nav-link.active { color: var(--rosa); background-color: var(--rosa-soft); }
 
-        /* ── FIX 4 — Botón hamburguesa con estilo del tema ── */
-        .tienda-navbar [data-bs-target="#menuMobile"] {
-            border-color: var(--rosa);
-            color: var(--rosa);
-        }
-        .tienda-navbar [data-bs-target="#menuMobile"]:hover {
-            background-color: var(--rosa-soft);
-        }
+        /* ── FIX 4 — Botón hamburguesa ── */
+        .tienda-navbar [data-bs-target="#menuMobile"] { border-color: var(--rosa); color: var(--rosa); }
+        .tienda-navbar [data-bs-target="#menuMobile"]:hover { background-color: var(--rosa-soft); }
 
         /* ── CARDS PRODUCTO ── */
         .producto-card {
@@ -166,10 +155,7 @@
             cursor: pointer;
             text-decoration: none;
         }
-        .btn-rosa-outline:hover {
-            background: var(--rosa);
-            color: #fff;
-        }
+        .btn-rosa-outline:hover { background: var(--rosa); color: #fff; }
 
         /* ── FOOTER ── */
         .tienda-footer {
@@ -181,22 +167,17 @@
         .tienda-footer a { color: #de777d; text-decoration: none; }
         .tienda-footer a:hover { color: #f5a0a5; }
 
-        /* ── FIX 2 — Footer columnas desbordadas en móvil ── */
+        /* ── FIX 2 — Footer móvil ── */
         @media (max-width: 767px) {
-            .tienda-footer .row > div {
-                flex: 0 0 100%;
-                max-width: 100%;
-            }
-            .tienda-footer .col-6 a {
-                word-break: break-word;
-            }
+            .tienda-footer .row > div { flex: 0 0 100%; max-width: 100%; }
+            .tienda-footer .col-6 a { word-break: break-word; }
         }
 
         /* ── TOAST CARRITO ── */
         .toast-carrito {
             position: fixed;
-            bottom: 20px; right: 20px;
-            z-index: 9999;
+            bottom: 90px; right: 20px; /* subido para no tapar el botón flotante */
+            z-index: 9998;
             background: #333;
             color: #fff;
             padding: 12px 20px;
@@ -227,13 +208,9 @@
             text-decoration: none;
         }
         .chip-categoria:hover,
-        .chip-categoria.activo {
-            background: var(--rosa);
-            border-color: var(--rosa);
-            color: #fff;
-        }
+        .chip-categoria.activo { background: var(--rosa); border-color: var(--rosa); color: #fff; }
 
-        /* ── Responsive móvil navbar tienda ── */
+        /* ── Responsive móvil navbar ── */
         @media (max-width: 767px) {
             .tienda-navbar .container { padding-left: 12px; padding-right: 12px; }
             .tienda-brand img { height: 36px !important; max-width: 140px !important; }
@@ -241,6 +218,8 @@
             .btn-rosa-outline { padding: 5px 10px !important; font-size: 0.78rem !important; }
             .d-flex.align-items-center.gap-3 { gap: 8px !important; }
             .tienda-footer { padding: 30px 0 15px; margin-top: 30px; }
+            /* Espacio extra al fondo para que el botón flotante no tape contenido */
+            body { padding-bottom: 80px; }
         }
 
         /* ── DISPONIBILIDAD CITAS ── */
@@ -288,6 +267,57 @@
         .dropdown-tienda .dropdown-item i { color: var(--rosa); }
         .dropdown-tienda .dropdown-divider { border-color: var(--rosa-soft); margin: 4px 0; }
         .dropdown-tienda .dropdown-item.text-danger:hover { background: #fdecea; color: #dc3545 !important; }
+
+        /* ── CARRITO FLOTANTE MÓVIL ── */
+        .btn-carrito-flotante {
+            display: none; /* oculto en desktop */
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 9999;
+            width: 58px;
+            height: 58px;
+            border-radius: 50%;
+            background: var(--rosa);
+            color: #fff;
+            border: none;
+            box-shadow: 0 4px 16px rgba(222,119,125,0.5);
+            align-items: center;
+            justify-content: center;
+            font-size: 1.3rem;
+            text-decoration: none;
+            transition: background 0.2s, transform 0.2s;
+        }
+        .btn-carrito-flotante:hover {
+            background: var(--rosa-hover);
+            color: #fff;
+            transform: scale(1.08);
+        }
+        .btn-carrito-flotante .badge-flotante {
+            position: absolute;
+            top: -2px; right: -2px;
+            background: #dc3545;
+            color: #fff;
+            border-radius: 50%;
+            width: 22px; height: 22px;
+            font-size: 0.7rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            border: 2px solid #fff;
+        }
+
+        /* Solo visible en móvil */
+        @media (max-width: 767px) {
+            .btn-carrito-flotante {
+                display: flex;
+            }
+            /* Ocultar el botón carrito del navbar en móvil para no duplicar */
+            .btn-carrito {
+                display: none !important;
+            }
+        }
     </style>
 </head>
 <body>
@@ -302,9 +332,7 @@
                          style="height:40px; width:auto; object-fit:contain; max-width:160px;">
                 </a>
 
-                <!-- Menú desktop -->
                 <?php
-                // FIX 5 — active dinámico según ruta actual
                 $urlActual = strtolower(trim($_GET['url'] ?? '', '/'));
                 $esInicio   = $urlActual === 'tienda' || $urlActual === 'tienda/index' || $urlActual === '';
                 $esCatalogo = str_starts_with($urlActual, 'tienda/catalogo') || str_starts_with($urlActual, 'tienda/producto');
@@ -312,33 +340,23 @@
                 ?>
                 <ul class="nav nav-tienda d-none d-md-flex align-items-center">
                     <li class="nav-item">
-                        <a href="<?= APP_URL ?>Tienda"
-                           class="nav-link <?= $esInicio ? 'active' : '' ?>">
-                            Inicio
-                        </a>
+                        <a href="<?= APP_URL ?>Tienda" class="nav-link <?= $esInicio ? 'active' : '' ?>">Inicio</a>
                     </li>
                     <li class="nav-item">
-                        <a href="<?= APP_URL ?>Tienda/catalogo"
-                           class="nav-link <?= $esCatalogo ? 'active' : '' ?>">
-                            Catálogo
-                        </a>
+                        <a href="<?= APP_URL ?>Tienda/catalogo" class="nav-link <?= $esCatalogo ? 'active' : '' ?>">Catálogo</a>
                     </li>
                     <li class="nav-item">
-                        <a href="<?= APP_URL ?>Tienda/citas"
-                           class="nav-link <?= $esCitas ? 'active' : '' ?>">
-                            Agendar Cita
-                        </a>
+                        <a href="<?= APP_URL ?>Tienda/citas" class="nav-link <?= $esCitas ? 'active' : '' ?>">Agendar Cita</a>
                     </li>
                 </ul>
 
                 <div class="d-flex align-items-center gap-3">
-                    <!-- Carrito -->
+                    <!-- Carrito desktop — oculto en móvil via CSS -->
                     <a href="<?= APP_URL ?>Tienda/carrito" class="btn-carrito">
                         <i class="fas fa-shopping-cart"></i>
                         <span class="badge-carrito" id="badgeCarrito">0</span>
                     </a>
 
-                    <!-- Cliente logueado -->
                     <?php if (!empty($_SESSION['cliente'])): ?>
                     <div class="dropdown dropdown-tienda">
                         <button class="dropdown-toggle" type="button"
@@ -361,7 +379,6 @@
                     </a>
                     <?php endif; ?>
 
-                    <!-- FIX 4 — Botón hamburguesa con estilo del tema -->
                     <button class="btn btn-outline-secondary btn-sm d-md-none" type="button"
                             data-bs-toggle="collapse" data-bs-target="#menuMobile"
                             aria-expanded="false" aria-controls="menuMobile">
@@ -370,7 +387,6 @@
                 </div>
             </div>
 
-            <!-- FIX 1 — Menú móvil con estilos del tema -->
             <div class="collapse d-md-none mt-2" id="menuMobile">
                 <ul class="nav flex-column">
                     <li><a href="<?= APP_URL ?>Tienda/index"    class="nav-link <?= $esInicio   ? 'active' : '' ?>">Inicio</a></li>
@@ -407,22 +423,18 @@
                         <li><a href="<?= APP_URL ?>Tienda/carrito">Carrito</a></li>
                     </ul>
                 </div>
-                <!-- FIX 2 — col-6 → col-12 en móvil via CSS, word-break para Instagram -->
                 <div class="col-6 col-md-3">
                     <h6 class="text-white mb-3">Contacto</h6>
                     <ul class="list-unstyled" style="font-size:0.85rem;">
                         <li>
-                            <a href="https://wa.me/50499873125" target="_blank"
-                               style="color:#ccc; text-decoration:none;">
-                                <i class="fab fa-whatsapp me-2" style="color:#25d366;"></i>
-                                +(504) 9987-3125
+                            <a href="https://wa.me/50499873125" target="_blank" style="color:#ccc; text-decoration:none;">
+                                <i class="fab fa-whatsapp me-2" style="color:#25d366;"></i>+(504) 9987-3125
                             </a>
                         </li>
                         <li class="mt-2">
-                            <a href="https://www.instagram.com/anamarcol_makeupstudio"
-                               target="_blank" style="color:#ccc; text-decoration:none; word-break:break-word;">
-                                <i class="fab fa-instagram me-2" style="color:#de777d;"></i>
-                                @anamarcol_makeupstudio
+                            <a href="https://www.instagram.com/anamarcol_makeupstudio" target="_blank"
+                               style="color:#ccc; text-decoration:none; word-break:break-word;">
+                                <i class="fab fa-instagram me-2" style="color:#de777d;"></i>@anamarcol_makeupstudio
                             </a>
                         </li>
                     </ul>
@@ -441,13 +453,11 @@
                         Desarrollado por
                         <a href="https://www.instagram.com/deskcod_" target="_blank" style="color:#de777d;">DeskCod</a>
                         <br>
-                        <a href="https://wa.me/50493429640" target="_blank"
-                           style="color:#ccc; text-decoration:none; font-size:0.78rem;">
+                        <a href="https://wa.me/50493429640" target="_blank" style="color:#ccc; text-decoration:none; font-size:0.78rem;">
                             <i class="fab fa-whatsapp me-1" style="color:#25d366;"></i>+(504) 9342-9640
                         </a>
                         <br>
-                        <a href="https://www.instagram.com/deskcod_" target="_blank"
-                           style="color:#ccc; text-decoration:none; font-size:0.78rem;">
+                        <a href="https://www.instagram.com/deskcod_" target="_blank" style="color:#ccc; text-decoration:none; font-size:0.78rem;">
                             <i class="fab fa-instagram me-1" style="color:#de777d;"></i>@deskcod_
                         </a>
                     </p>
@@ -460,7 +470,13 @@
         </div>
     </footer>
 
-    <!-- Toast carrito -->
+    <!-- ─── CARRITO FLOTANTE — solo visible en móvil ── -->
+    <a href="<?= APP_URL ?>Tienda/carrito" class="btn-carrito-flotante" id="btnCarritoFlotante" title="Ver carrito">
+        <i class="fas fa-shopping-cart"></i>
+        <span class="badge-flotante" id="badgeFlotante">0</span>
+    </a>
+
+    <!-- Toast carrito — subido para no tapar el botón flotante -->
     <div class="toast-carrito" id="toastCarrito">
         <i class="fas fa-check-circle text-success"></i>
         <span id="toastCarritoMsg">Producto agregado</span>
@@ -484,8 +500,18 @@
     function actualizarBadge() {
         const carrito = getCarrito();
         const total   = carrito.reduce((sum, item) => sum + item.cantidad, 0);
-        const badge   = document.getElementById('badgeCarrito');
+
+        // Badge navbar desktop
+        const badge = document.getElementById('badgeCarrito');
         if (badge) badge.textContent = total;
+
+        // Badge flotante móvil
+        const badgeFlotante = document.getElementById('badgeFlotante');
+        if (badgeFlotante) {
+            badgeFlotante.textContent = total > 99 ? '99+' : total;
+            // Ocultar badge si es 0
+            badgeFlotante.style.display = total > 0 ? 'flex' : 'none';
+        }
     }
     function agregarAlCarrito(id, nombre, precio, imagen, varianteId, varianteNombre) {
         const carrito = getCarrito();
@@ -495,7 +521,7 @@
             existe.cantidad++;
         } else {
             carrito.push({ key, id, nombre, precio, imagen,
-                varianteId: varianteId || null,
+                varianteId:     varianteId     || null,
                 varianteNombre: varianteNombre || null,
                 cantidad: 1 });
         }
