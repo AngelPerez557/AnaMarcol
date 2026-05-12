@@ -54,7 +54,7 @@ $menu = [
         ['Id'=>91, 'Nombre'=>'Reporte Ventas',     'Url'=>APP_URL.'Reportes/ventas',      'Icono'=>'fas fa-chart-line',  'Permiso'=>'reportes.ver'],
         ['Id'=>92, 'Nombre'=>'Reporte Pedidos',    'Url'=>APP_URL.'Reportes/pedidos',     'Icono'=>'fas fa-shopping-bag','Permiso'=>'reportes.ver'],
         ['Id'=>93, 'Nombre'=>'Reporte Inventario', 'Url'=>APP_URL.'Reportes/inventario',  'Icono'=>'fas fa-boxes',       'Permiso'=>'reportes.ver'],
-        ['Id'=>110,'Nombre'=>'Soporte',            'Url'=>APP_URL.'Soporte/index',        'Icono'=>'fas fa-headset',     'Permiso'=>'usuarios.ver'],
+        //['Id'=>110,'Nombre'=>'Soporte',            'Url'=>APP_URL.'Soporte/index',        'Icono'=>'fas fa-headset',     'Permiso'=>'usuarios.ver'],
     ]],
 ];
 
@@ -108,22 +108,32 @@ function renderMenu(array $menu): void
 ?>
 
 <style>
-/* ── Logo — expandido muestra Logo.png, colapsado muestra Logo2.png ── */
-.sidebar-logo-full { display: block;  mix-blend-mode: screen; filter: brightness(1.15); }
-.sidebar-logo-icon { display: none;   mix-blend-mode: screen; filter: brightness(1.15); }
-
-/* Colapsado → solo ícono */
-.sidebar.collapsed .sidebar-logo-full { display: none;  }
-.sidebar.collapsed .sidebar-logo-icon { display: block; }
-
-/* Hover sobre colapsado → logo completo de nuevo */
-.sidebar.collapsed:hover .sidebar-logo-full { display: block; }
-.sidebar.collapsed:hover .sidebar-logo-icon { display: none;  }
-
-/* Móvil (sidebar se abre como overlay) → siempre logo completo */
+/* ── Logo sidebar — ícono siempre visible, texto se oculta al colapsar ── */
+.sidebar-logo-texto {
+    opacity: 1;
+    width: auto;
+    max-width: 180px;
+}
+/* Colapsado → ocultar texto, solo ícono */
+.sidebar.collapsed .sidebar-logo-texto {
+    opacity:   0;
+    width:     0;
+    max-width: 0;
+    overflow:  hidden;
+}
+/* Hover sobre colapsado → texto vuelve */
+.sidebar.collapsed:hover .sidebar-logo-texto {
+    opacity:   1;
+    width:     auto;
+    max-width: 180px;
+}
+/* Móvil abierto → siempre texto visible */
 @media (max-width: 991.98px) {
-    .sidebar.show .sidebar-logo-full { display: block !important; }
-    .sidebar.show .sidebar-logo-icon { display: none  !important; }
+    .sidebar.show .sidebar-logo-texto {
+        opacity:   1 !important;
+        width:     auto !important;
+        max-width: 180px !important;
+    }
 }
 
 /* ── Acordeón ── */
@@ -213,18 +223,29 @@ function renderMenu(array $menu): void
 <!-- SIDEBAR -->
 <aside class="sidebar" id="sidebar" data-tour="tour-menu">
     <div class="sidebar-header">
-        <a class="sidebar-brand d-flex align-items-center justify-content-center"
-           href="<?= APP_URL ?>Dashboard/index">
-            <!-- Logo completo con letras — expandido y hover -->
-            <img src="<?= APP_URL ?>Content/Demo/img/Logo.png"
-                 alt="<?= APP_NAME ?>"
-                 class="sidebar-logo-full"
-                 style="height:48px; width:auto; object-fit:contain; max-width:160px;">
-            <!-- Solo ícono labios — colapsado -->
+        <a class="sidebar-brand d-flex align-items-center gap-2"
+           href="<?= APP_URL ?>Dashboard/index"
+           style="text-decoration:none; overflow:hidden; min-width:0;">
+
+            <!-- Ícono de labios — siempre visible (imagen sin fondo negro) -->
             <img src="<?= APP_URL ?>Content/Demo/img/Logo2.png"
-                 alt="<?= APP_NAME ?>"
-                 class="sidebar-logo-icon"
-                 style="height:36px; width:auto; object-fit:contain;">
+                 alt=""
+                 style="height:36px; width:36px; object-fit:contain; flex-shrink:0;
+                        mix-blend-mode:screen; filter:brightness(1.3);">
+
+            <!-- Texto — se oculta al colapsar, vuelve al expandir/hover -->
+            <span class="sidebar-logo-texto" style="
+                display:flex; flex-direction:column; line-height:1.15;
+                overflow:hidden; white-space:nowrap;
+                transition: opacity 0.25s, width 0.25s;">
+                <span style="font-size:1rem; font-weight:800; color:#de777d; letter-spacing:0.3px;">
+                    Ana Marcol
+                </span>
+                <span style="font-size:0.52rem; font-weight:600; letter-spacing:2.5px;
+                             text-transform:uppercase; color:rgba(255,255,255,0.45);">
+                    Makeup Studio
+                </span>
+            </span>
         </a>
         <button class="btn-close-sidebar d-lg-none" id="btnCloseSidebar" aria-label="Cerrar menú">
             <i class="fas fa-times"></i>

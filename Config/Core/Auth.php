@@ -71,6 +71,23 @@ class Auth
             header('Location: ' . APP_URL . 'Auth/index');
             exit();
         }
+
+        // ── Verificación de sesión única ─────────────────────────
+        // Si otro dispositivo inició sesión con el mismo usuario,
+        // el token en BD cambió → esta sesión queda inválida → logout
+        try {
+            $db   = Conexion::getInstance();
+            $stmt = $db->prepare("SELECT session_token FROM users WHERE id = ? LIMIT 1");
+            $stmt->execute([self::id()]);
+            $row  = $stmt->fetch(PDO::FETCH_ASSOC);
+
+            if (!$row || $row['session_token'] !== ($_SESSION['session_token'] ?? '')) {
+                self::logout();
+            }
+        } catch (\Exception $e) {
+            // Si falla la BD no bloqueamos el sistema
+        }
+        // ─────────────────────────────────────────────────────────
     }
 
     // ─────────────────────────────────────────────

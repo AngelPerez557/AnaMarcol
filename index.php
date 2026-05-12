@@ -147,7 +147,7 @@ $metodosJson = ['toggle', 'delete', 'save', 'saveVariante', 'deleteVariante',
                 'obtener', 'marcarLeida', 'marcarTodas', 'eliminar',
                 'marcarTour', 'activarTour', 'verificarStock', 'toggleFavorito',
                 'guardarPerfil', 'cambiarPassword', 'comentar',
-                'anular', 'abrir', 'cerrar'];
+                'anular', 'abrir', 'cerrar', 'toggleVisible'];
 
 $metodoActual     = strtolower(explode('/', $urlActual)[1] ?? '');
 $metodosJsonLower = array_map('strtolower', $metodosJson);

@@ -86,6 +86,12 @@ class AuthController
             'tour_completado' => (int) ($user->tour_completado ?? 0),
         ]);
 
+        $sessionToken = bin2hex(random_bytes(16));
+        $_SESSION['session_token'] = $sessionToken;
+        $db = Conexion::getInstance();
+        $db->prepare("UPDATE users SET session_token = ? WHERE id = ?")
+           ->execute([$sessionToken, $user->id]);
+           
         header('Location: ' . APP_URL . 'Dashboard/index');
         exit();
     }

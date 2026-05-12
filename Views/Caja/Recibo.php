@@ -181,7 +181,8 @@
     <!-- SON -->
     <?php
     function numeroALetras(float $numero): string {
-        $entero   = (int) $numero;
+        // intval() evita el Deprecated de PHP 8.1+ al convertir float a int
+        $entero   = intval($numero);
         $unidades = ['','UN','DOS','TRES','CUATRO','CINCO','SEIS','SIETE','OCHO','NUEVE',
                      'DIEZ','ONCE','DOCE','TRECE','CATORCE','QUINCE','DIECISÉIS',
                      'DIECISIETE','DIECIOCHO','DIECINUEVE'];
@@ -191,11 +192,24 @@
                      'SEISCIENTOS','SETECIENTOS','OCHOCIENTOS','NOVECIENTOS'];
         if ($entero === 0) return 'CERO';
         if ($entero < 20)  return $unidades[$entero];
-        if ($entero < 100) { $d=$entero/10|0; $u=$entero%10; return $decenas[$d].($u?' Y '.$unidades[$u]:''); }
+        if ($entero < 100) {
+            $d = intval($entero / 10);
+            $u = $entero % 10;
+            return $decenas[$d] . ($u ? ' Y ' . $unidades[$u] : '');
+        }
         if ($entero === 100) return 'CIEN';
-        if ($entero < 1000) { $c=$entero/100|0; $r=$entero%100; return $centenas[$c].($r?' '.numeroALetras($r):''); }
-        if ($entero < 1000000) { $m=$entero/1000|0; $r=$entero%1000; $miles=$m===1?'MIL':numeroALetras($m).' MIL'; return $miles.($r?' '.numeroALetras($r):''); }
-        return number_format($entero,0,'.',',');
+        if ($entero < 1000) {
+            $c = intval($entero / 100);
+            $r = $entero % 100;
+            return $centenas[$c] . ($r ? ' ' . numeroALetras((float)$r) : '');
+        }
+        if ($entero < 1000000) {
+            $m    = intval($entero / 1000);
+            $r    = $entero % 1000;
+            $miles = $m === 1 ? 'MIL' : numeroALetras((float)$m) . ' MIL';
+            return $miles . ($r ? ' ' . numeroALetras((float)$r) : '');
+        }
+        return number_format($entero, 0, '.', ',');
     }
     $dec      = str_pad(round(($total - floor($total)) * 100), 2, '0', STR_PAD_LEFT);
     $sonTexto = numeroALetras($total) . ' CON ' . $dec . '/100';
