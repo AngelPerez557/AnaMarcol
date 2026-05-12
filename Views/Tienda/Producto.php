@@ -26,11 +26,13 @@
 
     <div class="row g-4">
 
-        <!-- Imagen -->
+        <!-- Imagen principal + miniaturas -->
         <div class="col-12 col-md-5">
+
+            <!-- Imagen grande -->
             <div id="imagenProducto"
                  style="
-                    height:380px;
+                    height:360px;
                     background-image: url('<?= $producto->getImageUrl() ?>');
                     background-size: contain;
                     background-position: center;
@@ -40,6 +42,54 @@
                     border: 1px solid #f0e0e1;
                     transition: all 0.3s ease;">
             </div>
+
+            <!-- Miniaturas — imagen principal + variantes con imagen -->
+            <?php
+            // Construir lista de miniaturas: primero la imagen del producto, luego variantes con imagen
+            $miniaturas = [];
+            $miniaturas[] = [
+                'url'    => $producto->getImageUrl(),
+                'titulo' => $producto->nombre,
+                'tipo'   => 'principal',
+            ];
+            if (!empty($variantes)) {
+                foreach ($variantes as $v) {
+                    if ($v->activo && !empty($v->image_url)) {
+                        $miniaturas[] = [
+                            'url'       => $v->getImageUrl(),
+                            'titulo'    => $v->nombre,
+                            'tipo'      => 'variante',
+                            'variante_id' => $v->id,
+                        ];
+                    }
+                }
+            }
+            ?>
+
+            <?php if (count($miniaturas) > 1): ?>
+            <div class="d-flex gap-2 mt-3 flex-wrap" id="galeriaMiniatura">
+                <?php foreach ($miniaturas as $idx => $mini): ?>
+                <div class="miniatura-item <?= $idx === 0 ? 'activa' : '' ?>"
+                     data-url="<?= htmlspecialchars($mini['url']) ?>"
+                     data-tipo="<?= $mini['tipo'] ?>"
+                     data-variante-id="<?= $mini['variante_id'] ?? '' ?>"
+                     title="<?= htmlspecialchars($mini['titulo']) ?>"
+                     style="
+                        width:64px; height:64px; flex-shrink:0;
+                        background-image: url('<?= htmlspecialchars($mini['url']) ?>');
+                        background-size: contain;
+                        background-position: center;
+                        background-repeat: no-repeat;
+                        background-color: #fdf8f8;
+                        border-radius: 8px;
+                        border: 2px solid <?= $idx === 0 ? '#de777d' : '#f0e0e1' ?>;
+                        cursor: pointer;
+                        transition: border-color 0.2s, transform 0.2s;">
+                </div>
+                <?php endforeach; ?>
+            </div>
+            <?php endif; ?>
+
         </div>
 
         <!-- Info -->
@@ -101,7 +151,7 @@
             </div>
             <?php endif; ?>
 
-            <!-- Botones -->
+            <!-- Botones cantidad + carrito -->
             <?php
             $sinStock = false;
             if (!$producto->tieneVariantes() && $producto->stock == 0) $sinStock = true;
@@ -117,18 +167,18 @@
                 <?php if (!$sinStock): ?>
                 <div class="d-flex align-items-center gap-2 me-2">
                     <button type="button" id="btnMenos"
-                            style="width:36px; height:36px; border-radius:50%; border:2px solid #de777d;
-                                   background:#fff; color:#de777d; font-size:1.2rem; cursor:pointer;">−</button>
-                    <span id="cantidad" style="font-size:1.1rem; font-weight:700; min-width:30px; text-align:center;">1</span>
+                            style="width:36px;height:36px;border-radius:50%;border:2px solid #de777d;
+                                   background:#fff;color:#de777d;font-size:1.2rem;cursor:pointer;">−</button>
+                    <span id="cantidad" style="font-size:1.1rem;font-weight:700;min-width:30px;text-align:center;">1</span>
                     <button type="button" id="btnMas"
-                            style="width:36px; height:36px; border-radius:50%; border:2px solid #de777d;
-                                   background:#fff; color:#de777d; font-size:1.2rem; cursor:pointer;">+</button>
+                            style="width:36px;height:36px;border-radius:50%;border:2px solid #de777d;
+                                   background:#fff;color:#de777d;font-size:1.2rem;cursor:pointer;">+</button>
                 </div>
                 <button type="button" class="btn-rosa flex-fill" id="btnAgregarCarrito">
                     <i class="fas fa-cart-plus me-2"></i>Agregar al carrito
                 </button>
                 <?php else: ?>
-                <button type="button" class="btn-rosa flex-fill" disabled style="opacity:0.5; cursor:not-allowed;">
+                <button type="button" class="btn-rosa flex-fill" disabled style="opacity:0.5;cursor:not-allowed;">
                     <i class="fas fa-ban me-2"></i>No disponible
                 </button>
                 <?php endif; ?>
@@ -137,27 +187,95 @@
     </div>
 </div>
 
+<style>
+.miniatura-item:hover {
+    border-color: #de777d !important;
+    transform: scale(1.08);
+}
+.miniatura-item.activa {
+    border-color: #de777d !important;
+    box-shadow: 0 0 0 2px rgba(222,119,125,0.3);
+}
+</style>
+
 <script>
 document.addEventListener('DOMContentLoaded', function () {
 
     let varianteSeleccionada = null;
     let cantidad = 1;
 
-    // imagenOriginal como atributo data — evita problemas con caracteres especiales en JS
-    const imgDiv        = document.getElementById('imagenProducto');
-    const imagenOriginal = imgDiv.dataset.imagenOriginal ||
-                           '<?= addslashes($producto->getImageUrl()) ?>';
+    const imgDiv         = document.getElementById('imagenProducto');
+    const imagenOriginal = '<?= addslashes($producto->getImageUrl()) ?>';
 
+    // ── Función para cambiar imagen principal ────────────────
+    function cambiarImagenPrincipal(url) {
+        imgDiv.style.backgroundImage = `url("${url}")`;
+    }
+
+    // ── Función para marcar miniatura activa ─────────────────
+    function activarMiniatura(el) {
+        document.querySelectorAll('.miniatura-item').forEach(m => {
+            m.classList.remove('activa');
+            m.style.borderColor = '#f0e0e1';
+        });
+        if (el) {
+            el.classList.add('activa');
+            el.style.borderColor = '#de777d';
+        }
+    }
+
+    // ── Click en miniatura ───────────────────────────────────
+    document.querySelectorAll('.miniatura-item').forEach(mini => {
+        mini.addEventListener('click', function () {
+            const url        = this.dataset.url;
+            const varianteId = this.dataset.varianteId;
+
+            cambiarImagenPrincipal(url);
+            activarMiniatura(this);
+
+            // Si la miniatura corresponde a una variante, sincronizar el botón
+            if (varianteId) {
+                const btnVariante = document.querySelector(`.btn-variante[data-id="${varianteId}"]`);
+                if (btnVariante) {
+                    // Simular click en el botón de variante para sincronizar precio
+                    document.querySelectorAll('.btn-variante').forEach(b => {
+                        b.style.borderColor = '#dee2e6';
+                        b.style.background  = '#fff';
+                        b.style.color       = '#333';
+                    });
+                    btnVariante.style.borderColor = '#de777d';
+                    btnVariante.style.background  = '#de777d';
+                    btnVariante.style.color       = '#fff';
+                    varianteSeleccionada = {
+                        id:     btnVariante.dataset.id,
+                        nombre: btnVariante.dataset.nombre,
+                        precio: parseFloat(btnVariante.dataset.precio),
+                    };
+                    document.getElementById('precioMostrado').textContent =
+                        'L. ' + varianteSeleccionada.precio.toFixed(2);
+                }
+            } else {
+                // Es la imagen principal — deseleccionar variante
+                document.querySelectorAll('.btn-variante').forEach(b => {
+                    b.style.borderColor = '#dee2e6';
+                    b.style.background  = '#fff';
+                    b.style.color       = '#333';
+                });
+                varianteSeleccionada = null;
+                document.getElementById('precioMostrado').textContent =
+                    'L. ' + <?= (float)$producto->precio_base ?>.toFixed(2);
+            }
+        });
+    });
+
+    // ── Click en botón de variante ───────────────────────────
     document.querySelectorAll('.btn-variante').forEach(btn => {
         btn.addEventListener('click', function () {
-            // Quitar selección de todos
             document.querySelectorAll('.btn-variante').forEach(b => {
                 b.style.borderColor = '#dee2e6';
                 b.style.background  = '#fff';
                 b.style.color       = '#333';
             });
-
-            // Marcar el seleccionado
             this.style.borderColor = '#de777d';
             this.style.background  = '#de777d';
             this.style.color       = '#fff';
@@ -168,17 +286,24 @@ document.addEventListener('DOMContentLoaded', function () {
                 precio: parseFloat(this.dataset.precio),
             };
 
-            // Actualizar precio
             document.getElementById('precioMostrado').textContent =
                 'L. ' + varianteSeleccionada.precio.toFixed(2);
 
-            // Actualizar imagen — dataset.imagen ya viene sanitizado con htmlspecialchars
+            // Cambiar imagen principal
             const imagenVariante = this.dataset.imagen;
-            imgDiv.style.backgroundImage = (imagenVariante && imagenVariante.trim() && !imagenVariante.includes('default'))
-                ? `url("${imagenVariante}")` : `url("${imagenOriginal}")`;
+            const urlFinal = (imagenVariante && !imagenVariante.includes('default'))
+                ? imagenVariante : imagenOriginal;
+            cambiarImagenPrincipal(urlFinal);
+
+            // Sincronizar miniatura correspondiente
+            const miniatura = document.querySelector(
+                `.miniatura-item[data-variante-id="${this.dataset.id}"]`
+            );
+            activarMiniatura(miniatura);
         });
     });
 
+    // ── Cantidad ─────────────────────────────────────────────
     const btnMenos = document.getElementById('btnMenos');
     const btnMas   = document.getElementById('btnMas');
     if (btnMenos) btnMenos.addEventListener('click', () => {
@@ -188,6 +313,7 @@ document.addEventListener('DOMContentLoaded', function () {
         cantidad++; document.getElementById('cantidad').textContent = cantidad;
     });
 
+    // ── Agregar al carrito ────────────────────────────────────
     const btnAgregar = document.getElementById('btnAgregarCarrito');
     if (btnAgregar) {
         btnAgregar.addEventListener('click', function () {
@@ -203,10 +329,10 @@ document.addEventListener('DOMContentLoaded', function () {
             const precio         = varianteSeleccionada ? varianteSeleccionada.precio : <?= (float)$producto->precio_base ?>;
             const varianteId     = varianteSeleccionada ? varianteSeleccionada.id     : null;
             const varianteNombre = varianteSeleccionada ? varianteSeleccionada.nombre : null;
-
-            // Extraer URL limpia del backgroundImage actual
-            const bgImg    = imgDiv.style.backgroundImage;
-            const imgActual = bgImg ? bgImg.replace(/^url\(["']?/, '').replace(/["']?\)$/, '') : imagenOriginal;
+            const bgImg          = imgDiv.style.backgroundImage;
+            const imgActual      = bgImg
+                ? bgImg.replace(/^url\(["']?/, '').replace(/["']?\)$/, '')
+                : imagenOriginal;
 
             for (let i = 0; i < cantidad; i++) {
                 agregarAlCarrito(
