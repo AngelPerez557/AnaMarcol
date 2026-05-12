@@ -54,7 +54,7 @@ $menu = [
         ['Id'=>91, 'Nombre'=>'Reporte Ventas',     'Url'=>APP_URL.'Reportes/ventas',      'Icono'=>'fas fa-chart-line',  'Permiso'=>'reportes.ver'],
         ['Id'=>92, 'Nombre'=>'Reporte Pedidos',    'Url'=>APP_URL.'Reportes/pedidos',     'Icono'=>'fas fa-shopping-bag','Permiso'=>'reportes.ver'],
         ['Id'=>93, 'Nombre'=>'Reporte Inventario', 'Url'=>APP_URL.'Reportes/inventario',  'Icono'=>'fas fa-boxes',       'Permiso'=>'reportes.ver'],
-        //['Id'=>110,'Nombre'=>'Soporte',            'Url'=>APP_URL.'Soporte/index',        'Icono'=>'fas fa-headset',     'Permiso'=>'usuarios.ver'],
+        ['Id'=>110,'Nombre'=>'Soporte',            'Url'=>APP_URL.'Soporte/index',        'Icono'=>'fas fa-headset',     'Permiso'=>'usuarios.ver'],
     ]],
 ];
 
@@ -201,22 +201,9 @@ function renderMenu(array $menu): void
     border-color:     rgba(255,255,255,0.9)  !important;
 }
 
-/* ── Logo móvil en topbar ── */
+/* ── Logo móvil en topbar — OCULTO, el sidebar ya lo muestra ── */
 .navbar-brand-mobile {
-    display: none;
-    align-items: center;
-    gap: 8px;
-}
-@media (max-width: 991.98px) {
-    .navbar-brand-mobile {
-        display:    flex !important;
-        position:   absolute;
-        left:       50%;
-        transform:  translateX(-50%);
-        pointer-events: none;
-    }
-    .navbar-brand-mobile .logo-nombre { font-size: 0.9rem; }
-    .navbar-brand-mobile .logo-sub    { display: none; }
+    display: none !important;
 }
 </style>
 
