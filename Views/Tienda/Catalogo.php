@@ -26,7 +26,6 @@ if (!function_exists('calcDesc')) {
         </small>
     </div>
 
-    <!-- Alerta descuento activo -->
     <?php if (!empty($descuentoActivo)): ?>
     <div class="alert alert-danger d-flex align-items-center gap-2 mb-4 py-2">
         <i class="fas fa-tag fa-lg"></i>
@@ -42,7 +41,6 @@ if (!function_exists('calcDesc')) {
     </div>
     <?php endif; ?>
 
-    <!-- Categorías chips -->
     <div class="d-flex gap-2 flex-wrap mb-4">
         <a href="<?= APP_URL ?>Tienda/catalogo"
            class="chip-categoria <?= $categoriaId === 0 ? 'activo' : '' ?>">
@@ -58,20 +56,16 @@ if (!function_exists('calcDesc')) {
         <?php endforeach; ?>
     </div>
 
-    <!-- Buscador -->
     <div class="mb-4">
         <div class="input-group" style="max-width:400px;">
             <span class="input-group-text bg-white">
                 <i class="fas fa-search text-muted"></i>
             </span>
-            <input type="text"
-                   class="form-control border-start-0"
-                   id="buscarProducto"
-                   placeholder="Buscar producto...">
+            <input type="text" class="form-control border-start-0"
+                   id="buscarProducto" placeholder="Buscar producto...">
         </div>
     </div>
 
-    <!-- Grid de productos -->
     <?php if (empty($productos)): ?>
     <div class="text-center py-5 text-muted">
         <i class="fas fa-box-open fa-3x mb-3 d-block" style="opacity:0.3;"></i>
@@ -86,12 +80,15 @@ if (!function_exists('calcDesc')) {
              data-nombre="<?= strtolower(htmlspecialchars($p->nombre)) ?>">
             <div class="producto-card h-100 d-flex flex-column">
 
+                <!-- Imagen + botón favorito + badge descuento -->
                 <div style="position:relative;">
                     <a href="<?= APP_URL ?>Tienda/producto/<?= $p->id ?>-<?= slugify($p->nombre) ?>">
                         <div class="producto-img"
                              style="background-image:url('<?= $p->getImageUrl() ?>');">
                         </div>
                     </a>
+
+                    <!-- Badge descuento — esquina superior izquierda -->
                     <?php if ($desc['aplica']): ?>
                     <span style="position:absolute; top:8px; left:8px;
                                  background:#dc3545; color:#fff;
@@ -100,6 +97,21 @@ if (!function_exists('calcDesc')) {
                         -<?= $desc['pct'] ?>% OFF
                     </span>
                     <?php endif; ?>
+
+                    <!-- Botón favorito — esquina superior derecha -->
+                    <button type="button"
+                            class="btn-favorito"
+                            data-id="<?= $p->id ?>"
+                            title="Agregar a favoritos"
+                            style="position:absolute; top:8px; right:8px; z-index:2;
+                                   background:rgba(255,255,255,0.9);
+                                   border:2px solid #f0e0e1;
+                                   border-radius:50%; width:36px; height:36px;
+                                   display:flex; align-items:center; justify-content:center;
+                                   cursor:pointer; transition:all 0.2s;
+                                   box-shadow:0 2px 6px rgba(0,0,0,0.1);">
+                        <i class="fas fa-heart" style="color:#ccc; font-size:0.85rem;"></i>
+                    </button>
                 </div>
 
                 <div class="p-3 flex-fill d-flex flex-column">
@@ -113,7 +125,6 @@ if (!function_exists('calcDesc')) {
                     </small>
                     <?php endif; ?>
 
-                    <!-- Precio con descuento -->
                     <div class="fw-bold mb-3 mt-auto" style="color:#de777d;">
                         <?php if ($p->tieneVariantes()): ?>
                             <small class="text-muted fw-normal">Desde</small>
@@ -134,8 +145,7 @@ if (!function_exists('calcDesc')) {
                         <i class="fas fa-eye me-1"></i>Ver opciones
                     </a>
                     <?php elseif ($p->stock > 0): ?>
-                    <button type="button"
-                            class="btn-rosa w-100"
+                    <button type="button" class="btn-rosa w-100"
                             onclick="agregarAlCarritoConStock(
                                 <?= $p->id ?>, 0,
                                 '<?= addslashes(htmlspecialchars($p->nombre)) ?>',
@@ -162,6 +172,7 @@ if (!function_exists('calcDesc')) {
 <script>
 document.addEventListener('DOMContentLoaded', function () {
 
+    // ── Buscador ─────────────────────────────────
     const buscar   = document.getElementById('buscarProducto');
     const items    = document.querySelectorAll('.producto-item');
     const contador = document.getElementById('contadorProductos');
@@ -171,27 +182,27 @@ document.addEventListener('DOMContentLoaded', function () {
         let visible = 0;
         items.forEach(item => {
             const nombre = item.dataset.nombre || '';
-            if (nombre.includes(texto)) {
-                item.style.display = '';
-                visible++;
-            } else {
-                item.style.display = 'none';
-            }
+            if (nombre.includes(texto)) { item.style.display = ''; visible++; }
+            else                        { item.style.display = 'none'; }
         });
         contador.textContent = `${visible} producto${visible !== 1 ? 's' : ''}`;
     });
 
+    // ── Favoritos ─────────────────────────────────
     document.querySelectorAll('.btn-favorito').forEach(btn => {
         btn.addEventListener('click', function (e) {
             e.preventDefault();
             e.stopPropagation();
+
             <?php if (empty($_SESSION['cliente'])): ?>
             window.location.href = '<?= APP_URL ?>Tienda/login';
             return;
             <?php endif; ?>
+
             const productoId = this.dataset.id;
             const icon       = this.querySelector('i');
             const self       = this;
+
             fetch('<?= APP_URL ?>Tienda/toggleFavorito', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
@@ -199,9 +210,19 @@ document.addEventListener('DOMContentLoaded', function () {
             })
             .then(r => r.json())
             .then(data => {
-                if (data.error === 'no_auth') { window.location.href = '<?= APP_URL ?>Tienda/login'; return; }
-                if (data.liked) { icon.style.color = '#de777d'; self.style.boxShadow = '0 2px 8px rgba(222,119,125,0.4)'; }
-                else            { icon.style.color = '#ccc';    self.style.boxShadow = '0 2px 6px rgba(0,0,0,0.15)'; }
+                if (data.error === 'no_auth') {
+                    window.location.href = '<?= APP_URL ?>Tienda/login';
+                    return;
+                }
+                if (data.liked) {
+                    icon.style.color   = '#de777d';
+                    self.style.borderColor = '#de777d';
+                    self.style.boxShadow   = '0 2px 8px rgba(222,119,125,0.4)';
+                } else {
+                    icon.style.color   = '#ccc';
+                    self.style.borderColor = '#f0e0e1';
+                    self.style.boxShadow   = '0 2px 6px rgba(0,0,0,0.1)';
+                }
             })
             .catch(() => {});
         });
