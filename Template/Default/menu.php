@@ -108,51 +108,22 @@ function renderMenu(array $menu): void
 ?>
 
 <style>
-/* ── Logo CSS — modo texto, sin imágenes ── */
-.logo-icono {
-    font-size:     1.6rem;
-    line-height:   1;
-    flex-shrink:   0;
-    filter:        drop-shadow(0 1px 2px rgba(0,0,0,0.3));
-}
-.logo-texto {
-    display:        flex;
-    flex-direction: column;
-    line-height:    1.1;
-    overflow:       hidden;
-    transition:     opacity 0.2s, width 0.2s;
-}
-.logo-nombre {
-    font-size:   1rem;
-    font-weight: 800;
-    color:       #de777d;
-    letter-spacing: 0.5px;
-    white-space: nowrap;
-}
-.logo-sub {
-    font-size:     0.55rem;
-    font-weight:   600;
-    letter-spacing: 2px;
-    text-transform: uppercase;
-    color:         rgba(255,255,255,0.55);
-    white-space:   nowrap;
-}
+/* ── Logo — expandido muestra Logo.png, colapsado muestra Logo2.png ── */
+.sidebar-logo-full { display: block;  mix-blend-mode: screen; filter: brightness(1.15); }
+.sidebar-logo-icon { display: none;   mix-blend-mode: screen; filter: brightness(1.15); }
 
-/* Modo claro — ajusta colores del texto */
-body:not(.dark-mode) .logo-nombre { color: #de777d; }
-body:not(.dark-mode) .logo-sub    { color: rgba(60,60,60,0.5); }
+/* Colapsado → solo ícono */
+.sidebar.collapsed .sidebar-logo-full { display: none;  }
+.sidebar.collapsed .sidebar-logo-icon { display: block; }
 
-/* Sidebar colapsado — oculta el texto, muestra solo el ícono */
-.sidebar.collapsed .logo-texto {
-    opacity: 0;
-    width:   0;
-    margin:  0;
-}
-/* Hover sobre sidebar colapsado — restaura el texto */
-.sidebar.collapsed:hover .logo-texto {
-    opacity: 1;
-    width:   auto;
-    margin-left: 0.5rem;
+/* Hover sobre colapsado → logo completo de nuevo */
+.sidebar.collapsed:hover .sidebar-logo-full { display: block; }
+.sidebar.collapsed:hover .sidebar-logo-icon { display: none;  }
+
+/* Móvil (sidebar se abre como overlay) → siempre logo completo */
+@media (max-width: 991.98px) {
+    .sidebar.show .sidebar-logo-full { display: block !important; }
+    .sidebar.show .sidebar-logo-icon { display: none  !important; }
 }
 
 /* ── Acordeón ── */
@@ -242,16 +213,18 @@ body:not(.dark-mode) .logo-sub    { color: rgba(60,60,60,0.5); }
 <!-- SIDEBAR -->
 <aside class="sidebar" id="sidebar" data-tour="tour-menu">
     <div class="sidebar-header">
-        <a class="sidebar-brand d-flex align-items-center gap-2"
-           href="<?= APP_URL ?>Dashboard/index"
-           style="text-decoration:none; overflow:hidden;">
-            <!-- Ícono siempre visible — incluso en modo colapsado -->
-            <span class="logo-icono">💄</span>
-            <!-- Texto — se oculta al colapsar, vuelve al hover -->
-            <span class="logo-texto">
-                <span class="logo-nombre">Ana Marcol</span>
-                <span class="logo-sub">Makeup Studio</span>
-            </span>
+        <a class="sidebar-brand d-flex align-items-center justify-content-center"
+           href="<?= APP_URL ?>Dashboard/index">
+            <!-- Logo completo con letras — expandido y hover -->
+            <img src="<?= APP_URL ?>Content/Demo/img/Logo.png"
+                 alt="<?= APP_NAME ?>"
+                 class="sidebar-logo-full"
+                 style="height:48px; width:auto; object-fit:contain; max-width:160px;">
+            <!-- Solo ícono labios — colapsado -->
+            <img src="<?= APP_URL ?>Content/Demo/img/Logo2.png"
+                 alt="<?= APP_NAME ?>"
+                 class="sidebar-logo-icon"
+                 style="height:36px; width:auto; object-fit:contain;">
         </a>
         <button class="btn-close-sidebar d-lg-none" id="btnCloseSidebar" aria-label="Cerrar menú">
             <i class="fas fa-times"></i>
@@ -271,10 +244,10 @@ body:not(.dark-mode) .logo-sub    { color: rgba(60,60,60,0.5); }
 
     <!-- Logo centrado visible solo en móvil -->
     <span class="navbar-brand-mobile">
-        <span class="logo-icono" style="font-size:1.3rem;">💄</span>
-        <span class="logo-texto">
-            <span class="logo-nombre" style="color:#fff;">Ana Marcol</span>
-        </span>
+        <img src="<?= APP_URL ?>Content/Demo/img/Logo.png"
+             alt="<?= APP_NAME ?>"
+             style="height:32px; width:auto; object-fit:contain; max-width:140px;
+                    mix-blend-mode:screen; filter:brightness(1.2);">
     </span>
 
     <div class="d-flex align-items-center gap-2">

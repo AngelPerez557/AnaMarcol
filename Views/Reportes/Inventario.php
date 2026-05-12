@@ -9,12 +9,10 @@
             </h4>
         </div>
         <div class="d-flex gap-2 align-items-center flex-wrap">
-            <button onclick="descargarPDFInventario()"
-                    class="btn btn-sm btn-danger">
+            <button onclick="descargarPDFInventario()" class="btn btn-sm btn-danger">
                 <i class="fas fa-file-pdf me-1"></i>PDF
             </button>
-            <button onclick="descargarExcelInventario()"
-                    class="btn btn-sm btn-success">
+            <button onclick="descargarExcelInventario()" class="btn btn-sm btn-success">
                 <i class="fas fa-file-excel me-1"></i>Excel
             </button>
             <label class="text-muted" style="font-size:0.85rem;">Alerta si stock ≤</label>
@@ -24,10 +22,8 @@
                 <option value="<?= $op ?>" <?= $limite === $op ? 'selected' : '' ?>><?= $op ?></option>
                 <?php endforeach; ?>
             </select>
-            <a href="<?= APP_URL ?>Reportes/ventas"
-               class="btn btn-outline-secondary btn-sm">Ventas</a>
-            <a href="<?= APP_URL ?>Reportes/pedidos"
-               class="btn btn-outline-secondary btn-sm">Pedidos</a>
+            <a href="<?= APP_URL ?>Reportes/ventas"    class="btn btn-outline-secondary btn-sm">Ventas</a>
+            <a href="<?= APP_URL ?>Reportes/pedidos"   class="btn btn-outline-secondary btn-sm">Pedidos</a>
         </div>
     </div>
 
@@ -71,10 +67,23 @@
         </div>
         <?php endif; ?>
 
+        <!-- ─── TABLA CON PAGINACIÓN ─────────────── -->
         <div class="col-12 <?= !empty($stockBajo) ? 'col-lg-6' : '' ?>">
             <div class="card">
-                <div class="card-header">
-                    <i class="fas fa-list me-2"></i>Detalle — Stock ≤ <?= $limite ?>
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <span>
+                        <i class="fas fa-list me-2"></i>Detalle — Stock ≤ <?= $limite ?>
+                    </span>
+                    <?php if (!empty($stockBajo) || !empty($variantesStockBajo)): ?>
+                    <div class="d-flex align-items-center gap-2">
+                        <small class="text-muted">Por página:</small>
+                        <select class="form-select form-select-sm" id="porPaginaInv" style="width:auto;">
+                            <option value="10" selected>10</option>
+                            <option value="20">20</option>
+                            <option value="50">50</option>
+                        </select>
+                    </div>
+                    <?php endif; ?>
                 </div>
                 <div class="card-body p-0">
                     <?php if (empty($stockBajo) && empty($variantesStockBajo)): ?>
@@ -83,6 +92,19 @@
                         Todos los productos tienen stock suficiente.
                     </div>
                     <?php else: ?>
+
+                    <!-- Buscador interno -->
+                    <div class="px-3 pt-3 pb-2">
+                        <div class="input-group input-group-sm">
+                            <span class="input-group-text bg-transparent">
+                                <i class="fas fa-search text-muted"></i>
+                            </span>
+                            <input type="text" class="form-control border-start-0"
+                                   id="buscarInventario"
+                                   placeholder="Filtrar por nombre...">
+                        </div>
+                    </div>
+
                     <table class="table table-sm align-middle mb-0" id="tablaInventario">
                         <thead>
                             <tr style="background:rgba(222,119,125,0.08);">
@@ -93,7 +115,7 @@
                         </thead>
                         <tbody>
                             <?php foreach ($stockBajo as $p): ?>
-                            <tr>
+                            <tr class="inv-row" data-nombre="<?= strtolower(htmlspecialchars($p['nombre'])) ?>">
                                 <td class="ps-3">
                                     <div class="fw-semibold"><?= htmlspecialchars($p['nombre']) ?></div>
                                     <small class="text-muted"><?= htmlspecialchars($p['categoria_nombre']) ?></small>
@@ -109,7 +131,7 @@
                             </tr>
                             <?php endforeach; ?>
                             <?php foreach ($variantesStockBajo as $v): ?>
-                            <tr>
+                            <tr class="inv-row" data-nombre="<?= strtolower(htmlspecialchars($v['producto_nombre'] . ' ' . $v['variante_nombre'])) ?>">
                                 <td class="ps-3">
                                     <div class="fw-semibold"><?= htmlspecialchars($v['producto_nombre']) ?></div>
                                     <small class="text-muted">
@@ -128,6 +150,13 @@
                             <?php endforeach; ?>
                         </tbody>
                     </table>
+
+                    <!-- Paginación de la tabla -->
+                    <div class="d-flex justify-content-between align-items-center px-3 py-2 border-top flex-wrap gap-2">
+                        <small class="text-muted" id="infoInv"></small>
+                        <nav><ul class="pagination pagination-sm mb-0" id="navInv"></ul></nav>
+                    </div>
+
                     <?php endif; ?>
                 </div>
             </div>
@@ -142,8 +171,9 @@
 
 <script>
 document.addEventListener('DOMContentLoaded', function () {
-    const stockBajo = <?= json_encode(array_values($stockBajo)) ?>;
 
+    // ── Gráfica stock bajo ────────────────────────
+    const stockBajo = <?= json_encode(array_values($stockBajo)) ?>;
     if (stockBajo.length > 0 && document.getElementById('chartStockBajo')) {
         const ctx = document.getElementById('chartStockBajo').getContext('2d');
         new Chart(ctx, {
@@ -152,15 +182,9 @@ document.addEventListener('DOMContentLoaded', function () {
                 labels: stockBajo.map(p => p.nombre.substring(0, 20)),
                 datasets: [{
                     label: 'Stock actual',
-                    data: stockBajo.map(p => parseInt(p.stock)),
-                    backgroundColor: stockBajo.map(p =>
-                        parseInt(p.stock) === 0
-                            ? 'rgba(220,53,69,0.4)'
-                            : 'rgba(255,193,7,0.4)'
-                    ),
-                    borderColor: stockBajo.map(p =>
-                        parseInt(p.stock) === 0 ? '#dc3545' : '#ffc107'
-                    ),
+                    data:  stockBajo.map(p => parseInt(p.stock)),
+                    backgroundColor: stockBajo.map(p => parseInt(p.stock) === 0 ? 'rgba(220,53,69,0.4)' : 'rgba(255,193,7,0.4)'),
+                    borderColor:     stockBajo.map(p => parseInt(p.stock) === 0 ? '#dc3545' : '#ffc107'),
                     borderWidth: 2,
                     borderRadius: 6,
                 }]
@@ -173,8 +197,108 @@ document.addEventListener('DOMContentLoaded', function () {
             }
         });
     }
+
+    // ── Paginación tabla inventario ───────────────
+    const filas      = [...document.querySelectorAll('.inv-row')];
+    const infoEl     = document.getElementById('infoInv');
+    const navEl      = document.getElementById('navInv');
+    const porPagSel  = document.getElementById('porPaginaInv');
+    const buscarEl   = document.getElementById('buscarInventario');
+
+    if (!filas.length || !navEl) return; // sin filas → no paginar
+
+    let porPagina  = 10;
+    let pagActual  = 1;
+    let filtradas  = filas.map((_, i) => i);
+
+    // Filtro por nombre
+    buscarEl?.addEventListener('input', function () {
+        const txt = this.value.toLowerCase().trim();
+        filtradas = [];
+        filas.forEach((fila, i) => {
+            if (!txt || fila.dataset.nombre.includes(txt)) filtradas.push(i);
+        });
+        pagActual = 1;
+        render();
+    });
+
+    // Por página
+    porPagSel?.addEventListener('change', function () {
+        porPagina = parseInt(this.value);
+        pagActual = 1;
+        render();
+    });
+
+    function render() {
+        const total   = filtradas.length;
+        const paginas = Math.max(1, Math.ceil(total / porPagina));
+        if (pagActual > paginas) pagActual = paginas;
+
+        const inicio  = (pagActual - 1) * porPagina;
+        const fin     = Math.min(inicio + porPagina, total);
+        const vis     = new Set(filtradas.slice(inicio, fin));
+
+        filas.forEach((el, i) => { el.style.display = vis.has(i) ? '' : 'none'; });
+
+        infoEl.textContent = total > 0
+            ? `Página ${pagActual} de ${paginas} — ${inicio + 1}–${fin} de ${total} productos`
+            : 'Sin resultados';
+
+        renderNav(paginas);
+    }
+
+    function renderNav(paginas) {
+        navEl.innerHTML = '';
+        if (paginas <= 1) return;
+
+        const btn = (lbl, page, dis, act) => {
+            const li = document.createElement('li');
+            li.className = `page-item${dis ? ' disabled' : ''}${act ? ' active' : ''}`;
+            const a = document.createElement('a');
+            a.className = 'page-link'; a.href = '#'; a.innerHTML = lbl;
+            if (!dis && !act) {
+                a.addEventListener('click', e => {
+                    e.preventDefault();
+                    pagActual = page;
+                    render();
+                    document.getElementById('tablaInventario')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                });
+            }
+            li.appendChild(a); return li;
+        };
+
+        navEl.appendChild(btn('&laquo;', pagActual - 1, pagActual === 1, false));
+
+        let nums = paginas <= 7
+            ? Array.from({ length: paginas }, (_, i) => i + 1)
+            : [1];
+
+        if (paginas > 7) {
+            if (pagActual > 3) nums.push('…');
+            for (let i = Math.max(2, pagActual - 1); i <= Math.min(paginas - 1, pagActual + 1); i++) nums.push(i);
+            if (pagActual < paginas - 2) nums.push('…');
+            nums.push(paginas);
+        }
+
+        nums.forEach(n => {
+            if (n === '…') {
+                const li = document.createElement('li');
+                li.className = 'page-item disabled';
+                li.innerHTML = '<a class="page-link">…</a>';
+                navEl.appendChild(li);
+            } else {
+                navEl.appendChild(btn(n, n, false, n === pagActual));
+            }
+        });
+
+        navEl.appendChild(btn('&raquo;', pagActual + 1, pagActual === paginas, false));
+    }
+
+    // Init
+    render();
 });
 
+// ── Descarga PDF ──────────────────────────────────
 function descargarPDFInventario() {
     const { jsPDF } = window.jspdf;
     const doc  = new jsPDF();
@@ -205,7 +329,8 @@ function descargarPDFInventario() {
         margin: { left: 14, right: 14 },
     });
 
-    const stockBajo = <?= json_encode(array_values($stockBajo)) ?>;
+    // El PDF exporta TODOS los productos sin importar la página actual
+    const stockBajo          = <?= json_encode(array_values($stockBajo)) ?>;
     const variantesStockBajo = <?= json_encode(array_values($variantesStockBajo)) ?>;
     const todosBajos = [
         ...stockBajo.map(p => [p.nombre, p.categoria_nombre, p.stock + ' uds.', 'L. ' + parseFloat(p.precio_base).toFixed(2)]),
@@ -235,9 +360,10 @@ function descargarPDFInventario() {
     doc.save(`reporte-inventario-${fecha.replace(/\//g,'-')}.pdf`);
 }
 
+// ── Descarga Excel ────────────────────────────────
 function descargarExcelInventario() {
     const wb    = XLSX.utils.book_new();
-    const fecha  = new Date().toLocaleDateString('es-HN');
+    const fecha = new Date().toLocaleDateString('es-HN');
     const resumenData        = <?= json_encode($resumen) ?>;
     const stockBajo          = <?= json_encode(array_values($stockBajo)) ?>;
     const variantesStockBajo = <?= json_encode(array_values($variantesStockBajo)) ?>;
@@ -258,12 +384,7 @@ function descargarExcelInventario() {
     const wsStock = XLSX.utils.aoa_to_sheet([
         ['Producto', 'Categoría', 'Stock Actual', 'Precio (L.)'],
         ...stockBajo.map(p => [p.nombre, p.categoria_nombre, parseInt(p.stock), parseFloat(p.precio_base)]),
-        ...variantesStockBajo.map(v => [
-            v.producto_nombre + ' — ' + v.variante_nombre,
-            'Variante',
-            parseInt(v.stock),
-            parseFloat(v.precio)
-        ])
+        ...variantesStockBajo.map(v => [v.producto_nombre + ' — ' + v.variante_nombre, 'Variante', parseInt(v.stock), parseFloat(v.precio)])
     ]);
     XLSX.utils.book_append_sheet(wb, wsStock, 'Stock Bajo');
 
