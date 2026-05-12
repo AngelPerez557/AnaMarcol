@@ -169,9 +169,10 @@ class ProductoModel extends BaseModel
         if (!$row) return null;
         return VarianteEntity::fromArray($row);
     }
+    
     public function toggleVisibleTienda(int $id, int $visible): bool
     {
         $affected = $this->callSPExecute('sp_productos_toggleVisibleTienda', [$id, $visible]);
-        return $affected >= 0;
+        return $affected > 0;
     }
 }
