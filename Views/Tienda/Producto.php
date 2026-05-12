@@ -1,6 +1,5 @@
 <div class="container py-5">
 
-    <!-- FIX 3 — El div con h2 y botón favorito estaba DENTRO del ol.breadcrumb -->
     <nav aria-label="breadcrumb" class="mb-3">
         <ol class="breadcrumb mb-0">
             <li class="breadcrumb-item"><a href="<?= APP_URL ?>Tienda/index" style="color:#de777d;">Inicio</a></li>
@@ -11,7 +10,6 @@
         </ol>
     </nav>
 
-    <!-- Título + botón favorito FUERA del nav/ol -->
     <div class="d-flex align-items-start justify-content-between mb-4">
         <h2 class="fw-bold mb-0"><?= htmlspecialchars($producto->nombre) ?></h2>
         <button type="button"
@@ -71,7 +69,7 @@
                             data-id="<?= $v->id ?>"
                             data-nombre="<?= htmlspecialchars($v->nombre) ?>"
                             data-precio="<?= $v->precio ?? $producto->precio_base ?>"
-                            data-imagen="<?= $v->image_url ? APP_URL . 'Content/Demo/img/Variantes/' . htmlspecialchars($v->image_url) : '' ?>"
+                            data-imagen="<?= htmlspecialchars($v->getImageUrl()) ?>"
                             style="padding:8px 16px; border:2px solid #dee2e6; border-radius:8px;
                                    background:#fff; cursor:pointer; font-weight:500; transition:all 0.2s;">
                         <?= htmlspecialchars($v->nombre) ?>
@@ -144,51 +142,81 @@ document.addEventListener('DOMContentLoaded', function () {
 
     let varianteSeleccionada = null;
     let cantidad = 1;
-    const imagenOriginal = '<?= $producto->getImageUrl() ?>';
-    const imgDiv = document.getElementById('imagenProducto');
+
+    // imagenOriginal como atributo data — evita problemas con caracteres especiales en JS
+    const imgDiv        = document.getElementById('imagenProducto');
+    const imagenOriginal = imgDiv.dataset.imagenOriginal ||
+                           '<?= addslashes($producto->getImageUrl()) ?>';
 
     document.querySelectorAll('.btn-variante').forEach(btn => {
         btn.addEventListener('click', function () {
+            // Quitar selección de todos
             document.querySelectorAll('.btn-variante').forEach(b => {
                 b.style.borderColor = '#dee2e6';
                 b.style.background  = '#fff';
                 b.style.color       = '#333';
             });
+
+            // Marcar el seleccionado
             this.style.borderColor = '#de777d';
             this.style.background  = '#de777d';
             this.style.color       = '#fff';
+
             varianteSeleccionada = {
                 id:     this.dataset.id,
                 nombre: this.dataset.nombre,
                 precio: parseFloat(this.dataset.precio),
             };
+
+            // Actualizar precio
             document.getElementById('precioMostrado').textContent =
                 'L. ' + varianteSeleccionada.precio.toFixed(2);
+
+            // Actualizar imagen — dataset.imagen ya viene sanitizado con htmlspecialchars
             const imagenVariante = this.dataset.imagen;
-            imgDiv.style.backgroundImage = (imagenVariante && imagenVariante.trim())
-                ? `url('${imagenVariante}')` : `url('${imagenOriginal}')`;
+            imgDiv.style.backgroundImage = (imagenVariante && imagenVariante.trim() && !imagenVariante.includes('default'))
+                ? `url("${imagenVariante}")` : `url("${imagenOriginal}")`;
         });
     });
 
     const btnMenos = document.getElementById('btnMenos');
     const btnMas   = document.getElementById('btnMas');
-    if (btnMenos) btnMenos.addEventListener('click', () => { if (cantidad > 1) { cantidad--; document.getElementById('cantidad').textContent = cantidad; } });
-    if (btnMas)   btnMas.addEventListener('click',   () => { cantidad++; document.getElementById('cantidad').textContent = cantidad; });
+    if (btnMenos) btnMenos.addEventListener('click', () => {
+        if (cantidad > 1) { cantidad--; document.getElementById('cantidad').textContent = cantidad; }
+    });
+    if (btnMas) btnMas.addEventListener('click', () => {
+        cantidad++; document.getElementById('cantidad').textContent = cantidad;
+    });
 
     const btnAgregar = document.getElementById('btnAgregarCarrito');
     if (btnAgregar) {
         btnAgregar.addEventListener('click', function () {
             const tieneVariantes = <?= $producto->tieneVariantes() ? 'true' : 'false' ?>;
             if (tieneVariantes && !varianteSeleccionada) {
-                Swal.fire({ icon:'warning', title:'Selecciona una opción', text:'Elige una variante antes de agregar al carrito.', confirmButtonColor:'#de777d' });
+                Swal.fire({
+                    icon: 'warning', title: 'Selecciona una opción',
+                    text: 'Elige una variante antes de agregar al carrito.',
+                    confirmButtonColor: '#de777d'
+                });
                 return;
             }
-            const precio         = varianteSeleccionada ? varianteSeleccionada.precio : <?= $producto->precio_base ?>;
+            const precio         = varianteSeleccionada ? varianteSeleccionada.precio : <?= (float)$producto->precio_base ?>;
             const varianteId     = varianteSeleccionada ? varianteSeleccionada.id     : null;
             const varianteNombre = varianteSeleccionada ? varianteSeleccionada.nombre : null;
-            const imgActual      = imgDiv.style.backgroundImage.slice(5, -2);
+
+            // Extraer URL limpia del backgroundImage actual
+            const bgImg    = imgDiv.style.backgroundImage;
+            const imgActual = bgImg ? bgImg.replace(/^url\(["']?/, '').replace(/["']?\)$/, '') : imagenOriginal;
+
             for (let i = 0; i < cantidad; i++) {
-                agregarAlCarrito(<?= $producto->id ?>, '<?= addslashes(htmlspecialchars($producto->nombre)) ?>', precio, imgActual || imagenOriginal, varianteId, varianteNombre);
+                agregarAlCarrito(
+                    <?= (int)$producto->id ?>,
+                    '<?= addslashes(htmlspecialchars($producto->nombre)) ?>',
+                    precio,
+                    imgActual || imagenOriginal,
+                    varianteId,
+                    varianteNombre
+                );
             }
         });
     }
