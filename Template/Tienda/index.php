@@ -528,6 +528,31 @@
         saveCarrito(carrito);
         mostrarToast(`"${nombre}" agregado al carrito`);
     }
+    // Wrapper con verificación de stock — usado en Catalogo e Inicio
+    function agregarAlCarritoConStock(id, varianteId, nombre, precio, imagen) {
+        fetch(`${APP_URL}Tienda/verificarStock`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: `producto_id=${id}&variante_id=${varianteId}`
+        })
+        .then(r => r.json())
+        .then(data => {
+            if (!data.disponible) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Sin stock',
+                    text: 'Este producto ya no está disponible.',
+                    confirmButtonColor: '#de777d'
+                });
+                return;
+            }
+            agregarAlCarrito(id, nombre, precio, imagen, varianteId || null, null);
+        })
+        .catch(() => {
+            // Si falla la verificación igual agrega — falla silenciosa
+            agregarAlCarrito(id, nombre, precio, imagen, varianteId || null, null);
+        });
+    }
     function mostrarToast(msg) {
         const toast = document.getElementById('toastCarrito');
         const texto = document.getElementById('toastCarritoMsg');
