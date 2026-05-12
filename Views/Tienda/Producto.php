@@ -1,15 +1,4 @@
 <div class="container py-5">
-
-    <nav aria-label="breadcrumb" class="mb-3">
-        <ol class="breadcrumb mb-0">
-            <li class="breadcrumb-item"><a href="<?= APP_URL ?>Tienda/index" style="color:#de777d;">Inicio</a></li>
-            <li class="breadcrumb-item"><a href="<?= APP_URL ?>Tienda/catalogo" style="color:#de777d;">Catálogo</a></li>
-            <li class="breadcrumb-item active" aria-current="page">
-                <?= htmlspecialchars(mb_strimwidth($producto->nombre, 0, 30, '...')) ?>
-            </li>
-        </ol>
-    </nav>
-
     <div class="d-flex align-items-start justify-content-between mb-4">
         <h2 class="fw-bold mb-0"><?= htmlspecialchars($producto->nombre) ?></h2>
         <button type="button"
