@@ -205,7 +205,7 @@ document.addEventListener('DOMContentLoaded', function () {
     let cantidad = 1;
 
     const imgDiv         = document.getElementById('imagenProducto');
-    const imagenOriginal = '<?= addslashes($producto->getImageUrl()) ?>';
+    const imagenOriginal = <?= json_encode($producto->getImageUrl()) ?>;
 
     // ── Función para cambiar imagen principal ────────────────
     function cambiarImagenPrincipal(url) {
@@ -263,7 +263,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 });
                 varianteSeleccionada = null;
                 document.getElementById('precioMostrado').textContent =
-                    'L. ' + <?= (float)$producto->precio_base ?>.toFixed(2);
+                    'L. ' + (<?= json_encode((float)($producto->precio_base ?? 0)) ?>).toFixed(2);
             }
         });
     });
@@ -326,7 +326,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 });
                 return;
             }
-            const precio         = varianteSeleccionada ? varianteSeleccionada.precio : <?= (float)$producto->precio_base ?>;
+            const precio         = varianteSeleccionada ? varianteSeleccionada.precio : <?= json_encode((float)($producto->precio_base ?? 0)) ?>;
             const varianteId     = varianteSeleccionada ? varianteSeleccionada.id     : null;
             const varianteNombre = varianteSeleccionada ? varianteSeleccionada.nombre : null;
             const bgImg          = imgDiv.style.backgroundImage;
@@ -336,8 +336,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
             for (let i = 0; i < cantidad; i++) {
                 agregarAlCarrito(
-                    <?= (int)$producto->id ?>,
-                    '<?= addslashes(htmlspecialchars($producto->nombre)) ?>',
+                    <?= json_encode((int)$producto->id) ?>,
+                    <?= json_encode($producto->nombre) ?>,
                     precio,
                     imgActual || imagenOriginal,
                     varianteId,
