@@ -52,12 +52,18 @@ class TiendaController
             $comboProductos[$combo->id] = $this->comboModel->findProductos($combo->id);
         }
 
+        // ── IDs de favoritos del cliente autenticado ──
+        $favoritosIds = [];
+        if (!empty($_SESSION['cliente'])) {
+            $favs = $this->favoritoModel->findByCliente((int)$_SESSION['cliente']['id']);
+            $favoritosIds = array_map(fn($f) => (int)$f->producto_id, $favs);
+        }
+
         $this->render('Inicio.php', compact(
             'pageTitle','banners','productosDestacados','combos',
-            'categorias','galeria','descuentoActivo','comboProductos'
+            'categorias','galeria','descuentoActivo','comboProductos','favoritosIds'
         ));
     }
-
     public function catalogo(string $catId = ''): void
     {
         $pageTitle   = 'Catálogo';
@@ -66,13 +72,22 @@ class TiendaController
         $productos   = $this->productoModel->findActivos();
         $descuentoModel  = new DescuentoModel();
         $descuentoActivo = $descuentoModel->getActivo();
+
         if ($categoriaId > 0) {
             $productos = array_values(array_filter(
                 $productos, fn($p) => (int)$p->categoria_id === $categoriaId
             ));
         }
+
+        // ── IDs de favoritos del cliente autenticado ──
+        $favoritosIds = [];
+        if (!empty($_SESSION['cliente'])) {
+            $favs = $this->favoritoModel->findByCliente((int)$_SESSION['cliente']['id']);
+            $favoritosIds = array_map(fn($f) => (int)$f->producto_id, $favs);
+        }
+
         $this->render('Catalogo.php', compact(
-            'pageTitle','productos','categorias','categoriaId','descuentoActivo'
+            'pageTitle','productos','categorias','categoriaId','descuentoActivo','favoritosIds'
         ));
     }
 

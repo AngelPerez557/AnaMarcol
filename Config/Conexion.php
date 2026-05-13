@@ -14,9 +14,20 @@ class Conexion
     // Retorna la instancia PDO existente o crea una nueva si no existe
     public static function getInstance(): PDO
     {
+        // Si la instancia existe, verificar que la conexión sigue viva
+        // "Packets out of order" ocurre cuando MySQL cerró la conexión
+        // por inactividad pero PDO sigue usando la instancia "muerta"
+        if (self::$instance !== null) {
+            try {
+                self::$instance->query('SELECT 1');
+            } catch (PDOException $e) {
+                // Conexión muerta — forzar reconexión
+                self::$instance = null;
+            }
+        }
+
         if (self::$instance === null) {
             try {
-                // Construye el DSN con las constantes definidas en Define.php
                 $dsn = 'mysql:host=' . DB_HOST
                      . ';port='      . DB_PORT
                      . ';dbname='    . DB_NAME
@@ -26,24 +37,27 @@ class Conexion
                     // Lanza excepciones en lugar de fallar silenciosamente
                     PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION,
 
-                    // Retorna filas como arrays asociativos ['columna' => 'valor']
+                    // Retorna filas como arrays asociativos
                     PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
 
-                    // Usa prepared statements reales del motor — previene SQL injection
+                    // Usa prepared statements reales — previene SQL injection
                     PDO::ATTR_EMULATE_PREPARES   => false,
 
-                    // Reutiliza conexiones abiertas — mejora rendimiento en producción
-                    PDO::ATTR_PERSISTENT         => true,
+                    // CRÍTICO: false elimina el "Packets out of order"
+                    // Las conexiones persistentes reutilizan conexiones que
+                    // MySQL ya cerró por timeout — causa el error
+                    PDO::ATTR_PERSISTENT         => false,
+
+                    // Timeout de conexión — evita cuelgues si MySQL no responde
+                    PDO::ATTR_TIMEOUT            => 10,
+
+                    // Charset a nivel de driver — refuerza la configuración
+                    PDO::MYSQL_ATTR_INIT_COMMAND => "SET NAMES utf8mb4 COLLATE utf8mb4_unicode_ci",
                 ]);
 
-                // Estandariza charset/collation de sesión para evitar conflictos
-                // entre parámetros de SP y columnas en MySQL 8.
-                self::$instance->exec("SET NAMES utf8mb4 COLLATE utf8mb4_unicode_ci");
                 self::$instance->exec("SET collation_connection = utf8mb4_unicode_ci");
 
             } catch (PDOException $e) {
-                // En desarrollo muestra el error real para depuración
-                // En producción oculta detalles internos al usuario
                 if (APP_ENV === 'development') {
                     die('Error de conexión: ' . $e->getMessage());
                 } else {
@@ -52,11 +66,10 @@ class Conexion
             }
         }
 
-        // Retorna la instancia ya creada sin abrir una nueva conexión
         return self::$instance;
     }
 
-    // Cierra la conexión PDO liberando el recurso — útil en scripts CLI o procesos batch
+    // Cierra la conexión PDO liberando el recurso
     public static function close(): void
     {
         self::$instance = null;

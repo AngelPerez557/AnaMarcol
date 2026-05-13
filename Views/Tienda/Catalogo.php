@@ -102,15 +102,14 @@ if (!function_exists('calcDesc')) {
                     <button type="button"
                             class="btn-favorito"
                             data-id="<?= $p->id ?>"
-                            title="Agregar a favoritos"
                             style="position:absolute; top:8px; right:8px; z-index:2;
-                                   background:rgba(255,255,255,0.9);
-                                   border:2px solid #f0e0e1;
-                                   border-radius:50%; width:36px; height:36px;
-                                   display:flex; align-items:center; justify-content:center;
-                                   cursor:pointer; transition:all 0.2s;
-                                   box-shadow:0 2px 6px rgba(0,0,0,0.1);">
-                        <i class="fas fa-heart" style="color:#ccc; font-size:0.85rem;"></i>
+                                background:rgba(255,255,255,0.9);
+                                border:2px solid <?= in_array($p->id, $favoritosIds) ? '#de777d' : '#f0e0e1' ?>;
+                                border-radius:50%; width:36px; height:36px;
+                                display:flex; align-items:center; justify-content:center;
+                                cursor:pointer; transition:all 0.2s;
+                                box-shadow:0 2px 6px rgba(0,0,0,0.1);">
+                        <i class="fas fa-heart" style="color:<?= in_array($p->id, $favoritosIds) ? '#de777d' : '#ccc' ?>; font-size:0.85rem;"></i>
                     </button>
                 </div>
 
