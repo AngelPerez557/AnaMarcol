@@ -86,12 +86,13 @@ class AuthController
             'tour_completado' => (int) ($user->tour_completado ?? 0),
         ]);
 
+        // F-19 — sesión única.
+        // Antes este UPDATE era SQL directo en el controller (viola MVC estricto).
+        // Ahora pasa por UserModel::updateSessionToken → sp_users_updateSessionToken.
         $sessionToken = bin2hex(random_bytes(16));
         $_SESSION['session_token'] = $sessionToken;
-        $db = Conexion::getInstance();
-        $db->prepare("UPDATE users SET session_token = ? WHERE id = ?")
-           ->execute([$sessionToken, $user->id]);
-           
+        $userModel->updateSessionToken((int) $user->id, $sessionToken);
+
         header('Location: ' . APP_URL . 'Dashboard/index');
         exit();
     }

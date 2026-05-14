@@ -1,5 +1,18 @@
 <?php
 
+/**
+ * JRouter.php — Resuelve qué controlador y método ejecutar para cada URL
+ *
+ * SEGURIDAD (F-04):
+ * Antes de instanciar una clase, el nombre se valida contra una
+ * WHITELIST AUTO-GENERADA escaneando la carpeta /Controllers/ al boot.
+ * Esto evita instanciar clases arbitrarias que pudieran existir en otros
+ * directorios registrados por el AutoLoad (ej. una clase auxiliar con
+ * sufijo "Controller" en /Models o /Config).
+ *
+ * La whitelist se cachea en memoria estática durante toda la request,
+ * por lo que el costo del escaneo es mínimo (1 sola lectura de directorio).
+ */
 class JRouter
 {
     // Controlador por defecto cuando la URL está vacía
@@ -8,42 +21,79 @@ class JRouter
     // Método por defecto cuando no se especifica en la URL
     private static string $defaultMethod = 'index';
 
+    // Cache de la whitelist de controladores válidos.
+    // Se llena la primera vez que se llama a getControllerWhitelist().
+    private static ?array $controllerWhitelist = null;
+
     // ─────────────────────────────────────────────
     // PUNTO DE ENTRADA DEL ENRUTADOR
     // ─────────────────────────────────────────────
 
-    // Recibe el JRequest, resuelve el controlador y método, y los ejecuta
+    // Recibe el JRequest, resuelve el controlador y método, y los ejecuta.
     public static function run(JRequest $request): void
     {
-        // Obtiene el nombre del controlador desde el primer segmento de URL
-        // Ej: "Ejemplo/index" → "Ejemplo"
         $controllerName = self::resolveController($request->getController());
+        $methodName     = self::resolveMethod($request->getMethod());
 
-        // Obtiene el método desde el segundo segmento de URL
-        // Ej: "Ejemplo/index" → "index"
-        $methodName = self::resolveMethod($request->getMethod());
+        // ── 1. Whitelist — solo se instancian controladores reales ──
+        // Aunque AutoLoad encontrara una clase con sufijo "Controller"
+        // en cualquier otro directorio registrado, NO se permite ejecutarla.
+        if (!in_array($controllerName, self::getControllerWhitelist(), true)) {
+            self::notFound("Controlador '{$controllerName}' no autorizado.");
+            return;
+        }
 
-        // Verifica que la clase del controlador exista en el sistema
+        // ── 2. Existencia de la clase (defensa en profundidad) ──
         if (!class_exists($controllerName)) {
             self::notFound("Controlador '{$controllerName}' no encontrado.");
             return;
         }
 
-        // Instancia el controlador
+        // ── 3. Instanciación y ejecución ──
         $controller = new $controllerName();
 
-        // Verifica que el método exista dentro del controlador
         if (!method_exists($controller, $methodName)) {
             self::notFound("Método '{$methodName}' no encontrado en '{$controllerName}'.");
             return;
         }
 
-        // Recopila parámetros adicionales desde los segmentos de URL
-        // Ej: "Ejemplo/ver/5/activo" → ['5', 'activo']
+        // Parámetros adicionales — segmentos 2 en adelante
         $params = self::resolveParams($request->getSegments());
 
-        // Ejecuta el método del controlador pasando los parámetros como argumentos
         call_user_func_array([$controller, $methodName], $params);
+    }
+
+    // ─────────────────────────────────────────────
+    // WHITELIST DE CONTROLADORES (F-04)
+    // ─────────────────────────────────────────────
+
+    // Lee la carpeta /Controllers/ una sola vez por request y retorna
+    // los nombres de clase válidos (sin extensión .php).
+    // Cachea el resultado en memoria estática.
+    private static function getControllerWhitelist(): array
+    {
+        if (self::$controllerWhitelist !== null) {
+            return self::$controllerWhitelist;
+        }
+
+        $whitelist = [];
+
+        if (defined('CONTROLLERS_PATH') && is_dir(CONTROLLERS_PATH)) {
+            // Solo archivos *.php directamente dentro de Controllers/
+            // No incluye subdirectorios — el sistema no usa namespaces en routing.
+            $files = glob(CONTROLLERS_PATH . '*Controller.php') ?: [];
+
+            foreach ($files as $file) {
+                $className = basename($file, '.php');
+                // Defensa adicional: solo nombres con caracteres válidos
+                if (preg_match('/^[A-Za-z0-9_]+Controller$/', $className)) {
+                    $whitelist[] = $className;
+                }
+            }
+        }
+
+        self::$controllerWhitelist = $whitelist;
+        return $whitelist;
     }
 
     // ─────────────────────────────────────────────
@@ -52,17 +102,19 @@ class JRouter
 
     // Construye el nombre completo de la clase del controlador
     // Ej: "Ejemplo" → "EjemploController"
-    // Si la URL está vacía usa el controlador por defecto
     private static function resolveController(string $name): string
     {
         if (empty($name)) {
             return self::$defaultController;
         }
 
-        // Capitaliza el primer carácter para respetar convención de nombres de clase
+        // Filtrar cualquier carácter no permitido — defensa en profundidad
+        // antes de la whitelist (evita class_exists con paths raros).
+        $name = preg_replace('/[^A-Za-z0-9_]/', '', $name);
+
+        // Capitaliza el primer carácter para respetar convención de clase
         $name = ucfirst(strtolower($name));
 
-        // Si ya termina en "Controller" no lo duplica
         if (str_ends_with($name, 'Controller')) {
             return $name;
         }
@@ -74,16 +126,15 @@ class JRouter
     // RESOLUCIÓN DE MÉTODO
     // ─────────────────────────────────────────────
 
-    // Retorna el nombre del método a ejecutar
-    // Si no se especifica en la URL usa el método por defecto
     private static function resolveMethod(string $method): string
     {
         if (empty($method)) {
             return self::$defaultMethod;
         }
 
-        // Convierte a camelCase por si la URL viene en minúsculas
-        // Ej: "getlist" → "getList" no aplica aquí, pero sí normaliza
+        // Filtrar caracteres no permitidos antes de method_exists.
+        $method = preg_replace('/[^A-Za-z0-9_]/', '', $method);
+
         return lcfirst($method);
     }
 
@@ -91,12 +142,9 @@ class JRouter
     // RESOLUCIÓN DE PARÁMETROS
     // ─────────────────────────────────────────────
 
-    // Extrae los parámetros adicionales de la URL (segmentos 2 en adelante)
     // Segmento 0 = controlador, Segmento 1 = método, Segmento 2+ = parámetros
-    // Ej: ['Ejemplo', 'ver', '5', 'activo'] → ['5', 'activo']
     private static function resolveParams(array $segments): array
     {
-        // Elimina los dos primeros segmentos (controlador y método)
         return array_values(array_slice($segments, 2));
     }
 
@@ -104,17 +152,14 @@ class JRouter
     // MANEJO DE RUTAS NO ENCONTRADAS
     // ─────────────────────────────────────────────
 
-    // Maneja errores 404 — en desarrollo muestra el mensaje, en producción vista genérica
     private static function notFound(string $message): void
     {
         http_response_code(404);
 
-        if (APP_ENV === 'development') {
-            // Muestra mensaje técnico para depuración
+        if (defined('APP_ENV') && APP_ENV === 'development') {
             die("<h2 style='font-family:monospace;color:#c0392b;'>404 | {$message}</h2>");
         }
 
-        // En producción carga una vista 404 genérica si existe
         $view404 = VIEWS_PATH . '404' . DS . 'index.php';
 
         if (file_exists($view404)) {

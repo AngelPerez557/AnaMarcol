@@ -1,13 +1,20 @@
 <?php
 
+/**
+ * ReportesController.php — Vistas de reportes (ventas, pedidos, inventario)
+ *
+ * F-20 / F-26 — Antes este controller tenía SQL directo y un helper
+ * privado callSP() que duplicaba lógica del BaseModel. Ahora toda la
+ * BD pasa por ReporteModel — el Controller solo orquesta datos y vista.
+ */
 class ReportesController
 {
-    private VentaModel $ventaModel;
+    private ReporteModel $reporteModel;
 
     public function __construct()
     {
         Auth::check();
-        $this->ventaModel = new VentaModel();
+        $this->reporteModel = new ReporteModel();
     }
 
     // ─────────────────────────────────────────────
@@ -18,14 +25,12 @@ class ReportesController
     {
         Auth::require('reportes.ver');
 
-        $pageTitle      = 'Reporte de Ventas';
-        $pdo            = Conexion::getInstance();
-
-        $resumen        = $this->callSP($pdo, 'sp_reportes_resumenVentas',   [], true);
-        $ventasPorDia   = $this->callSP($pdo, 'sp_reportes_ventasPorDia',   []);
-        $ventasPorMes   = $this->callSP($pdo, 'sp_reportes_ventasPorMes',   []);
-        $ventasPorMetodo= $this->callSP($pdo, 'sp_reportes_ventasPorMetodo',[]);
-        $topProductos   = $this->callSP($pdo, 'sp_reportes_topProductos',   []);
+        $pageTitle       = 'Reporte de Ventas';
+        $resumen         = $this->reporteModel->resumenVentas();
+        $ventasPorDia    = $this->reporteModel->ventasPorDia();
+        $ventasPorMes    = $this->reporteModel->ventasPorMes();
+        $ventasPorMetodo = $this->reporteModel->ventasPorMetodo();
+        $topProductos    = $this->reporteModel->topProductos();
 
         require_once VIEWS_PATH . 'Reportes' . DS . 'Ventas.php';
     }
@@ -38,12 +43,10 @@ class ReportesController
     {
         Auth::require('reportes.ver');
 
-        $pageTitle       = 'Reporte de Pedidos';
-        $pdo             = Conexion::getInstance();
-
-        $resumen         = $this->callSP($pdo, 'sp_reportes_resumenPedidos',  [], true);
-        $pedidosPorEstado= $this->callSP($pdo, 'sp_reportes_pedidosPorEstado',[]);
-        $pedidosPorDia   = $this->callSP($pdo, 'sp_reportes_pedidosPorDia',  []);
+        $pageTitle        = 'Reporte de Pedidos';
+        $resumen          = $this->reporteModel->resumenPedidos();
+        $pedidosPorEstado = $this->reporteModel->pedidosPorEstado();
+        $pedidosPorDia    = $this->reporteModel->pedidosPorDia();
 
         require_once VIEWS_PATH . 'Reportes' . DS . 'Pedidos.php';
     }
@@ -56,28 +59,13 @@ class ReportesController
     {
         Auth::require('reportes.ver');
 
-        $pageTitle       = 'Reporte de Inventario';
-        $pdo             = Conexion::getInstance();
-        $limite          = (int) ($_GET['limite'] ?? 5);
+        $pageTitle          = 'Reporte de Inventario';
+        $limite             = (int) ($_GET['limite'] ?? 5);
 
-        $resumen         = $this->callSP($pdo, 'sp_reportes_resumenInventario',  [], true);
-        $stockBajo       = $this->callSP($pdo, 'sp_reportes_stockBajo',          [$limite]);
-        $variantesStockBajo = $this->callSP($pdo, 'sp_reportes_variantesStockBajo', [$limite]);
+        $resumen            = $this->reporteModel->resumenInventario();
+        $stockBajo          = $this->reporteModel->stockBajo($limite);
+        $variantesStockBajo = $this->reporteModel->variantesStockBajo($limite);
 
         require_once VIEWS_PATH . 'Reportes' . DS . 'Inventario.php';
-    }
-
-    // ─────────────────────────────────────────────
-    // HELPER — Ejecutar SP directo
-    // ─────────────────────────────────────────────
-    private function callSP(PDO $pdo, string $sp, array $params = [], bool $single = false): mixed
-    {
-        $placeholders = implode(',', array_fill(0, count($params), '?'));
-        $sql          = "CALL {$sp}(" . ($placeholders ?: '') . ")";
-        $stmt         = $pdo->prepare($sql);
-        $stmt->execute($params);
-        $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
-        $stmt->closeCursor();
-        return $single ? ($rows[0] ?? null) : $rows;
     }
 }

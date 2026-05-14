@@ -52,9 +52,11 @@ class UserModel extends BaseModel
         return $this->findByUsername($credencial);
     }
 
-    public function usernameExists(string $username, int $excludeId = 0): bool
+    // F-24 — $excludeId nullable para expresar "no excluir nada" explícitamente.
+    // El SP sigue esperando INT; convertimos null → 0 manteniendo retrocompatibilidad de BD.
+    public function usernameExists(string $username, ?int $excludeId = null): bool
     {
-        $row = $this->callSPSingle('sp_users_usernameExists', [$username, $excludeId]);
+        $row = $this->callSPSingle('sp_users_usernameExists', [$username, $excludeId ?? 0]);
         return $row ? (int) $row['existe'] > 0 : false;
     }
 
@@ -70,9 +72,10 @@ class UserModel extends BaseModel
         return $row ? (int) $row['total'] : 0;
     }
 
-    public function emailExists(string $email, int $excludeId = 0): bool
+    // F-24 — mismo criterio que usernameExists.
+    public function emailExists(string $email, ?int $excludeId = null): bool
     {
-        $row = $this->callSPSingle('sp_users_emailExists', [$email, $excludeId]);
+        $row = $this->callSPSingle('sp_users_emailExists', [$email, $excludeId ?? 0]);
         return $row ? (int) $row['existe'] > 0 : false;
     }
 
@@ -112,6 +115,15 @@ class UserModel extends BaseModel
     public function updatePassword(int $id, string $password): bool
     {
         $affected = $this->callSPExecute('sp_users_updatePassword', [$id, $password]);
+        return $affected >= 0;
+    }
+
+    // Actualiza el token de sesión del usuario en BD.
+    // Usado por el flujo de login para implementar "una sesión activa por usuario".
+    // (F-19) — antes este UPDATE vivía como SQL directo en AuthController.
+    public function updateSessionToken(int $id, string $token): bool
+    {
+        $affected = $this->callSPExecute('sp_users_updateSessionToken', [$id, $token]);
         return $affected >= 0;
     }
 

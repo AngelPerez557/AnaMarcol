@@ -21,17 +21,32 @@ class AutoLoad
 
     // ─────────────────────────────────────────────
     // 2. REGISTRO DEL AUTOLOADER
+    //
+    // SEGURIDAD (F-14):
+    // Antes de hacer file_exists, validamos $className contra una whitelist
+    // de caracteres (letras, números, _, /, \) para evitar path traversal
+    // y nombres con caracteres extraños que rompan el sistema de archivos.
     // ─────────────────────────────────────────────
     public static function run(): void
     {
         spl_autoload_register(function (string $className) {
 
+            // ── DEFENSA EN PROFUNDIDAD (F-14) ──
+            // Solo caracteres alfanuméricos, underscore y separadores de namespace
+            if (!preg_match('/^[A-Za-z0-9_\\\\\/]+$/', $className)) {
+                return;
+            }
+
             // Normaliza namespaces a separador del SO
             // Ej: "Config\JRouter" → "Config/JRouter" (Linux) o "Config\JRouter" (Windows)
             $className = str_replace(['\\', '/'], DS, $className);
 
-            // Elimina el prefijo de carpeta si ya está incluido en el nombre
-            // Ej: "Controllers\EjemploController" no debe buscar "Controllers/Controllers/EjemploController.php"
+            // Defensa contra path traversal — bloquea ".." en el nombre normalizado
+            if (str_contains($className, '..')) {
+                return;
+            }
+
+            // Búsqueda en cada directorio registrado
             foreach (self::$directories as $directory) {
 
                 $file = $directory . $className . '.php';
@@ -43,8 +58,11 @@ class AutoLoad
                 }
 
                 // Segunda búsqueda: elimina el segmento de carpeta del nombre de clase
-                // Ej: busca "Controllers/EjemploController.php" sin repetir "Controllers"
-                $classNameShort = substr($className, strrpos($className, DS) + 1);
+                // Ej: "Controllers/EjemploController" → busca "EjemploController.php"
+                $lastSep        = strrpos($className, DS);
+                $classNameShort = $lastSep !== false
+                    ? substr($className, $lastSep + 1)
+                    : $className;
                 $fileShort      = $directory . $classNameShort . '.php';
 
                 if (file_exists($fileShort)) {
