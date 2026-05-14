@@ -22,17 +22,24 @@
         .line    { border-top:1px dashed #000; margin:4px 0; }
         .doble   { border-top:2px solid #000; margin:4px 0; }
 
+        /* ── Logo ── */
+        .logo-img {
+            display: block;
+            margin: 0 auto 6px;
+            max-width: 48mm;   /* respeta el ancho del ticket 80mm */
+            max-height: 20mm;
+            object-fit: contain;
+        }
+
         /* ── Tabla de artículos ── */
         table { width:100%; border-collapse:collapse; }
         table td {
             padding: 1px 2px;
             vertical-align: top;
-            /* FIX — evitar que los números se peguen */
             white-space: nowrap;
             overflow: hidden;
         }
 
-        /* Anchos fijos para cada columna del detalle */
         .col-desc   { width:42%; white-space:normal; word-break:break-word; }
         .col-cant   { width:8%;  text-align:center; }
         .col-precio { width:22%; text-align:right; padding-right:4px; }
@@ -76,6 +83,10 @@
     <?php endif; ?>
 
     <!-- ENCABEZADO -->
+    <img src="<?= APP_URL ?>Content/Demo/img/Logo.png"
+         alt="Ana Marcol"
+         class="logo-img">
+
     <div class="logo-empresa"><?= htmlspecialchars($config['nombre_fiscal'] ?? 'ANA MARCOL MAKEUP STUDIO') ?></div>
     <div class="center">R.T.N: <?= htmlspecialchars($config['rtn'] ?? '') ?></div>
     <div class="center"><?= htmlspecialchars($config['direccion_fiscal'] ?? '') ?></div>
@@ -121,7 +132,7 @@
 
     <div class="line"></div>
 
-    <!-- DETALLE — FIX: cada columna con ancho fijo y padding entre precio y total -->
+    <!-- DETALLE -->
     <table>
         <tbody>
             <?php
@@ -181,7 +192,6 @@
     <!-- SON -->
     <?php
     function numeroALetras(float $numero): string {
-        // intval() evita el Deprecated de PHP 8.1+ al convertir float a int
         $entero   = intval($numero);
         $unidades = ['','UN','DOS','TRES','CUATRO','CINCO','SEIS','SIETE','OCHO','NUEVE',
                      'DIEZ','ONCE','DOCE','TRECE','CATORCE','QUINCE','DIECISÉIS',
