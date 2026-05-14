@@ -2,7 +2,7 @@
     <div class="row justify-content-center">
         <div class="col-12 col-md-8 col-lg-6">
 
-            <!-- Confirmación -->
+            <!-- ── Confirmación ─────────────────────────────── -->
             <div class="card shadow-sm mb-4">
                 <div class="card-body p-5 text-center">
                     <div class="mb-3" style="font-size:4rem;">🎉</div>
@@ -35,15 +35,32 @@
                 </div>
             </div>
 
-            <!-- FACTURA / RECIBO -->
+            <!-- ── FACTURA / RECIBO ─────────────────────────── -->
             <?php if ($pedido->Found && !empty($detalle) && !empty($factConfig)): ?>
+
+            <?php
+                /*
+                 * Separación fiscal:
+                 *   $subtotalFiscal  → base imponible (solo productos) — va en la factura CAI
+                 *   $costoEnvio      → servicio logístico — se muestra FUERA del cuerpo fiscal
+                 *   $totalRecibo     → lo que el cliente paga en total (referencia en el recibo)
+                 *
+                 * PedidoModel almacena subtotal, costo_envio y total correctamente;
+                 * aquí solo controlamos QUÉ entra en la sección fiscal imprimible.
+                 */
+                $subtotalFiscal = (float)$pedido->subtotal;
+                $costoEnvio     = (float)$pedido->costo_envio;
+                $totalRecibo    = (float)$pedido->total; // subtotal + envío
+            ?>
+
             <div class="card shadow-sm" id="facturaRecibo">
                 <div class="card-body p-4">
 
                     <!-- Cabecera factura -->
                     <div class="text-center mb-3 pb-3 border-bottom">
                         <img src="<?= APP_URL ?>Content/Demo/img/Logo.png"
-                             alt="Ana Marcol" style="height:40px; object-fit:contain;">
+                             alt="Ana Marcol"
+                             style="height:48px; object-fit:contain; display:block; margin:0 auto 8px;">
                         <h5 class="fw-bold mt-2 mb-0">
                             <?= htmlspecialchars($factConfig['nombre_fiscal'] ?? 'ANA MARCOL MAKEUP STUDIO') ?>
                         </h5>
@@ -96,8 +113,8 @@
                     </div>
                     <?php endif; ?>
 
-                    <!-- Detalle de productos -->
-                    <table class="table table-sm mb-3" style="font-size:0.82rem;">
+                    <!-- ── Detalle de productos (cuerpo fiscal) ── -->
+                    <table class="table table-sm mb-0" style="font-size:0.82rem;">
                         <thead>
                             <tr style="background:rgba(222,119,125,0.1);">
                                 <th>Producto</th>
@@ -127,34 +144,50 @@
                             </tr>
                             <?php endforeach; ?>
                         </tbody>
+
                         <tfoot>
-                            <tr>
-                                <td colspan="3" class="text-end text-muted">Subtotal</td>
-                                <td class="text-end">
-                                    L. <?= number_format((float)$pedido->subtotal, 2) ?>
-                                </td>
-                            </tr>
-                            <?php if ((float)$pedido->costo_envio > 0): ?>
-                            <tr>
-                                <td colspan="3" class="text-end text-muted">Envío</td>
-                                <td class="text-end">
-                                    L. <?= number_format((float)$pedido->costo_envio, 2) ?>
-                                </td>
-                            </tr>
-                            <?php endif; ?>
+                            <!-- Total fiscal: solo productos -->
                             <tr class="fw-bold">
                                 <td colspan="3" class="text-end" style="color:#de777d;">
-                                    TOTAL
+                                    TOTAL FACTURA
                                 </td>
                                 <td class="text-end" style="color:#de777d;">
-                                    L. <?= number_format((float)$pedido->total, 2) ?>
+                                    L. <?= number_format($subtotalFiscal, 2) ?>
                                 </td>
                             </tr>
                         </tfoot>
                     </table>
 
+                    <!-- ── Costo de envío — FUERA del cuerpo fiscal ── -->
+                    <?php if ($costoEnvio > 0): ?>
+                    <div class="mt-2 pt-2 border-top" style="font-size:0.82rem;">
+                        <!--
+                            El envío es un servicio logístico separado.
+                            No forma parte de la base imponible de la factura CAI.
+                        -->
+                        <div class="d-flex justify-content-between text-muted">
+                            <span>
+                                <i class="fas fa-truck me-1"></i>
+                                Servicio de envío
+                                <small class="d-block" style="font-size:0.72rem;">
+                                    (no incluido en factura)
+                                </small>
+                            </span>
+                            <span>L. <?= number_format($costoEnvio, 2) ?></span>
+                        </div>
+                        <div class="d-flex justify-content-between fw-bold pt-2 border-top mt-2"
+                             style="font-size:0.9rem;">
+                            <span>Total a pagar</span>
+                            <span style="color:#de777d;">
+                                L. <?= number_format($totalRecibo, 2) ?>
+                            </span>
+                        </div>
+                    </div>
+                    <?php endif; ?>
+
                     <!-- Pie de factura -->
-                    <div class="text-center text-muted" style="font-size:0.75rem; border-top:1px dashed #ddd; padding-top:10px;">
+                    <div class="text-center text-muted mt-3"
+                         style="font-size:0.75rem; border-top:1px dashed #ddd; padding-top:10px;">
                         <p class="mb-1">¡Gracias por tu compra!</p>
                         <p class="mb-0">
                             Este documento es un comprobante de tu pedido en línea.
