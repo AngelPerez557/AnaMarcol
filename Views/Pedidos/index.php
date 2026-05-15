@@ -1,3 +1,10 @@
+<?php
+// Defaults defensivos — la View espera variables que el Controller actual no pasa.
+// Pendiente de Sesión C2: reescribir Views/Pedidos/index.php con campos reales de pedido.
+$countHoy = $countHoy ?? 0;
+$totalHoy = $totalHoy ?? 0.0;
+$pedidos  = $pedidos  ?? [];
+?>
 <div class="container-fluid py-4">
 
     <div class="d-flex justify-content-between align-items-center mb-4">
