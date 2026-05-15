@@ -86,6 +86,9 @@
                       class="mt-4"
                       novalidate>
 
+                    <!-- F-18: CSRF token contra Login CSRF -->
+                    <?= Csrf::field() ?>
+
                     <!-- Email -->
                     <div class="form-floating-modern mb-3">
                         <div class="input-wrapper">

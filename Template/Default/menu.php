@@ -321,7 +321,7 @@ function renderMenu(array $menu): void
                 </li>
                 <li><hr class="dropdown-divider"></li>
                 <li>
-                    <a class="dropdown-item dropdown-item-logout" href="<?= APP_URL ?>Auth/logout">
+                    <a class="dropdown-item dropdown-item-logout" href="<?= APP_URL ?>Auth/logout?csrf=<?= urlencode(Csrf::token()) ?>">
                         <i class="fas fa-sign-out-alt me-2"></i>Cerrar sesión
                     </a>
                 </li>

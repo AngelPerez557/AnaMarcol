@@ -117,12 +117,18 @@ foreach ($assetsIgnorados as $asset) {
 }
 
 // ─────────────────────────────────────────────
-// 6. LOGOUT
+// 6. LOGOUT (F-09)
+//
+// Antes el logout se disparaba con cualquier request a /Auth/logout (GET),
+// vulnerable a "logout CSRF" — un <img src="/Auth/logout"> en un sitio
+// externo deslogueaba al usuario.
+//
+// Ahora se delega al AuthController::logout(), que valida un token CSRF
+// (vía ?csrf=... en GET o csrf_token=... en POST). Si el token no es válido,
+// la sesión NO se cierra y se redirige al Dashboard.
 // ─────────────────────────────────────────────
-if ($segmento === 'auth' && isset($_GET['url']) && strpos($_GET['url'], 'logout') !== false) {
-    Auth::logout();
-    exit();
-}
+// (la interceptación directa fue eliminada — el JRouter se encarga de
+//  enrutar /Auth/logout al método del controller que sí valida CSRF)
 
 // ─────────────────────────────────────────────
 // 7. CONTROL DE ACCESO

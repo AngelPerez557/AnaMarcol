@@ -56,7 +56,11 @@ class TiendaController
         $favoritosIds = [];
         if (!empty($_SESSION['cliente'])) {
             $favs = $this->favoritoModel->findByCliente((int)$_SESSION['cliente']['id']);
-            $favoritosIds = array_map(fn($f) => (int)$f->producto_id, $favs);
+            // $favs viene como arrays asociativos (FETCH_ASSOC), no objetos
+            $favoritosIds = array_map(
+                fn($f) => (int) (is_array($f) ? ($f['producto_id'] ?? 0) : ($f->producto_id ?? 0)),
+                $favs
+            );
         }
 
         $this->render('Inicio.php', compact(
@@ -83,7 +87,11 @@ class TiendaController
         $favoritosIds = [];
         if (!empty($_SESSION['cliente'])) {
             $favs = $this->favoritoModel->findByCliente((int)$_SESSION['cliente']['id']);
-            $favoritosIds = array_map(fn($f) => (int)$f->producto_id, $favs);
+            // $favs viene como arrays asociativos (FETCH_ASSOC), no objetos
+            $favoritosIds = array_map(
+                fn($f) => (int) (is_array($f) ? ($f['producto_id'] ?? 0) : ($f->producto_id ?? 0)),
+                $favs
+            );
         }
 
         $this->render('Catalogo.php', compact(
@@ -531,6 +539,14 @@ class TiendaController
 
     public function logout(): void
     {
+        // F-09 — Logout requiere CSRF token (via ?csrf=... en GET o POST).
+        // Sin token, no se cierra sesión (previene logout CSRF).
+        $token = $_GET['csrf'] ?? $_POST['csrf_token'] ?? '';
+        if (!Csrf::validate($token)) {
+            header('Location: ' . APP_URL . 'Tienda/index');
+            exit();
+        }
+
         unset($_SESSION['cliente']);
         header('Location: ' . APP_URL . 'Tienda/index');
         exit();

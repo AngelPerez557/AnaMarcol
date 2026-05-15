@@ -444,7 +444,7 @@
                             <li><a class="dropdown-item" href="<?= APP_URL ?>Tienda/misCitas"><i class="fas fa-calendar me-2"></i>Mis citas</a></li>
                             <li><a class="dropdown-item" href="<?= APP_URL ?>Tienda/misFavoritos"><i class="fas fa-heart me-2" style="color:#de777d;"></i>Mis favoritos</a></li>
                             <li><hr class="dropdown-divider"></li>
-                            <li><a class="dropdown-item text-danger" href="<?= APP_URL ?>Tienda/logout"><i class="fas fa-sign-out-alt me-2"></i>Cerrar sesión</a></li>
+                            <li><a class="dropdown-item text-danger" href="<?= APP_URL ?>Tienda/logout?csrf=<?= urlencode(Csrf::token()) ?>"><i class="fas fa-sign-out-alt me-2"></i>Cerrar sesión</a></li>
                         </ul>
                     </div>
                     <?php else: ?>
