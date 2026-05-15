@@ -318,9 +318,83 @@
                 display: none !important;
             }
         }
+
+        /* ── F-39 Banner WebView (Instagram, Facebook, etc.) ── */
+        .webview-banner {
+            background: #fff8e6;
+            color: #6b4d00;
+            border-bottom: 1px solid #f0d779;
+            padding: 10px 14px;
+            font-size: 0.85rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            line-height: 1.35;
+        }
+        .webview-banner i.fa-info-circle { color: #d49e00; flex-shrink: 0; }
+        .webview-banner .wb-action {
+            background: var(--rosa);
+            color: #fff;
+            padding: 5px 12px;
+            border-radius: 16px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 0.78rem;
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+        .webview-banner .wb-action:hover { background: var(--rosa-hover); color: #fff; }
+        .webview-banner .wb-close {
+            background: transparent;
+            border: none;
+            color: #6b4d00;
+            cursor: pointer;
+            padding: 2px 6px;
+            flex-shrink: 0;
+        }
+        .webview-banner .wb-text { flex: 1; min-width: 0; }
+        @media (max-width: 480px) {
+            .webview-banner { font-size: 0.78rem; padding: 8px 10px; gap: 6px; }
+            .webview-banner .wb-action { font-size: 0.72rem; padding: 4px 10px; }
+        }
     </style>
 </head>
 <body>
+
+    <?php
+    // F-39 — Banner solo si entra desde Instagram / Facebook / TikTok / etc.
+    // No bloquea la navegación, solo sugiere abrir en navegador real.
+    if (class_exists('WebViewDetector') && WebViewDetector::isInAppBrowser()):
+        $urlExterna = WebViewDetector::openInBrowserUrl(APP_URL . 'Tienda');
+        $instruccion = WebViewDetector::instruccion();
+        $appNombre   = WebViewDetector::isInstagram() ? 'Instagram' : 'la app';
+    ?>
+    <div class="webview-banner" id="webviewBanner">
+        <i class="fas fa-info-circle"></i>
+        <div class="wb-text">
+            Para una mejor experiencia (especialmente al iniciar sesión o pagar),
+            abrí esta tienda en tu navegador. <?= htmlspecialchars($instruccion) ?>
+        </div>
+        <a href="<?= htmlspecialchars($urlExterna) ?>" class="wb-action"
+           target="_blank" rel="noopener noreferrer">Abrir</a>
+        <button type="button" class="wb-close" id="webviewBannerClose"
+                aria-label="Cerrar banner">×</button>
+    </div>
+    <script>
+        // Cierra el banner y recuerda la decisión por esta sesión
+        document.addEventListener('DOMContentLoaded', function () {
+            const banner = document.getElementById('webviewBanner');
+            const closeBtn = document.getElementById('webviewBannerClose');
+            if (sessionStorage.getItem('webview_banner_cerrado') === '1') {
+                banner.style.display = 'none';
+            }
+            closeBtn.addEventListener('click', function () {
+                banner.style.display = 'none';
+                sessionStorage.setItem('webview_banner_cerrado', '1');
+            });
+        });
+    </script>
+    <?php endif; ?>
 
     <!-- ─── NAVBAR ─────────────────────────────────── -->
     <nav class="tienda-navbar">

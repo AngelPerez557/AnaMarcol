@@ -44,7 +44,7 @@ class ZonasController
 
         Auth::require('zonas.gestionar');
 
-        if (!isset($_POST['csrf_token']) || $_SESSION['csrf_token'] !== $_POST['csrf_token']) {
+        if (!Csrf::validate()) {
             $_SESSION['alert'] = ['icon'=>'error','title'=>'Error de seguridad','text'=>'Token inválido.'];
             header('Location: ' . APP_URL . 'Zonas/index');
             exit();
@@ -77,7 +77,7 @@ class ZonasController
     {
         Auth::require('zonas.gestionar');
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') { http_response_code(405); exit(); }
-        if (!isset($_POST['csrf_token']) || $_SESSION['csrf_token'] !== $_POST['csrf_token']) { http_response_code(403); exit(); }
+        Csrf::validateOrFail();
         $ok = $this->model->toggleActivo((int)($_POST['id']??0), (int)($_POST['activo']??0));
         header('Content-Type: application/json');
         echo json_encode(['success'=>$ok]);
@@ -88,7 +88,7 @@ class ZonasController
     {
         Auth::require('zonas.gestionar');
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') { http_response_code(405); exit(); }
-        if (!isset($_POST['csrf_token']) || $_SESSION['csrf_token'] !== $_POST['csrf_token']) { http_response_code(403); exit(); }
+        Csrf::validateOrFail();
         $ok = $this->model->delete((int)($_POST['id']??0));
         $_SESSION['alert'] = ['icon'=>$ok?'success':'error','title'=>$ok?'Eliminado':'Error',
             'text'=>$ok?'Zona eliminada.':'Error al eliminar.'];

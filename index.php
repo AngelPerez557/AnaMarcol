@@ -8,11 +8,46 @@
 
 // ─────────────────────────────────────────────
 // 1. HEADERS DE SEGURIDAD HTTP
+//
+// F-10: Content-Security-Policy — segunda línea de defensa contra XSS
+// F-11: X-XSS-Protection removido (deprecated, ignorado por navegadores modernos)
+// F-12: Strict-Transport-Security solo cuando hay HTTPS real
 // ─────────────────────────────────────────────
 header('X-Content-Type-Options: nosniff');
 header('X-Frame-Options: SAMEORIGIN');
-header('X-XSS-Protection: 1; mode=block');
 header('Referrer-Policy: strict-origin-when-cross-origin');
+header('Permissions-Policy: geolocation=(), microphone=(), camera=(), payment=()');
+
+// ── F-12: HSTS — solo si la request real entra por HTTPS ─────
+// Cuando el sistema se sirva por HTTPS detrás de un proxy, descomentar
+// la línea de proxy y ajustar según infraestructura (X-Forwarded-Proto).
+$esHttps = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off')
+        || (($_SERVER['HTTP_X_FORWARDED_PROTO'] ?? '') === 'https');
+if ($esHttps) {
+    // max-age 1 año + incluir subdominios. NO preload — eso requiere
+    // submission manual en https://hstspreload.org y es irreversible.
+    header('Strict-Transport-Security: max-age=31536000; includeSubDomains');
+}
+
+// ── F-10: Content-Security-Policy ───────────────────────────────
+// Política estricta pero compatible con el stack actual:
+//   - 'self' para todo lo propio
+//   - cdn.jsdelivr.net y cdnjs.cloudflare.com (Bootstrap, FontAwesome, SweetAlert)
+//   - 'unsafe-inline' en script-src/style-src — necesario para los <style>
+//     y <script> inline que tiene el template actual. Cuando se migre todo a
+//     archivos externos, esta directiva debe removerse.
+//   - frame-ancestors 'self' refuerza X-Frame-Options
+$csp = "default-src 'self'; "
+     . "script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com; "
+     . "style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com; "
+     . "img-src 'self' data: https:; "
+     . "font-src 'self' https://cdnjs.cloudflare.com data:; "
+     . "connect-src 'self'; "
+     . "frame-ancestors 'self'; "
+     . "form-action 'self'; "
+     . "base-uri 'self'; "
+     . "object-src 'none'";
+header('Content-Security-Policy: ' . $csp);
 
 // ─────────────────────────────────────────────
 // 2. CORE

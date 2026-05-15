@@ -51,7 +51,7 @@ class ServiciosController
 
         Auth::require($esEdicion ? 'servicios.editar' : 'servicios.crear');
 
-        if (!isset($_POST['csrf_token']) || $_SESSION['csrf_token'] !== $_POST['csrf_token']) {
+        if (!Csrf::validate()) {
             $_SESSION['alert'] = ['icon'=>'error','title'=>'Error de seguridad','text'=>'Token inválido.'];
             header('Location: ' . APP_URL . 'Servicios/index');
             exit();
@@ -90,7 +90,7 @@ class ServiciosController
     {
         Auth::require('servicios.editar');
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') { http_response_code(405); exit(); }
-        if (!isset($_POST['csrf_token']) || $_SESSION['csrf_token'] !== $_POST['csrf_token']) { http_response_code(403); exit(); }
+        Csrf::validateOrFail();
 
         $id = (int)($_POST['id']??0); $activo = (int)($_POST['activo']??0);
         $ok = $this->servicioModel->toggleActivo($id, $activo);
@@ -103,7 +103,7 @@ class ServiciosController
     {
         Auth::require('servicios.eliminar');
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') { http_response_code(405); exit(); }
-        if (!isset($_POST['csrf_token']) || $_SESSION['csrf_token'] !== $_POST['csrf_token']) { http_response_code(403); exit(); }
+        Csrf::validateOrFail();
 
         $id = (int)($_POST['id']??0);
         $ok = $this->servicioModel->delete($id);

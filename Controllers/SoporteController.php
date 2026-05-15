@@ -113,7 +113,7 @@ class SoporteController
             exit();
         }
 
-        if (!isset($_POST['csrf_token']) || $_SESSION['csrf_token'] !== $_POST['csrf_token']) {
+        if (!Csrf::validate()) {
             echo json_encode(['success' => false, 'message' => 'Token inválido.']);
             exit();
         }

@@ -44,7 +44,7 @@ class BannersController
 
         Auth::require('banners.gestionar');
 
-        if (!isset($_POST['csrf_token']) || $_SESSION['csrf_token'] !== $_POST['csrf_token']) {
+        if (!Csrf::validate()) {
             $_SESSION['alert'] = ['icon'=>'error','title'=>'Error de seguridad','text'=>'Token inválido.'];
             header('Location: ' . APP_URL . 'Banners/index');
             exit();
@@ -106,7 +106,7 @@ class BannersController
             exit();
         }
 
-        if (!isset($_POST['csrf_token']) || $_SESSION['csrf_token'] !== $_POST['csrf_token']) {
+        if (!Csrf::validate()) {
             http_response_code(403);
             echo json_encode(['success' => false, 'message' => 'Token inválido.']);
             exit();
@@ -133,7 +133,7 @@ class BannersController
             exit();
         }
 
-        if (!isset($_POST['csrf_token']) || $_SESSION['csrf_token'] !== $_POST['csrf_token']) {
+        if (!Csrf::validate()) {
             $_SESSION['alert'] = ['icon'=>'error','title'=>'Token inválido','text'=>'Error de seguridad.'];
             header('Location: ' . APP_URL . 'Banners/index');
             exit();

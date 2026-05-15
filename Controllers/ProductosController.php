@@ -86,7 +86,7 @@ class ProductosController
         Auth::require($esEdicion ? 'productos.editar' : 'productos.crear');
 
         // Validar CSRF
-        if (!isset($_POST['csrf_token']) || $_SESSION['csrf_token'] !== $_POST['csrf_token']) {
+        if (!Csrf::validate()) {
             $_SESSION['alert'] = [
                 'icon'  => 'error',
                 'title' => 'Error de seguridad',
@@ -191,7 +191,7 @@ class ProductosController
         }
 
         // Validar CSRF
-        if (!isset($_POST['csrf_token']) || $_SESSION['csrf_token'] !== $_POST['csrf_token']) {
+        if (!Csrf::validate()) {
             http_response_code(403);
             exit();
         }
@@ -220,7 +220,7 @@ class ProductosController
         }
 
         // Validar CSRF
-        if (!isset($_POST['csrf_token']) || $_SESSION['csrf_token'] !== $_POST['csrf_token']) {
+        if (!Csrf::validate()) {
             http_response_code(403);
             exit();
         }
@@ -251,7 +251,7 @@ class ProductosController
             exit();
         }
 
-        if (!isset($_POST['csrf_token']) || $_SESSION['csrf_token'] !== $_POST['csrf_token']) {
+        if (!Csrf::validate()) {
             http_response_code(403);
             exit();
         }
@@ -326,7 +326,7 @@ class ProductosController
             exit();
         }
 
-        if (!isset($_POST['csrf_token']) || $_SESSION['csrf_token'] !== $_POST['csrf_token']) {
+        if (!Csrf::validate()) {
             http_response_code(403);
             exit();
         }
@@ -391,7 +391,7 @@ class ProductosController
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
             http_response_code(405); exit();
         }
-        if (!isset($_POST['csrf_token']) || $_SESSION['csrf_token'] !== $_POST['csrf_token']) {
+        if (!Csrf::validate()) {
             http_response_code(403); exit();
         }
 

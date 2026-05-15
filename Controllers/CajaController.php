@@ -81,7 +81,7 @@ class CajaController
             exit();
         }
 
-        if (!isset($_POST['csrf_token']) || $_SESSION['csrf_token'] !== $_POST['csrf_token']) {
+        if (!Csrf::validate()) {
             http_response_code(403);
             echo json_encode(['success' => false, 'message' => 'Token inválido.']);
             exit();
@@ -152,7 +152,7 @@ class CajaController
             exit();
         }
 
-        if (!isset($_POST['csrf_token']) || $_SESSION['csrf_token'] !== $_POST['csrf_token']) {
+        if (!Csrf::validate()) {
             http_response_code(403);
             echo json_encode(['success' => false, 'message' => 'Token inválido.']);
             exit();
@@ -299,7 +299,7 @@ class CajaController
     {
         Auth::require('ventas.crear');
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') { http_response_code(405); exit(); }
-        if (!isset($_POST['csrf_token']) || $_SESSION['csrf_token'] !== $_POST['csrf_token']) {
+        if (!Csrf::validate()) {
             header('Content-Type: application/json');
             echo json_encode(['success'=>false,'message'=>'Token inválido.']);
             exit();

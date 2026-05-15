@@ -79,7 +79,7 @@ class UsuariosController
         Auth::require($esEdicion ? 'usuarios.editar' : 'usuarios.crear');
 
         // Validar CSRF
-        if (!isset($_POST['csrf_token']) || $_SESSION['csrf_token'] !== $_POST['csrf_token']) {
+        if (!Csrf::validate()) {
             $_SESSION['alert'] = [
                 'icon'  => 'error',
                 'title' => 'Error de seguridad',
@@ -225,7 +225,7 @@ class UsuariosController
             exit();
         }
 
-        if (!isset($_POST['csrf_token']) || $_SESSION['csrf_token'] !== $_POST['csrf_token']) {
+        if (!Csrf::validate()) {
             http_response_code(403);
             exit();
         }
@@ -263,7 +263,7 @@ class UsuariosController
             exit();
         }
 
-        if (!isset($_POST['csrf_token']) || $_SESSION['csrf_token'] !== $_POST['csrf_token']) {
+        if (!Csrf::validate()) {
             http_response_code(403);
             exit();
         }
@@ -302,8 +302,7 @@ class UsuariosController
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
             http_response_code(405); exit();
         }
-        if (!isset($_POST['csrf_token']) ||
-            $_SESSION['csrf_token'] !== $_POST['csrf_token']) {
+        if (!Csrf::validate()) {
             http_response_code(403); exit();
         }
 
@@ -327,8 +326,7 @@ class UsuariosController
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
             http_response_code(405); exit();
         }
-        if (!isset($_POST['csrf_token']) ||
-            $_SESSION['csrf_token'] !== $_POST['csrf_token']) {
+        if (!Csrf::validate()) {
             http_response_code(403); exit();
         }
 
@@ -398,7 +396,7 @@ class UsuariosController
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
             header('Location: ' . APP_URL . 'Usuarios/perfil'); exit();
         }
-        if (!isset($_POST['csrf_token']) || $_SESSION['csrf_token'] !== $_POST['csrf_token']) {
+        if (!Csrf::validate()) {
             header('Location: ' . APP_URL . 'Usuarios/perfil'); exit();
         }
 
@@ -489,7 +487,7 @@ class UsuariosController
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
             header('Location: ' . APP_URL . 'Usuarios/perfil'); exit();
         }
-        if (!isset($_POST['csrf_token']) || $_SESSION['csrf_token'] !== $_POST['csrf_token']) {
+        if (!Csrf::validate()) {
             header('Location: ' . APP_URL . 'Usuarios/perfil'); exit();
         }
 

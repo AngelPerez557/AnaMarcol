@@ -127,7 +127,7 @@ class CitasController
 
         Auth::require($esEdicion ? 'citas.editar' : 'citas.crear');
 
-        if (!isset($_POST['csrf_token']) || $_SESSION['csrf_token'] !== $_POST['csrf_token']) {
+        if (!Csrf::validate()) {
             $_SESSION['alert'] = ['icon'=>'error','title'=>'Error de seguridad','text'=>'Token inválido.'];
             header('Location: ' . APP_URL . 'Citas/index'); exit();
         }
@@ -203,7 +203,7 @@ class CitasController
     {
         Auth::require('citas.editar');
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') { http_response_code(405); exit(); }
-        if (!isset($_POST['csrf_token']) || $_SESSION['csrf_token'] !== $_POST['csrf_token']) { http_response_code(403); exit(); }
+        Csrf::validateOrFail();
 
         $id     = (int) ($_POST['id']     ?? 0);
         $estado = htmlspecialchars(strip_tags(trim($_POST['estado'] ?? '')));
@@ -226,7 +226,7 @@ class CitasController
     {
         Auth::require('citas.eliminar');
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') { http_response_code(405); exit(); }
-        if (!isset($_POST['csrf_token']) || $_SESSION['csrf_token'] !== $_POST['csrf_token']) { http_response_code(403); exit(); }
+        Csrf::validateOrFail();
 
         $id = (int) ($_POST['id'] ?? 0);
         $ok = $this->citaModel->delete($id);
@@ -253,7 +253,7 @@ class CitasController
     {
         Auth::require('citas.editar');
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') { header('Location: ' . APP_URL . 'Citas/config'); exit(); }
-        if (!isset($_POST['csrf_token']) || $_SESSION['csrf_token'] !== $_POST['csrf_token']) {
+        if (!Csrf::validate()) {
             $_SESSION['alert'] = ['icon'=>'error','title'=>'Error de seguridad','text'=>'Token inválido.'];
             header('Location: ' . APP_URL . 'Citas/config'); exit();
         }

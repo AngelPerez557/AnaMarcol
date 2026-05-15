@@ -718,7 +718,7 @@ public function cambiarPassword(): void
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
             http_response_code(405); exit();
         }
-        if (!isset($_POST['csrf_token']) || $_SESSION['csrf_token'] !== $_POST['csrf_token']) {
+        if (!Csrf::validate()) {
             http_response_code(403); exit();
         }
 
