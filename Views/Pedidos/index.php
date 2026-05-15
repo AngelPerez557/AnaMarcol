@@ -7,7 +7,7 @@
                 <?= htmlspecialchars($pageTitle) ?>
             </h4>
             <small class="text-muted">
-                <?= count($ventas) ?> venta<?= count($ventas) !== 1 ? 's' : '' ?> registrada<?= count($ventas) !== 1 ? 's' : '' ?>
+                <?= count($pedidos) ?> venta<?= count($pedidos) !== 1 ? 's' : '' ?> registrada<?= count($pedidos) !== 1 ? 's' : '' ?>
             </small>
         </div>
         <a href="<?= APP_URL ?>Caja/index" class="btn btn-primary btn-sm">
@@ -76,7 +76,7 @@
                     </select>
                 </div>
                 <div class="col-6 col-md-2 d-flex align-items-center justify-content-end gap-2">
-                    <small class="text-muted" id="contadorVisible"><?= count($ventas) ?></small>
+                    <small class="text-muted" id="contadorVisible"><?= count($pedidos) ?></small>
                     <select class="form-select form-select-sm" id="porPagina" style="width:auto;">
                         <option value="15">15</option>
                         <option value="25" selected>25</option>
@@ -104,40 +104,40 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <?php if (empty($ventas)): ?>
+                        <?php if (empty($pedidos)): ?>
                         <tr><td colspan="7" class="text-center py-5 text-muted">
                             <i class="fas fa-history fa-2x mb-3 d-block" style="color:#de777d;opacity:0.4;"></i>
                             No hay ventas registradas.
                         </td></tr>
                         <?php else: ?>
-                        <?php foreach ($ventas as $venta): ?>
+                        <?php foreach ($pedidos as $pedido): ?>
                         <tr class="venta-row"
-                            data-cliente="<?= strtolower(htmlspecialchars($venta['cliente_nombre'] ?? 'consumidor final')) ?>"
-                            data-cajero="<?= strtolower(htmlspecialchars($venta['cajero_nombre'] ?? '')) ?>"
-                            data-metodo="<?= htmlspecialchars($venta['metodo_pago'] ?? '') ?>"
-                            data-fecha="<?= date('Y-m-d', strtotime($venta['created_at'])) ?>"
-                            data-anulada="<?= (int)($venta['anulada'] ?? 0) ?>">
+                            data-cliente="<?= strtolower(htmlspecialchars($pedido['cliente_nombre'] ?? 'consumidor final')) ?>"
+                            data-cajero="<?= strtolower(htmlspecialchars($pedido['cajero_nombre'] ?? '')) ?>"
+                            data-metodo="<?= htmlspecialchars($pedido['metodo_pago'] ?? '') ?>"
+                            data-fecha="<?= date('Y-m-d', strtotime($pedido['created_at'])) ?>"
+                            data-anulada="<?= (int)($pedido['anulada'] ?? 0) ?>">
                             <td class="ps-4">
-                                <span class="fw-bold" style="color:#de777d;">#<?= str_pad($venta['id'], 8, '0', STR_PAD_LEFT) ?></span>
-                                <?php if ((int)($venta['anulada'] ?? 0)): ?>
+                                <span class="fw-bold" style="color:#de777d;">#<?= str_pad($pedido['id'], 8, '0', STR_PAD_LEFT) ?></span>
+                                <?php if ((int)($pedido['anulada'] ?? 0)): ?>
                                 <span class="badge bg-danger ms-1" style="font-size:0.65rem;">ANULADA</span>
                                 <?php endif; ?>
                             </td>
-                            <td class="text-muted" style="font-size:0.85rem;"><?= date('d/m/Y H:i', strtotime($venta['created_at'])) ?></td>
-                            <td><div class="fw-semibold"><?= htmlspecialchars($venta['cliente_nombre'] ?? 'Consumidor final') ?></div></td>
-                            <td class="text-muted"><?= htmlspecialchars($venta['cajero_nombre'] ?? '—') ?></td>
+                            <td class="text-muted" style="font-size:0.85rem;"><?= date('d/m/Y H:i', strtotime($pedido['created_at'])) ?></td>
+                            <td><div class="fw-semibold"><?= htmlspecialchars($pedido['cliente_nombre'] ?? 'Consumidor final') ?></div></td>
+                            <td class="text-muted"><?= htmlspecialchars($pedido['cajero_nombre'] ?? '—') ?></td>
                             <td>
                                 <?php $iconos = ['Efectivo'=>'fa-money-bill-wave text-success','Tarjeta'=>'fa-credit-card text-primary','Transferencia'=>'fa-mobile-alt text-info']; ?>
                                 <span class="badge bg-light text-dark border">
-                                    <i class="fas <?= $iconos[$venta['metodo_pago']] ?? 'fa-circle' ?> me-1"></i>
-                                    <?= htmlspecialchars($venta['metodo_pago'] ?? '—') ?>
+                                    <i class="fas <?= $iconos[$pedido['metodo_pago']] ?? 'fa-circle' ?> me-1"></i>
+                                    <?= htmlspecialchars($pedido['metodo_pago'] ?? '—') ?>
                                 </span>
                             </td>
-                            <td class="text-end fw-bold" style="color:#de777d;">L. <?= number_format((float)$venta['total'], 2) ?></td>
+                            <td class="text-end fw-bold" style="color:#de777d;">L. <?= number_format((float)$pedido['total'], 2) ?></td>
                             <td class="text-center">
                                 <div class="d-flex gap-2 justify-content-center">
-                                    <a href="<?= APP_URL ?>Ventas/detalle/<?= $venta['id'] ?>" class="btn btn-sm btn-outline-primary" title="Ver detalle"><i class="fas fa-eye"></i></a>
-                                    <a href="<?= APP_URL ?>Caja/recibo/<?= $venta['id'] ?>" target="_blank" class="btn btn-sm btn-outline-secondary" title="Imprimir"><i class="fas fa-print"></i></a>
+                                    <a href="<?= APP_URL ?>Ventas/detalle/<?= $pedido['id'] ?>" class="btn btn-sm btn-outline-primary" title="Ver detalle"><i class="fas fa-eye"></i></a>
+                                    <a href="<?= APP_URL ?>Caja/recibo/<?= $pedido['id'] ?>" target="_blank" class="btn btn-sm btn-outline-secondary" title="Imprimir"><i class="fas fa-print"></i></a>
                                 </div>
                             </td>
                         </tr>
