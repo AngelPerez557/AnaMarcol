@@ -237,13 +237,14 @@
 
 </div><!-- /.container-fluid -->
 
-<!-- ═══ TOUR DASHBOARD ═══════════════════════════ -->
+<!-- ═══ TOUR DASHBOARD ═══════════════════════════
+     El tour viejo fue reemplazado por el sistema unificado
+     multi-página en Content/Dist/js/am-tour.js.
+     Esta View ya no define un tour propio.
+═════════════════════════════════════════════════ -->
 <script>
-document.addEventListener('DOMContentLoaded', function () {
-    if (AM_TOUR_COMPLETADO) return;
-    if (typeof window.driver === 'undefined' &&
-        !(window.driver && window.driver.js)) return;
-
+// Tour viejo desactivado — usar window.amTourIniciar() para iniciar el nuevo.
+if (false) {
     const t = amDriver([
         {
             popover: {
@@ -318,5 +319,5 @@ document.addEventListener('DOMContentLoaded', function () {
     ]);
 
     if (t) t.drive();
-});
+}
 </script>

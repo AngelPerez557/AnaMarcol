@@ -309,7 +309,8 @@ function renderMenu(array $menu): void
                 </li>
                 <li><hr class="dropdown-divider"></li>
                 <li>
-                    <button class="dropdown-item" type="button" onclick="amActivarTour()"
+                    <button class="dropdown-item" type="button"
+                            onclick="if (typeof window.amTourIniciar === 'function') { window.amTourIniciar(); } else if (typeof amActivarTour === 'function') { amActivarTour(); }"
                             style="border:none; background:none; cursor:pointer; text-align:left;">
                         <i class="fas fa-graduation-cap me-2" style="color:#F06292;"></i>Repetir tour
                     </button>

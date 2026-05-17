@@ -90,6 +90,8 @@
     <script src="<?= APP_URL ?>Content/Dist/js/sidebar.js"></script>
     <!-- ── Dark mode toggle ── -->
     <script src="<?= APP_URL ?>Content/Dist/js/theme-switcher.js"></script>
+    <!-- ── Tour guiado multi-página (Ana Marcol 2026) ── -->
+    <script src="<?= APP_URL ?>Content/Dist/js/am-tour.js"></script>
 
     <?php if (!empty($extraJs)): ?>
         <?php foreach ($extraJs as $js): ?>

@@ -890,31 +890,6 @@ document.addEventListener('DOMContentLoaded', function () {
 });
 </script>
 
-<script>
-document.addEventListener('DOMContentLoaded', function () {
-    if (AM_TOUR_COMPLETADO) return;
-    if (!document.getElementById('tour-buscador-caja')) return;
-    if (typeof window.driver === 'undefined') return;
-
-    const { driver } = window.driver.js ?? window;
-
-    setTimeout(() => {
-        const tourCaja = driver({
-            showProgress: true,
-            popoverClass: 'am-driver-popover',
-            nextBtnText:  'Siguiente →',
-            prevBtnText:  '← Atrás',
-            doneBtnText:  '¡Entendido! ✓',
-            steps: [
-                { popover: { title: '💰 Caja — Punto de Venta', description: `Hola <strong>${AM_USER_NOMBRE}</strong>, este es el módulo de ventas presenciales. Te explico cómo registrar una venta paso a paso.` } },
-                { element: '#tour-buscador-caja', popover: { title: '🔍 Buscar producto', description: 'Escribe el nombre del producto para buscarlo en tiempo real, o acerca el escáner de código de barras para agregarlo automáticamente.', side: 'bottom' } },
-                { element: '#tour-grid-caja', popover: { title: '🛍️ Catálogo de productos', description: 'Haz clic en cualquier producto para agregarlo al carrito. Si tiene variantes el sistema te pedirá que elijas una.', side: 'top' } },
-                { element: '#tour-carrito-caja', popover: { title: '🛒 Carrito de venta', description: 'Aquí aparecen los productos seleccionados con sus precios. Si hay un descuento activo se aplica automáticamente.', side: 'left' } },
-                { element: '#tour-metodo-pago', popover: { title: '💳 Método de pago', description: 'Selecciona cómo paga el cliente: Efectivo, Tarjeta o Transferencia.', side: 'top' } },
-                { element: '#tour-btn-cobrar', popover: { title: '✅ Cobrar y generar recibo', description: 'Pulsa Cobrar para registrar la venta y generar el recibo.', side: 'top' } }
-            ]
-        });
-        tourCaja.drive();
-    }, 800);
-});
-</script>
+<!-- Tour viejo de Caja desactivado.
+     Ahora gestionado por el sistema unificado en Content/Dist/js/am-tour.js
+     que incluye los pasos de Caja como parte del flujo completo. -->
