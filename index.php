@@ -16,7 +16,9 @@
 header('X-Content-Type-Options: nosniff');
 header('X-Frame-Options: SAMEORIGIN');
 header('Referrer-Policy: strict-origin-when-cross-origin');
-header('Permissions-Policy: geolocation=(), microphone=(), camera=(), payment=()');
+// Permite cámara en mismo origen (necesario para scanner código de barras),
+// el resto bloqueado por seguridad.
+header('Permissions-Policy: geolocation=(), microphone=(), camera=(self), payment=()');
 
 // ── F-12: HSTS — solo si la request real entra por HTTPS ─────
 // Cuando el sistema se sirva por HTTPS detrás de un proxy, descomentar
@@ -40,9 +42,13 @@ if ($esHttps) {
 $csp = "default-src 'self'; "
      . "script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com; "
      . "style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com; "
-     . "img-src 'self' data: https:; "
+     . "img-src 'self' data: https: blob:; "
      . "font-src 'self' https://cdnjs.cloudflare.com data:; "
      . "connect-src 'self' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com; "
+     // media-src + worker-src — necesarios para el scanner de código de barras
+     // (getUserMedia genera blobs y html5-qrcode usa Web Workers internos)
+     . "media-src 'self' blob: mediastream:; "
+     . "worker-src 'self' blob:; "
      . "frame-ancestors 'self'; "
      . "form-action 'self'; "
      . "base-uri 'self'; "

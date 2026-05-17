@@ -56,6 +56,13 @@
                                        class="form-control border-start-0"
                                        id="buscarProducto"
                                        placeholder="Buscar producto o escanear código...">
+                                <!-- Scanner cámara para caja -->
+                                <button type="button"
+                                        class="btn btn-outline-primary"
+                                        onclick="window.amBarcodeScanner && window.amBarcodeScanner.open(document.getElementById('buscarProducto'))"
+                                        title="Escanear con la cámara">
+                                    <i class="fas fa-camera"></i>
+                                </button>
                             </div>
                         </div>
                         <div class="col-6 col-md-3">

@@ -172,9 +172,17 @@
                                            placeholder="Escanear o ingresar manualmente..."
                                            maxlength="100"
                                            value="<?= htmlspecialchars($producto->codigo_barras ?? '') ?>">
+                                    <!-- Botón scanner con cámara -->
+                                    <button type="button"
+                                            class="btn btn-outline-primary"
+                                            onclick="window.amBarcodeScanner && window.amBarcodeScanner.open(document.getElementById('codigo_barras'))"
+                                            title="Escanear con la cámara">
+                                        <i class="fas fa-camera"></i>
+                                        <span class="d-none d-md-inline ms-1">Escanear</span>
+                                    </button>
                                 </div>
                                 <small class="text-muted">
-                                    Coloca el cursor aquí y escanea el código del empaque
+                                    Conectá un lector USB, o usá el botón <i class="fas fa-camera"></i> para escanear con la cámara del dispositivo.
                                 </small>
                             </div>
                         </div>
@@ -337,6 +345,12 @@
                                        name="codigo_barras"
                                        placeholder="Escanear o ingresar manualmente..."
                                        maxlength="100">
+                                <button type="button"
+                                        class="btn btn-outline-primary"
+                                        onclick="window.amBarcodeScanner && window.amBarcodeScanner.open(document.getElementById('varBarras'))"
+                                        title="Escanear con la cámara">
+                                    <i class="fas fa-camera"></i>
+                                </button>
                             </div>
                         </div>
 

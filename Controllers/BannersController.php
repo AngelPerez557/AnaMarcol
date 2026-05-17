@@ -152,23 +152,8 @@ class BannersController
 
     private function subirImagen(array $file): ?string
     {
-        if ($file['error'] !== UPLOAD_ERR_OK) return null;
-        $ext = strtolower(pathinfo($file['name'], PATHINFO_EXTENSION));
-        if (!in_array($ext, ['jpg','jpeg','png','webp'], true)) return null;
-        if ($file['size'] > 10 * 1024 * 1024) return null;
-
-        if (function_exists('finfo_open')) {
-            $finfo = finfo_open(FILEINFO_MIME_TYPE);
-            $mime  = finfo_file($finfo, $file['tmp_name']);
-            finfo_close($finfo);
-            if (!in_array($mime, ['image/jpeg','image/png','image/webp'], true)) return null;
-        }
-
         $destino = BANNER_IMAGE_UPLOAD_DIR;
         if (!is_dir($destino)) mkdir($destino, 0755, true);
-
-        $nombre = uniqid('banner_', true) . '.' . $ext;
-        if (!move_uploaded_file($file['tmp_name'], $destino . $nombre)) return null;
-        return $nombre;
+        return ImageOptimizer::process($file, $destino, 'banner_');
     }
 }

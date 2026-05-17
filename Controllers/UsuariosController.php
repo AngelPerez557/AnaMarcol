@@ -347,31 +347,9 @@ class UsuariosController
     private function subirFoto(array $file): ?string
     {
         $extensionesPermitidas = ['jpg', 'jpeg', 'png', 'webp'];
-        $maxSize               = 2 * 1024 * 1024;
-
-        $extension = strtolower(pathinfo($file['name'], PATHINFO_EXTENSION));
-
-        if (!in_array($extension, $extensionesPermitidas, true)) return null;
-        if ($file['size'] > $maxSize) return null;
-        if ($file['error'] !== UPLOAD_ERR_OK) return null;
-
-        $finfo = finfo_open(FILEINFO_MIME_TYPE);
-        $mime  = finfo_file($finfo, $file['tmp_name']);
-        finfo_close($finfo);
-
-        $mimesPermitidos = ['image/jpeg', 'image/png', 'image/webp'];
-        if (!in_array($mime, $mimesPermitidos, true)) return null;
-
-        // Crear carpeta si no existe
         $destino = ROOT . 'Content' . DS . 'Demo' . DS . 'img' . DS . 'Usuarios' . DS;
         if (!is_dir($destino)) mkdir($destino, 0755, true);
-
-        $nombreArchivo = uniqid('usr_', true) . '.' . $extension;
-        $rutaCompleta  = $destino . $nombreArchivo;
-
-        if (!move_uploaded_file($file['tmp_name'], $rutaCompleta)) return null;
-
-        return $nombreArchivo;
+        return ImageOptimizer::process($file, $destino, 'usr_');
     }
     // ─────────────────────────────────────────────
     // PERFIL — ver perfil propio

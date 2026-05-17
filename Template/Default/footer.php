@@ -93,6 +93,10 @@
     <!-- ── Tour guiado multi-página (Ana Marcol 2026) ── -->
     <script src="<?= APP_URL ?>Content/Dist/js/am-tour.js"></script>
 
+    <!-- ── Scanner de código de barras con cámara ── -->
+    <script src="https://cdn.jsdelivr.net/npm/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+    <script src="<?= APP_URL ?>Content/Dist/js/am-barcode-scanner.js"></script>
+
     <?php if (!empty($extraJs)): ?>
         <?php foreach ($extraJs as $js): ?>
             <script src="<?= APP_URL . htmlspecialchars($js) ?>"></script>
