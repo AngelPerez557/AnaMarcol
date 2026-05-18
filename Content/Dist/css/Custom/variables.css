@@ -43,9 +43,9 @@
     /* ══════════════════════════════════════════════════════
        BODY / FONDO PRINCIPAL
        ══════════════════════════════════════════════════════ */
-    --body-bg:                #fdf8f8;
-    --body-text:              #212529;
-    --body-text-muted:        #6C757D;
+    --body-bg:                #fbf6f6;     /* Más sutil que el original */
+    --body-text:              #1f2329;     /* Más cálido que #212529, menos azul */
+    --body-text-muted:        #6b7280;     /* Igual peso pero más natural */
     --body-text-inverse:      #FFFFFF;
     --main-content-pt:        80px;
 
@@ -293,145 +293,254 @@
 }
 
 /* ══════════════════════════════════════════════════════════
-   DARK MODE
-   Sobreescribe únicamente las variables que cambian en oscuro.
+   DARK MODE — Paleta rediseñada 2026
+   ────────────────────────────────────────────────────────────
+   Cambios respecto a la versión vieja:
+     • Negros puros (#000, #111) reemplazados por grises con leve
+       tinte cálido (mejor confort visual, menos fatiga).
+     • Header oscuro como el sidebar para evitar el contraste
+       chillón rosa/negro. El rosa se mantiene SOLO como acento
+       (botones, links activos, badges).
+     • Rosa #de777d (light) → #ffa1a8 (dark): más claro y
+       desaturado para que sea legible sobre fondo oscuro.
+     • Jerarquía de fondos:
+         body         → #16161c   (más profundo)
+         card         → #1f1f26   (1 nivel arriba)
+         card-header  → #292930   (2 niveles arriba)
+         input        → #1c1c23   (entre body y card)
+     • Texto:
+         primario     → #e8e8ea   (gris claro, no blanco puro)
+         secundario   → #b0b0b8
    ══════════════════════════════════════════════════════════ */
 body.dark-mode {
 
-    /* ── HEADER dark ── */
-    --header-bg:              #b05a60;
-    --header-bg-hover:        #9a4f54;
-    --header-btn-bg-hover:    rgba(0,0,0,0.15);
-    --header-btn-border:      rgba(255,255,255,0.20);
+    /* ── HEADER dark — ahora oscuro, no rosado ── */
+    --header-bg:              #1f1f26;
+    --header-bg-hover:        #292930;
+    --header-text:            #e8e8ea;
+    --header-text-muted:      rgba(232,232,234,0.65);
+    --header-border:          rgba(255,255,255,0.06);
+    --header-shadow:          0 2px 12px rgba(0,0,0,0.50);
+    --header-btn-bg-hover:    rgba(255,255,255,0.06);
+    --header-btn-border:      rgba(255,255,255,0.12);
 
-    /* ── SIDEBAR dark ── */
-    --sidebar-bg-start:       #1a1a1a;
-    --sidebar-bg-end:         #111111;
+    /* ── SIDEBAR dark — unificado con header ── */
+    --sidebar-bg-start:       #1f1f26;
+    --sidebar-bg-end:         #16161c;
+    --sidebar-text:           rgba(232,232,234,0.82);
+    --sidebar-text-active:    #ffa1a8;
+    --sidebar-accent:         #ffa1a8;
+    --sidebar-active-bg:      rgba(255,161,168,0.12);
     --sidebar-hover-bg:       rgba(255,255,255,0.05);
-    --sidebar-active-bg:      rgba(222,119,125,0.20);
     --sidebar-border:         rgba(255,255,255,0.05);
-    --sidebar-header-bg:      rgba(0,0,0,0.25);
+    --sidebar-header-bg:      rgba(0,0,0,0.20);
+    --sidebar-shadow:         2px 0 12px rgba(0,0,0,0.40);
 
-    /* ── BODY dark ── */
-    --body-bg:                #121212;
-    --body-text:              #E0E0E0;
-    --body-text-muted:        #ADB5BD;
-    --body-text-inverse:      #121212;
+    /* ── BODY dark — gris cálido en vez de negro puro ── */
+    --body-bg:                #16161c;
+    --body-text:              #e8e8ea;
+    --body-text-muted:        #b0b0b8;
+    --body-text-inverse:      #16161c;
 
-    /* ── CARDS dark ── */
-    --card-bg:                #1E1E1E;
+    /* ── CARDS dark — jerarquía visual clara ── */
+    --card-bg:                #1f1f26;
     --card-border:            rgba(255,255,255,0.06);
-    --card-shadow:            0 2px 8px rgba(0,0,0,0.30);
-    --card-shadow-hover:      0 8px 25px rgba(222,119,125,0.15);
-    --card-header-bg:         #252525;
-    --card-header-text:       #E0E0E0;
+    --card-shadow:            0 2px 10px rgba(0,0,0,0.40);
+    --card-shadow-hover:      0 8px 30px rgba(255,161,168,0.15);
+    --card-header-bg:         #292930;
+    --card-header-text:       #e8e8ea;
     --card-header-border:     rgba(255,255,255,0.06);
-    --card-footer-bg:         #1A1A1A;
-    --card-footer-text:       #ADB5BD;
+    --card-footer-bg:         #1c1c23;
+    --card-footer-text:       #b0b0b8;
     --card-footer-border:     rgba(255,255,255,0.06);
 
     /* ── TABLAS dark ── */
     --table-bg:               transparent;
-    --table-text:             #E0E0E0;
-    --table-border:           #333333;
-    --table-thead-bg:         #252525;
-    --table-thead-text:       #FFFFFF;
-    --table-row-hover-bg:     rgba(222,119,125,0.08);
-    --table-row-stripe-bg:    rgba(255,255,255,0.03);
+    --table-text:             #e8e8ea;
+    --table-border:           #2e2e35;
+    --table-thead-bg:         #292930;
+    --table-thead-text:       #ffa1a8;
+    --table-row-hover-bg:     rgba(255,161,168,0.08);
+    --table-row-stripe-bg:    rgba(255,255,255,0.025);
 
     /* ── FORMULARIOS dark ── */
-    --input-bg:               #2A2A2A;
-    --input-text:             #E0E0E0;
-    --input-placeholder:      #888888;
-    --input-border:           #444444;
-    --input-shadow-focus:     rgba(222,119,125,0.25);
-    --input-bg-disabled:      #1A1A1A;
-    --input-text-disabled:    #555555;
-    --input-group-bg:         #333333;
-    --input-group-text:       #E0E0E0;
-    --label-text:             #E0E0E0;
+    --input-bg:               #1c1c23;
+    --input-text:             #e8e8ea;
+    --input-placeholder:      #6e6e75;
+    --input-border:           #353540;
+    --input-border-focus:     #ffa1a8;
+    --input-shadow-focus:     rgba(255,161,168,0.25);
+    --input-bg-disabled:      #1a1a20;
+    --input-text-disabled:    #565660;
+    --input-group-bg:         #292930;
+    --input-group-text:       #ffa1a8;
+    --label-text:             #e8e8ea;
 
-    /* ── BOTONES dark ── */
-    --btn-primary-shadow:     rgba(222,119,125,0.25);
+    /* ── BOTONES dark — rosa de botón se mantiene pero hover más vivo ── */
+    --btn-primary-bg:         #de777d;
+    --btn-primary-bg-hover:   #e88a90;
+    --btn-primary-text:       #FFFFFF;
+    --btn-primary-border:     #de777d;
+    --btn-primary-shadow:     rgba(255,161,168,0.30);
+    --btn-shadow-hover:       0 4px 14px rgba(255,161,168,0.25);
 
-    /* ── ALERTS dark ── */
-    --alert-success-bg:       rgba(40,167,69,0.15);
-    --alert-success-text:     #5CDB5C;
-    --alert-success-border:   #28A745;
-    --alert-danger-bg:        rgba(220,53,69,0.15);
-    --alert-danger-text:      #FF6B6B;
-    --alert-danger-border:    #DC3545;
-    --alert-warning-bg:       rgba(255,193,7,0.15);
-    --alert-warning-text:     #FFC107;
-    --alert-warning-border:   #FFC107;
-    --alert-info-bg:          rgba(23,162,184,0.15);
-    --alert-info-text:        #5BC0DE;
-    --alert-info-border:      #17A2B8;
+    /* ── ALERTS dark — contraste mejorado WCAG AA ── */
+    --alert-success-bg:       rgba(40,167,69,0.14);
+    --alert-success-text:     #6ee089;
+    --alert-success-border:   rgba(40,167,69,0.35);
+    --alert-danger-bg:        rgba(220,53,69,0.14);
+    --alert-danger-text:      #ff8787;
+    --alert-danger-border:    rgba(220,53,69,0.35);
+    --alert-warning-bg:       rgba(255,193,7,0.14);
+    --alert-warning-text:     #ffd54f;
+    --alert-warning-border:   rgba(255,193,7,0.35);
+    --alert-info-bg:          rgba(23,162,184,0.14);
+    --alert-info-text:        #80d8e8;
+    --alert-info-border:      rgba(23,162,184,0.35);
 
     /* ── MODALES dark ── */
-    --modal-bg:               #1E1E1E;
-    --modal-text:             #E0E0E0;
+    --modal-bg:               #1f1f26;
+    --modal-text:             #e8e8ea;
     --modal-border:           rgba(255,255,255,0.08);
-    --modal-header-bg:        #252525;
-    --modal-header-text:      #E0E0E0;
-    --modal-footer-bg:        #1A1A1A;
+    --modal-header-bg:        #292930;
+    --modal-header-text:      #e8e8ea;
+    --modal-footer-bg:        #1c1c23;
     --modal-footer-border:    rgba(255,255,255,0.06);
-    --modal-shadow:           0 10px 40px rgba(0,0,0,0.50);
+    --modal-shadow:           0 12px 48px rgba(0,0,0,0.60);
 
     /* ── DROPDOWN dark ── */
-    --dropdown-bg:            #1E1E1E;
-    --dropdown-text:          #E0E0E0;
+    --dropdown-bg:            #1f1f26;
+    --dropdown-text:          #e8e8ea;
     --dropdown-border:        rgba(255,255,255,0.08);
-    --dropdown-item-hover-bg: rgba(222,119,125,0.12);
-    --dropdown-item-hover-text: #de777d;
-    --dropdown-shadow:        0 4px 20px rgba(0,0,0,0.40);
+    --dropdown-item-hover-bg: rgba(255,161,168,0.12);
+    --dropdown-item-hover-text: #ffa1a8;
+    --dropdown-shadow:        0 6px 24px rgba(0,0,0,0.50);
 
     /* ── PAGINACIÓN dark ── */
-    --pagination-bg:          #1E1E1E;
-    --pagination-border:      #444444;
-    --pagination-hover-bg:    #2A2A2A;
-    --pagination-disabled-bg: #1A1A1A;
-    --pagination-disabled-text: #555555;
+    --pagination-bg:          #1f1f26;
+    --pagination-text:        #ffa1a8;
+    --pagination-border:      #353540;
+    --pagination-hover-bg:    #292930;
+    --pagination-active-bg:   #de777d;
+    --pagination-active-text: #FFFFFF;
+    --pagination-disabled-bg: #1a1a20;
+    --pagination-disabled-text: #565660;
 
     /* ── ACCORDION dark ── */
-    --accordion-bg:           #1E1E1E;
-    --accordion-text:         #E0E0E0;
+    --accordion-bg:           #1f1f26;
+    --accordion-text:         #e8e8ea;
     --accordion-border:       rgba(255,255,255,0.08);
-    --accordion-btn-bg:       #252525;
-    --accordion-btn-text:     #E0E0E0;
-    --accordion-body-bg:      #1E1E1E;
+    --accordion-btn-bg:       #292930;
+    --accordion-btn-text:     #e8e8ea;
+    --accordion-btn-active-bg: rgba(255,161,168,0.10);
+    --accordion-btn-active-text: #ffa1a8;
+    --accordion-body-bg:      #1f1f26;
 
     /* ── FOOTER dark ── */
-    --footer-bg:              #111111;
-    --footer-text-muted:      rgba(224,224,224,0.55);
+    --footer-bg:              #14141a;
+    --footer-text:            #e8e8ea;
+    --footer-text-muted:      rgba(232,232,234,0.55);
+    --footer-link:            #ffa1a8;
+    --footer-link-hover:      #ffd0d4;
+    --footer-border:          rgba(255,255,255,0.06);
 
     /* ── SCROLLBAR dark ── */
-    --scrollbar-track-bg:     #1A1A1A;
+    --scrollbar-track-bg:     #1a1a20;
+    --scrollbar-thumb-bg:     #ffa1a8;
+    --scrollbar-thumb-hover:  #ffb6bc;
 
     /* ── BORDES dark ── */
-    --border-color:           #333333;
+    --border-color:           #2e2e35;
     --border-color-light:     rgba(255,255,255,0.06);
 
-    /* ── GRÁFICAS dark ── */
+    /* ── GRÁFICAS dark — contraste mejor en líneas y leyendas ── */
+    --chart-color-1:          #ffa1a8;
+    --chart-color-2:          #de777d;
+    --chart-color-3:          #b05a60;
+    --chart-color-4:          #ffd54f;
+    --chart-color-5:          #c39bd3;
+    --chart-color-6:          #5dd3b5;
     --chart-grid-color:       rgba(255,255,255,0.06);
-    --chart-tooltip-bg:       #1E1E1E;
-    --chart-tooltip-text:     #E0E0E0;
-    --chart-tooltip-shadow:   0 4px 16px rgba(0,0,0,0.40);
+    --chart-tooltip-bg:       #292930;
+    --chart-tooltip-text:     #e8e8ea;
+    --chart-tooltip-shadow:   0 4px 16px rgba(0,0,0,0.50);
 
     /* ── OVERLAY dark ── */
-    --overlay-bg:             rgba(0,0,0,0.70);
+    --overlay-bg:             rgba(0,0,0,0.75);
 
-    /* ── ESTADOS PEDIDOS dark ── */
-    --badge-pendiente-bg:     rgba(230,81,0,0.15);
-    --badge-pendiente-text:   #ffb74d;
-    --badge-preparacion-bg:   rgba(222,119,125,0.15);
-    --badge-preparacion-text: #de777d;
-    --badge-listo-bg:         rgba(27,94,32,0.15);
-    --badge-listo-text:       #81c784;
-    --badge-camino-bg:        rgba(13,71,161,0.15);
+    /* ── ESTADOS PEDIDOS dark — pasteles más legibles ── */
+    --badge-pendiente-bg:     rgba(230,81,0,0.18);
+    --badge-pendiente-text:   #ffba80;
+    --badge-preparacion-bg:   rgba(255,161,168,0.18);
+    --badge-preparacion-text: #ffb6bc;
+    --badge-listo-bg:         rgba(76,175,80,0.18);
+    --badge-listo-text:       #a5d6a7;
+    --badge-camino-bg:        rgba(33,150,243,0.18);
     --badge-camino-text:      #90caf9;
-    --badge-entregado-bg:     rgba(27,94,32,0.15);
-    --badge-entregado-text:   #81c784;
-    --badge-cancelado-bg:     rgba(136,14,79,0.15);
-    --badge-cancelado-text:   #f48fb1;
+    --badge-entregado-bg:     rgba(76,175,80,0.18);
+    --badge-entregado-text:   #a5d6a7;
+    --badge-cancelado-bg:     rgba(244,143,177,0.15);
+    --badge-cancelado-text:   #f8bbd0;
+}
+
+/* ══════════════════════════════════════════════════════════
+   AJUSTES GLOBALES DE LECTURA EN DARK MODE
+   Estos selectores específicos forzaron problemas de contraste
+   en componentes Bootstrap nativos que no respetan variables.
+   ══════════════════════════════════════════════════════════ */
+body.dark-mode {
+    color-scheme: dark;
+}
+
+body.dark-mode .text-muted        { color: var(--body-text-muted) !important; }
+body.dark-mode .text-dark         { color: var(--body-text) !important; }
+body.dark-mode .text-primary      { color: var(--sidebar-accent) !important; }
+body.dark-mode .text-secondary    { color: var(--body-text-muted) !important; }
+body.dark-mode .border            { border-color: var(--border-color) !important; }
+body.dark-mode .border-top,
+body.dark-mode .border-bottom,
+body.dark-mode .border-start,
+body.dark-mode .border-end        { border-color: var(--border-color) !important; }
+
+body.dark-mode .bg-white          { background-color: var(--card-bg) !important; }
+body.dark-mode .bg-light          { background-color: var(--card-header-bg) !important; }
+body.dark-mode .bg-body           { background-color: var(--body-bg) !important; }
+
+body.dark-mode .form-control:focus,
+body.dark-mode .form-select:focus {
+    background-color: var(--input-bg);
+    color: var(--input-text);
+    border-color: var(--input-border-focus);
+    box-shadow: 0 0 0 0.2rem var(--input-shadow-focus);
+}
+
+/* Bootstrap btn-outline-secondary se ve mal en dark */
+body.dark-mode .btn-outline-secondary {
+    color: var(--body-text-muted);
+    border-color: var(--border-color);
+}
+body.dark-mode .btn-outline-secondary:hover {
+    background-color: var(--card-header-bg);
+    color: var(--body-text);
+    border-color: var(--sidebar-accent);
+}
+
+/* Mantener forma del btn-light en dark */
+body.dark-mode .btn-light {
+    background-color: var(--card-header-bg);
+    color: var(--body-text);
+    border-color: var(--border-color);
+}
+body.dark-mode .btn-light:hover {
+    background-color: var(--card-bg);
+    color: var(--sidebar-accent);
+    border-color: var(--sidebar-accent);
+}
+
+/* Links inline rosa más legibles en dark */
+body.dark-mode a:not(.btn):not(.dropdown-item):not(.nav-link):not(.list-group-item) {
+    color: var(--sidebar-accent);
+}
+body.dark-mode a:not(.btn):not(.dropdown-item):not(.nav-link):not(.list-group-item):hover {
+    color: #ffd0d4;
 }

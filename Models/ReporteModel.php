@@ -90,4 +90,17 @@ class ReporteModel extends BaseModel
     {
         return $this->callSP('sp_reportes_variantesStockBajo', [$limite]);
     }
+
+    // Reporte v2 — Catálogo completo con stock, precio, valor inventario y estado
+    // por producto. Usado por la exportación completa de inventario.
+    public function inventarioCompleto(): array
+    {
+        return $this->callSP('sp_reportes_inventarioCompleto');
+    }
+
+    // Reporte v2 — Totalizado por categoría (cantidad, stock total, valor).
+    public function inventarioPorCategoria(): array
+    {
+        return $this->callSP('sp_reportes_inventarioPorCategoria');
+    }
 }

@@ -12,7 +12,11 @@
     --login-primary-dark:  var(--btn-primary-bg-hover);
     --login-secondary:     var(--sidebar-accent);
     --login-gradient:      linear-gradient(135deg, #f8f9fa 0%, #f1f3f5 50%, #e9ecef 100%);
-    --login-gradient-dark: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+    /* Gradient dark mode unificado con la paleta del sistema:
+       gris cálido con tinte rosa muy sutil en lugar de azul.
+       Antes era #1a1a2e → #0f3460 (azul corporativo) que no
+       combinaba con el resto del admin. */
+    --login-gradient-dark: linear-gradient(135deg, #1f1f26 0%, #292930 50%, #3a2a2e 100%);
     --login-card-bg:       rgba(250, 251, 252, 0.95);
 }
 
@@ -470,37 +474,37 @@
 }
 
 .login-body.dark-mode .btn-theme-toggle-login {
-    background:   #1E1E1E;
-    border-color: #404040;
-    color:        #E0E0E0;
+    background:   #1f1f26;
+    border-color: #353540;
+    color:        #e8e8ea;
 }
 
 .login-body.dark-mode .btn-theme-toggle-login:hover {
-    background:   #2E2E2E;
+    background:   #292930;
     border-color: var(--login-primary);
     color:        var(--login-primary);
 }
 
 .login-body.dark-mode .login-card {
-    background:   rgba(30,30,30,0.95);
-    border-color: rgba(255,255,255,0.10);
-    color:        #E0E0E0;
+    background:   rgba(31,31,38,0.95);
+    border-color: rgba(255,255,255,0.08);
+    color:        #e8e8ea;
 }
 
 .login-body.dark-mode .form-control-modern {
-    background:   #2E2E2E;
-    border-color: #404040;
-    color:        #E0E0E0;
+    background:   #1c1c23;
+    border-color: #353540;
+    color:        #e8e8ea;
 }
 
 .login-body.dark-mode .form-control-modern:focus {
-    background:   #1E1E1E;
+    background:   #1f1f26;
     border-color: var(--login-primary);
-    color:        #E0E0E0;
+    color:        #e8e8ea;
 }
 
-.login-body.dark-mode .input-icon        { color: #9CA3AF; }
-.login-body.dark-mode .floating-label    { color: #9CA3AF; }
+.login-body.dark-mode .input-icon        { color: #a0a0a8; }
+.login-body.dark-mode .floating-label    { color: #a0a0a8; }
 
 .login-body.dark-mode .form-control-modern:focus ~ .input-icon,
 .login-body.dark-mode .form-control-modern:not(:placeholder-shown) ~ .input-icon,
@@ -509,9 +513,9 @@
     color: var(--login-primary);
 }
 
-.login-body.dark-mode .form-check-label  { color: #D1D5DB; }
-.login-body.dark-mode .login-footer p    { color: rgba(255,255,255,0.70); }
-.login-body.dark-mode .login-footer a    { color: #FFFFFF; }
+.login-body.dark-mode .form-check-label  { color: #d0d0d8; }
+.login-body.dark-mode .login-footer p    { color: rgba(232,232,234,0.65); }
+.login-body.dark-mode .login-footer a    { color: #ffa1a8; }
 
 /* ══════════════════════════════════════════════════════════
    RESPONSIVE
