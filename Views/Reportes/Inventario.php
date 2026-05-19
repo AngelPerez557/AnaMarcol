@@ -360,33 +360,141 @@ function descargarPDFInventario() {
     doc.save(`reporte-inventario-${fecha.replace(/\//g,'-')}.pdf`);
 }
 
-// ── Descarga Excel ────────────────────────────────
+// ── Descarga Excel — Reporte de Inventario v2 ────────────────
+//
+// Hojas incluidas:
+//   1. Resumen general (KPIs + valor total inventario)
+//   2. Catálogo completo  — TODOS los productos con stock y valor
+//   3. Por categoría      — totalizado agrupado
+//   4. Sin stock          — solo productos en cero
+//   5. Stock bajo         — productos críticos (limite configurable)
+//   6. Variantes          — variantes con stock por debajo del límite
 function descargarExcelInventario() {
     const wb    = XLSX.utils.book_new();
     const fecha = new Date().toLocaleDateString('es-HN');
-    const resumenData        = <?= json_encode($resumen) ?>;
-    const stockBajo          = <?= json_encode(array_values($stockBajo)) ?>;
-    const variantesStockBajo = <?= json_encode(array_values($variantesStockBajo)) ?>;
+    const hora  = new Date().toLocaleTimeString('es-HN');
 
+    const resumenData            = <?= json_encode($resumen ?? []) ?>;
+    const stockBajo              = <?= json_encode(array_values($stockBajo ?? [])) ?>;
+    const variantesStockBajo     = <?= json_encode(array_values($variantesStockBajo ?? [])) ?>;
+    const inventarioCompleto     = <?= json_encode(array_values($inventarioCompleto ?? [])) ?>;
+    const inventarioCategorias   = <?= json_encode(array_values($inventarioCategorias ?? [])) ?>;
+    const valorTotalInventario   = <?= (float) ($valorTotalInventario ?? 0) ?>;
+
+    // Helper — ancho de columnas para mejor legibilidad
+    const setColWidths = (ws, widths) => {
+        ws['!cols'] = widths.map(w => ({ wch: w }));
+    };
+
+    // ─── HOJA 1: Resumen ───────────────────────────
     const wsResumen = XLSX.utils.aoa_to_sheet([
         ['ANA MARCOL MAKEUP STUDIO — REPORTE DE INVENTARIO'],
-        ['Generado:', fecha],
+        ['Generado:', fecha + ' ' + hora],
         [],
-        ['RESUMEN'],
+        ['RESUMEN GENERAL'],
         ['Indicador', 'Valor'],
-        ['Total productos', resumenData.total_productos ?? 0],
-        ['Activos',         resumenData.activos         ?? 0],
-        ['Sin stock',       resumenData.sin_stock       ?? 0],
-        ['Stock bajo',      resumenData.stock_bajo      ?? 0],
+        ['Total productos',              resumenData.total_productos ?? 0],
+        ['Productos activos',            resumenData.activos         ?? 0],
+        ['Sin stock',                    resumenData.sin_stock       ?? 0],
+        ['Stock bajo (≤ 5)',             resumenData.stock_bajo      ?? 0],
+        ['Categorías',                   inventarioCategorias.length],
+        ['Valor total del inventario',   'L. ' + valorTotalInventario.toFixed(2)],
     ]);
+    setColWidths(wsResumen, [32, 22]);
     XLSX.utils.book_append_sheet(wb, wsResumen, 'Resumen');
 
-    const wsStock = XLSX.utils.aoa_to_sheet([
-        ['Producto', 'Categoría', 'Stock Actual', 'Precio (L.)'],
-        ...stockBajo.map(p => [p.nombre, p.categoria_nombre, parseInt(p.stock), parseFloat(p.precio_base)]),
-        ...variantesStockBajo.map(v => [v.producto_nombre + ' — ' + v.variante_nombre, 'Variante', parseInt(v.stock), parseFloat(v.precio)])
+    // ─── HOJA 2: Catálogo completo ─────────────────
+    const wsCatalogo = XLSX.utils.aoa_to_sheet([
+        ['CATÁLOGO COMPLETO DE PRODUCTOS'],
+        [],
+        ['ID', 'Código de barras', 'Producto', 'Categoría', 'Precio base (L.)', 'Stock', 'Valor del stock (L.)', 'Estado', 'Visible tienda'],
+        ...inventarioCompleto.map(p => [
+            parseInt(p.id),
+            p.codigo_barras || '—',
+            p.nombre,
+            p.categoria_nombre || '—',
+            parseFloat(p.precio_base ?? 0),
+            parseInt(p.stock_total ?? 0),
+            parseFloat(p.valor_inventario ?? 0),
+            p.estado,
+            parseInt(p.visible_tienda) === 1 ? 'Sí' : 'No',
+        ])
     ]);
-    XLSX.utils.book_append_sheet(wb, wsStock, 'Stock Bajo');
+    setColWidths(wsCatalogo, [6, 18, 40, 22, 14, 8, 18, 12, 12]);
+    XLSX.utils.book_append_sheet(wb, wsCatalogo, 'Catálogo completo');
+
+    // ─── HOJA 3: Por categoría ─────────────────────
+    const wsCategorias = XLSX.utils.aoa_to_sheet([
+        ['INVENTARIO POR CATEGORÍA'],
+        [],
+        ['Categoría', 'Total productos', 'Activos', 'Stock total (uds.)', 'Valor inventario (L.)'],
+        ...inventarioCategorias.map(c => [
+            c.categoria_nombre,
+            parseInt(c.total_productos ?? 0),
+            parseInt(c.activos         ?? 0),
+            parseInt(c.stock_total     ?? 0),
+            parseFloat(c.valor_inventario ?? 0),
+        ]),
+        [],
+        ['TOTAL',
+            inventarioCategorias.reduce((sum, c) => sum + parseInt(c.total_productos ?? 0), 0),
+            inventarioCategorias.reduce((sum, c) => sum + parseInt(c.activos ?? 0), 0),
+            inventarioCategorias.reduce((sum, c) => sum + parseInt(c.stock_total ?? 0), 0),
+            valorTotalInventario,
+        ],
+    ]);
+    setColWidths(wsCategorias, [25, 16, 12, 18, 22]);
+    XLSX.utils.book_append_sheet(wb, wsCategorias, 'Por categoría');
+
+    // ─── HOJA 4: Sin stock ─────────────────────────
+    const sinStock = inventarioCompleto.filter(p => parseInt(p.stock_total ?? 0) === 0);
+    const wsSinStock = XLSX.utils.aoa_to_sheet([
+        ['PRODUCTOS SIN STOCK'],
+        ['Total:', sinStock.length],
+        [],
+        ['Código', 'Producto', 'Categoría', 'Precio (L.)', 'Estado'],
+        ...sinStock.map(p => [
+            p.codigo_barras || '—',
+            p.nombre,
+            p.categoria_nombre || '—',
+            parseFloat(p.precio_base ?? 0),
+            p.estado,
+        ])
+    ]);
+    setColWidths(wsSinStock, [18, 40, 22, 14, 12]);
+    XLSX.utils.book_append_sheet(wb, wsSinStock, 'Sin stock');
+
+    // ─── HOJA 5: Stock bajo (productos simples) ────
+    const wsStockBajo = XLSX.utils.aoa_to_sheet([
+        ['PRODUCTOS CON STOCK BAJO'],
+        [],
+        ['Producto', 'Categoría', 'Stock actual', 'Precio (L.)'],
+        ...stockBajo.map(p => [
+            p.nombre,
+            p.categoria_nombre,
+            parseInt(p.stock),
+            parseFloat(p.precio_base)
+        ]),
+    ]);
+    setColWidths(wsStockBajo, [40, 22, 14, 14]);
+    XLSX.utils.book_append_sheet(wb, wsStockBajo, 'Stock bajo');
+
+    // ─── HOJA 6: Variantes con stock bajo ──────────
+    if (variantesStockBajo.length > 0) {
+        const wsVar = XLSX.utils.aoa_to_sheet([
+            ['VARIANTES CON STOCK BAJO'],
+            [],
+            ['Producto', 'Variante', 'Stock', 'Precio (L.)'],
+            ...variantesStockBajo.map(v => [
+                v.producto_nombre,
+                v.variante_nombre,
+                parseInt(v.stock),
+                parseFloat(v.precio),
+            ])
+        ]);
+        setColWidths(wsVar, [40, 22, 10, 14]);
+        XLSX.utils.book_append_sheet(wb, wsVar, 'Variantes');
+    }
 
     XLSX.writeFile(wb, `reporte-inventario-${fecha.replace(/\//g,'-')}.xlsx`);
 }

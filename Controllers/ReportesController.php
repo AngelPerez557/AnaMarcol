@@ -62,9 +62,19 @@ class ReportesController
         $pageTitle          = 'Reporte de Inventario';
         $limite             = (int) ($_GET['limite'] ?? 5);
 
-        $resumen            = $this->reporteModel->resumenInventario();
-        $stockBajo          = $this->reporteModel->stockBajo($limite);
-        $variantesStockBajo = $this->reporteModel->variantesStockBajo($limite);
+        $resumen              = $this->reporteModel->resumenInventario();
+        $stockBajo            = $this->reporteModel->stockBajo($limite);
+        $variantesStockBajo   = $this->reporteModel->variantesStockBajo($limite);
+
+        // Reporte v2 — datos del catálogo completo para el export Excel/PDF
+        $inventarioCompleto   = $this->reporteModel->inventarioCompleto();
+        $inventarioCategorias = $this->reporteModel->inventarioPorCategoria();
+
+        // Valor total agregado (para mostrar en el resumen y como KPI nuevo)
+        $valorTotalInventario = 0.0;
+        foreach ($inventarioCategorias as $c) {
+            $valorTotalInventario += (float) ($c['valor_inventario'] ?? 0);
+        }
 
         require_once VIEWS_PATH . 'Reportes' . DS . 'Inventario.php';
     }
