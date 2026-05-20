@@ -1,10 +1,49 @@
 <?php
 
-abstract class BaseEntity
+/**
+ * BaseEntity — Clase base de todas las entidades del sistema.
+ *
+ * Implementa ArrayAccess para que las entidades puedan accederse
+ * indistintamente con sintaxis de objeto ($e->campo) o de array
+ * ($e['campo']). Esto evita el error fatal:
+ *   "Cannot use object of type XEntity as array"
+ * cuando una View espera arrays pero el Model retorna entidades.
+ *
+ * Si una clave no existe como propiedad, offsetGet retorna null
+ * (la View lo maneja con ?? '' / ?? 0), nunca lanza error.
+ */
+abstract class BaseEntity implements ArrayAccess
 {
     // Indica si el registro fue encontrado en la BD
     // false por defecto — se pone true cuando el SP retorna datos
     public bool $Found = false;
+
+    // ─────────────────────────────────────────────
+    // ArrayAccess — acceso $entidad['campo']
+    // ─────────────────────────────────────────────
+
+    public function offsetExists(mixed $offset): bool
+    {
+        return property_exists($this, (string) $offset);
+    }
+
+    public function offsetGet(mixed $offset): mixed
+    {
+        $key = (string) $offset;
+        return property_exists($this, $key) ? $this->$key : null;
+    }
+
+    public function offsetSet(mixed $offset, mixed $value): void
+    {
+        if ($offset !== null && property_exists($this, (string) $offset)) {
+            $this->{(string) $offset} = $value;
+        }
+    }
+
+    public function offsetUnset(mixed $offset): void
+    {
+        // No-op: las entidades tienen propiedades fijas, no se eliminan.
+    }
 
     // ─────────────────────────────────────────────
     // CONSTRUCTOR
