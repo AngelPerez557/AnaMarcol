@@ -102,22 +102,46 @@ class ApiController
                     continue;
                 }
 
-                $ok = $ok && $this->productoModel->update([
+                $nuevoPrecio = (float) $item['precio'];
+                $nuevoStock  = array_key_exists('stock', $item) ? (int) $item['stock'] : $actual->stock;
+
+                $ok = $this->productoModel->update([
                     'id'              => $id,
                     'categoria_id'    => $actual->categoria_id,
                     'nombre'          => $actual->nombre,
                     'descripcion'     => $actual->descripcion,
-                    'precio_base'     => (float) $item['precio'],
-                    'stock'           => array_key_exists('stock', $item) ? (int) $item['stock'] : $actual->stock,
+                    'precio_base'     => $nuevoPrecio,
+                    'stock'           => $nuevoStock,
                     'codigo_barras'   => $actual->codigo_barras ?? null,
                     'image_url'       => $actual->image_url,
                 ]);
+
+                // MySQL reporta 0 filas afectadas cuando el UPDATE no cambia
+                // ningún valor (ej. el POS reenvía el mismo precio) — eso NO
+                // es un error, así que lo tratamos como éxito si los valores
+                // en la BD ya coinciden con lo que se pidió guardar.
+                if (!$ok) {
+                    $verificacion = $this->productoModel->findById($id);
+                    $ok = $verificacion->Found
+                        && abs((float) $verificacion->precio_base - $nuevoPrecio) < 0.005
+                        && (int) $verificacion->stock === $nuevoStock;
+                }
             } elseif (array_key_exists('stock', $item)) {
                 $ok = $ok && $this->productoModel->updateStock($id, (int) $item['stock']);
             }
 
             if (array_key_exists('activo', $item)) {
-                $ok = $ok && $this->productoModel->toggleActivo($id, $item['activo'] ? 1 : 0);
+                $activoDeseado = $item['activo'] ? 1 : 0;
+                $okActivo = $this->productoModel->toggleActivo($id, $activoDeseado);
+
+                // Igual que con precio/stock: 0 filas afectadas porque el
+                // estado ya era ese no es un error.
+                if (!$okActivo) {
+                    $verificacion = $this->productoModel->findById($id);
+                    $okActivo = $verificacion->Found && (int) $verificacion->activo === $activoDeseado;
+                }
+
+                $ok = $ok && $okActivo;
             }
 
             $resultados[] = ['id' => $id, 'success' => $ok];
