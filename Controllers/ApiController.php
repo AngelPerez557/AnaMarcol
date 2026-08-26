@@ -61,11 +61,12 @@ class ApiController
 
     // ─────────────────────────────────────────────
     // POST /Api/stock — la tienda local reporta cambios (JSON body)
-    // Body: { "items": [ { "id": 1, "stock": 10, "activo": true }, ... ] }
-    // 'id' es el RemoteId (id en esta BD web). Precio NO se toca desde acá
-    // a propósito — el precio de venta público lo sigue manejando el panel;
-    // solo existencias y activo/inactivo (F-01: la tienda local es dueña
-    // del inventario del día a día).
+    // Body: { "items": [ { "id": 1, "stock": 10, "activo": true, "precio": 150.00 }, ... ] }
+    // 'id' es el RemoteId (id en esta BD web). 'precio' es opcional — solo
+    // viaja cuando el producto se editó en el POS (Productos > editar).
+    // Cuando viene, se actualiza vía sp_productos_update (requiere también
+    // categoria_id/nombre/descripcion, que se preservan tal cual están hoy
+    // en la BD web — el POS no los conoce ni los toca).
     // ─────────────────────────────────────────────
     public function stock(): void
     {
@@ -91,9 +92,30 @@ class ApiController
             }
 
             $ok = true;
-            if (array_key_exists('stock', $item)) {
+
+            if (array_key_exists('precio', $item)) {
+                // update() reemplaza la fila completa — hay que partir de los
+                // valores actuales para no perder categoría/nombre/descripción.
+                $actual = $this->productoModel->findById($id);
+                if (!$actual->Found) {
+                    $resultados[] = ['id' => $id, 'success' => false, 'error' => 'producto no encontrado'];
+                    continue;
+                }
+
+                $ok = $ok && $this->productoModel->update([
+                    'id'              => $id,
+                    'categoria_id'    => $actual->categoria_id,
+                    'nombre'          => $actual->nombre,
+                    'descripcion'     => $actual->descripcion,
+                    'precio_base'     => (float) $item['precio'],
+                    'stock'           => array_key_exists('stock', $item) ? (int) $item['stock'] : $actual->stock,
+                    'codigo_barras'   => $actual->codigo_barras ?? null,
+                    'image_url'       => $actual->image_url,
+                ]);
+            } elseif (array_key_exists('stock', $item)) {
                 $ok = $ok && $this->productoModel->updateStock($id, (int) $item['stock']);
             }
+
             if (array_key_exists('activo', $item)) {
                 $ok = $ok && $this->productoModel->toggleActivo($id, $item['activo'] ? 1 : 0);
             }
