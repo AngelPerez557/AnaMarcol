@@ -93,7 +93,12 @@ class ApiController
 
             $ok = true;
 
-            if (array_key_exists('precio', $item)) {
+            // isset() (no array_key_exists) a propósito: isset() da false tanto si la
+            // clave no viene como si viene con valor null — un cliente que serialice
+            // "precio": null (campo opcional no usado) no debe pisar el valor real con 0.
+            // Ya pasó una vez: un bug en el cliente C# mandaba null explícito y esto
+            // puso precio/stock en 0 para todo el catálogo.
+            if (isset($item['precio'])) {
                 // update() reemplaza la fila completa — hay que partir de los
                 // valores actuales para no perder categoría/nombre/descripción.
                 $actual = $this->productoModel->findById($id);
@@ -103,7 +108,7 @@ class ApiController
                 }
 
                 $nuevoPrecio = (float) $item['precio'];
-                $nuevoStock  = array_key_exists('stock', $item) ? (int) $item['stock'] : $actual->stock;
+                $nuevoStock  = isset($item['stock']) ? (int) $item['stock'] : $actual->stock;
 
                 $ok = $this->productoModel->update([
                     'id'              => $id,
@@ -126,11 +131,11 @@ class ApiController
                         && abs((float) $verificacion->precio_base - $nuevoPrecio) < 0.005
                         && (int) $verificacion->stock === $nuevoStock;
                 }
-            } elseif (array_key_exists('stock', $item)) {
+            } elseif (isset($item['stock'])) {
                 $ok = $ok && $this->productoModel->updateStock($id, (int) $item['stock']);
             }
 
-            if (array_key_exists('activo', $item)) {
+            if (isset($item['activo'])) {
                 $activoDeseado = $item['activo'] ? 1 : 0;
                 $okActivo = $this->productoModel->toggleActivo($id, $activoDeseado);
 
@@ -148,6 +153,60 @@ class ApiController
         }
 
         $this->json(['success' => true, 'resultados' => $resultados]);
+    }
+
+    // ─────────────────────────────────────────────
+    // POST /Api/crearProducto — la tienda local crea un producto nuevo
+    // Body: { "nombre": "...", "precio": 100, "stock": 20, "categoria_id": 2, "codigo_barras": "..." }
+    // Sin imagen a propósito — el POS local no maneja fotos.
+    // Devuelve { success, id } donde "id" es el RemoteId para emparejar en el POS.
+    // ─────────────────────────────────────────────
+    public function crearProducto(): void
+    {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            $this->json(['success' => false, 'error' => 'Método no permitido.'], 405);
+            return;
+        }
+
+        $body = json_decode(file_get_contents('php://input'), true);
+
+        $nombre      = trim((string) ($body['nombre'] ?? ''));
+        $categoriaId = (int) ($body['categoria_id'] ?? 0);
+        $precio      = isset($body['precio']) ? (float) $body['precio'] : null;
+        $stock       = (int) ($body['stock'] ?? 0);
+        $codigoBarras = isset($body['codigo_barras']) && $body['codigo_barras'] !== ''
+            ? trim((string) $body['codigo_barras']) : null;
+
+        if ($nombre === '' || $categoriaId <= 0) {
+            $this->json(['success' => false, 'error' => 'nombre y categoria_id son obligatorios.'], 400);
+            return;
+        }
+
+        try {
+            $id = $this->productoModel->insert([
+                'categoria_id'    => $categoriaId,
+                'nombre'          => $nombre,
+                'descripcion'     => null,
+                'precio_base'     => $precio,
+                'tiene_variantes' => 0,
+                'stock'           => $stock,
+                'codigo_barras'   => $codigoBarras,
+                'image_url'       => null, // el POS local no maneja fotos
+            ]);
+        } catch (\RuntimeException $e) {
+            $mensaje = str_contains($e->getMessage(), '1062')
+                ? 'Ya existe un producto con ese código de barras.'
+                : 'Error al crear el producto.';
+            $this->json(['success' => false, 'error' => $mensaje], 409);
+            return;
+        }
+
+        if ($id <= 0) {
+            $this->json(['success' => false, 'error' => 'No se pudo crear el producto.'], 500);
+            return;
+        }
+
+        $this->json(['success' => true, 'id' => $id]);
     }
 
     // ─────────────────────────────────────────────
