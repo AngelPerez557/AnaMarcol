@@ -4,17 +4,11 @@ $urlActual = strtolower(trim($_GET['url'] ?? '', '/'));
 $menu = [
     'Inicio' => ['Id'=>1,'Nombre'=>'Inicio','Url'=>APP_URL.'Dashboard/index','Icono'=>'fas fa-home','Permiso'=>''],
 
-    'Caja' => ['Id'=>12,'Nombre'=>'Caja','Url'=>'#','Icono'=>'fas fa-cash-register','Permiso'=>'ventas.crear','TourId'=>'tour-caja-link','Children'=>[
-        ['Id'=>121,'Nombre'=>'Punto de Venta',   'Url'=>APP_URL.'Caja/index',    'Icono'=>'fas fa-cash-register','Permiso'=>'ventas.crear'],
-        ...(Auth::can('ventas.crear') ? (function() {
-            $cajaSesionMenu = new CajaSesionModel();
-            $sesionMenu     = $cajaSesionMenu->getSesionAbierta(Auth::id());
-            if ($sesionMenu) {
-                return [['Id'=>122,'Nombre'=>'Cerrar Caja','Url'=>APP_URL.'Caja/cierre','Icono'=>'fas fa-store-slash','Permiso'=>'ventas.crear']];
-            } else {
-                return [['Id'=>122,'Nombre'=>'Abrir Caja','Url'=>APP_URL.'Caja/apertura','Icono'=>'fas fa-lock-open','Permiso'=>'ventas.crear']];
-            }
-        })() : []),
+    // Caja deshabilitada a propósito (2026-08-25): AnaMarcolPOS (app local)
+    // es ahora el único punto de venta que factura — evita duplicar
+    // correlativos contra el mismo CAI. Solo queda el historial, para
+    // consultar/reimprimir ventas ya hechas antes del cambio.
+    'Caja' => ['Id'=>12,'Nombre'=>'Caja','Url'=>'#','Icono'=>'fas fa-cash-register','Permiso'=>'ventas.ver','TourId'=>'tour-caja-link','Children'=>[
         ['Id'=>123,'Nombre'=>'Historial de Caja','Url'=>APP_URL.'Caja/historial','Icono'=>'fas fa-book','Permiso'=>'ventas.ver'],
     ]],
 

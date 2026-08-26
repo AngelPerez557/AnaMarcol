@@ -17,12 +17,44 @@ class CajaController
     }
 
     // ─────────────────────────────────────────────
+    // DESHABILITADO — la caja/facturación del sistema web quedó
+    // inutilizada a propósito: AnaMarcolPOS (la app de escritorio local)
+    // es ahora el único punto de venta que factura al público, para no
+    // duplicar números de factura contra el mismo CAI/rango autorizado.
+    //
+    // El historial de ventas/cierres previos (historial, resumen, recibo)
+    // se deja intacto y consultable — solo se bloquean las acciones que
+    // generan operación nueva (abrir caja, cobrar, cerrar caja).
+    // ─────────────────────────────────────────────
+    private function bloquearOperativo(bool $json = false): void
+    {
+        if ($json) {
+            header('Content-Type: application/json');
+            http_response_code(410); // Gone
+            echo json_encode([
+                'success' => false,
+                'message' => 'La Caja del sistema web está deshabilitada. Las ventas ahora se registran en AnaMarcolPOS (la app local de la tienda).',
+            ]);
+            exit();
+        }
+
+        $_SESSION['alert'] = [
+            'icon'  => 'info',
+            'title' => 'Caja deshabilitada',
+            'text'  => 'Las ventas ahora se registran en AnaMarcolPOS (la app local de la tienda). Esta sección del panel web ya no se usa.',
+        ];
+        header('Location: ' . APP_URL . 'Dashboard/index');
+        exit();
+    }
+
+    // ─────────────────────────────────────────────
     // INDEX — Vista principal de caja
     // URL: /Caja/index
     // Requiere caja abierta — si no, redirige a apertura
     // ─────────────────────────────────────────────
     public function index(): void
     {
+        $this->bloquearOperativo(false);
         Auth::require('ventas.crear');
 
         // Verificar que tenga caja abierta
@@ -53,6 +85,7 @@ class CajaController
     // ─────────────────────────────────────────────
     public function apertura(): void
     {
+        $this->bloquearOperativo(false);
         Auth::require('ventas.crear');
 
         // Si ya tiene caja abierta redirige a index
@@ -72,6 +105,7 @@ class CajaController
     // ─────────────────────────────────────────────
     public function abrir(): void
     {
+        $this->bloquearOperativo(true);
         header('Content-Type: application/json');
         Auth::require('ventas.crear');
 
@@ -117,6 +151,7 @@ class CajaController
     // ─────────────────────────────────────────────
     public function cierre(): void
     {
+        $this->bloquearOperativo(false);
         Auth::require('ventas.crear');
 
         $sesion = $this->sesionModel->getSesionAbierta(Auth::id());
@@ -143,6 +178,7 @@ class CajaController
     // ─────────────────────────────────────────────
     public function cerrar(): void
     {
+        $this->bloquearOperativo(true);
         header('Content-Type: application/json');
         Auth::require('ventas.crear');
 
@@ -252,6 +288,7 @@ class CajaController
 
     public function buscar(): void
     {
+        $this->bloquearOperativo(true);
         Auth::require('ventas.crear');
         if ($_SERVER['REQUEST_METHOD'] !== 'GET') { http_response_code(405); exit(); }
         $query = htmlspecialchars(strip_tags(trim($_GET['q'] ?? '')));
@@ -286,6 +323,7 @@ class CajaController
 
     public function barras(): void
     {
+        $this->bloquearOperativo(true);
         Auth::require('ventas.crear');
         $codigo    = htmlspecialchars(strip_tags(trim($_GET['codigo'] ?? '')));
         if (empty($codigo)) { header('Content-Type: application/json'); echo json_encode(['found'=>false]); exit(); }
@@ -297,6 +335,7 @@ class CajaController
 
     public function cobrar(): void
     {
+        $this->bloquearOperativo(true);
         Auth::require('ventas.crear');
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') { http_response_code(405); exit(); }
         if (!Csrf::validate()) {
