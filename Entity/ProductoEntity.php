@@ -14,6 +14,7 @@ class ProductoEntity extends BaseEntity
     public ?int    $tiene_variantes  = 0;
     public ?int    $stock            = 0;
     public ?int    $visible_tienda   = 1;
+    public ?string $codigo_barras    = null;
     public ?string $image_url        = null;
     public ?int    $activo           = 1;
     public ?string $created_at       = null;

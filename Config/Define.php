@@ -62,6 +62,14 @@ define('DB_PASS',    DB_PASSWORD);
 define('DB_CHARSET', 'utf8mb4');
 
 // ─────────────────────────────────────────────
+// 5b. API — Sincronización con AnaMarcolPOS (tienda local)
+// La app de escritorio (WPF) llama a /Api/* con este header:
+//   X-Api-Key: <POS_API_KEY>
+// CAMBIAR el valor por defecto en producción (variable de entorno POS_API_KEY).
+// ─────────────────────────────────────────────
+define('POS_API_KEY', getenv('POS_API_KEY') ?: '688f2ced94ad2d0e2fd81e923b23388cad790c5b072f6660f135717179abbead');
+
+// ─────────────────────────────────────────────
 // 6. CONFIGURACIÓN DE LA APLICACIÓN
 // ─────────────────────────────────────────────
 define('APP_NAME',    getenv('APP_NAME') ?: 'Makeup Studio');
