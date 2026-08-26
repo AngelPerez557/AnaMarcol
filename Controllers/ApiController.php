@@ -62,11 +62,19 @@ class ApiController
     // ─────────────────────────────────────────────
     // POST /Api/stock — la tienda local reporta cambios (JSON body)
     // Body: { "items": [ { "id": 1, "stock": 10, "activo": true, "precio": 150.00 }, ... ] }
-    // 'id' es el RemoteId (id en esta BD web). 'precio' es opcional — solo
-    // viaja cuando el producto se editó en el POS (Productos > editar).
-    // Cuando viene, se actualiza vía sp_productos_update (requiere también
-    // categoria_id/nombre/descripcion, que se preservan tal cual están hoy
-    // en la BD web — el POS no los conoce ni los toca).
+    // 'id' es el RemoteId (id en esta BD web).
+    //
+    // IMPORTANTE: 'stock' aquí es SIEMPRE un valor ABSOLUTO ("el stock real es
+    // este"), nunca una cantidad a descontar. Por eso NO se usa
+    // ProductoModel::updateStock() — esa función llama a sp_productos_updateStock,
+    // que es para el flujo de venta (RESTA cantidad del stock actual, ver el
+    // comentario en ProductoModel::descontarStock). Usarla aquí causó un bug real:
+    // el POS mandaba "stock: 20" para fijarlo, y el servidor lo interpretaba como
+    // "quítale 20 unidades" — como ya estaba en 0, se quedaba en 0 sin avisar
+    // error (updateStock() devuelve true pase lo que pase). Por eso 'stock' pasa
+    // siempre por update() (sp_productos_update), igual que 'precio', que sí fija
+    // el valor absoluto — necesita categoria_id/nombre/descripcion, que se
+    // preservan tal cual están hoy en la BD web (el POS no los conoce ni los toca).
     // ─────────────────────────────────────────────
     public function stock(): void
     {
@@ -98,7 +106,7 @@ class ApiController
             // "precio": null (campo opcional no usado) no debe pisar el valor real con 0.
             // Ya pasó una vez: un bug en el cliente C# mandaba null explícito y esto
             // puso precio/stock en 0 para todo el catálogo.
-            if (isset($item['precio'])) {
+            if (isset($item['precio']) || isset($item['stock'])) {
                 // update() reemplaza la fila completa — hay que partir de los
                 // valores actuales para no perder categoría/nombre/descripción.
                 $actual = $this->productoModel->findById($id);
@@ -107,7 +115,7 @@ class ApiController
                     continue;
                 }
 
-                $nuevoPrecio = (float) $item['precio'];
+                $nuevoPrecio = isset($item['precio']) ? (float) $item['precio'] : (float) $actual->precio_base;
                 $nuevoStock  = isset($item['stock']) ? (int) $item['stock'] : $actual->stock;
 
                 $ok = $this->productoModel->update([
@@ -131,8 +139,6 @@ class ApiController
                         && abs((float) $verificacion->precio_base - $nuevoPrecio) < 0.005
                         && (int) $verificacion->stock === $nuevoStock;
                 }
-            } elseif (isset($item['stock'])) {
-                $ok = $ok && $this->productoModel->updateStock($id, (int) $item['stock']);
             }
 
             if (isset($item['activo'])) {
