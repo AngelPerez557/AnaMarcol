@@ -8,17 +8,12 @@ $menu = [
     // es ahora el único punto de venta que factura — evita duplicar
     // correlativos contra el mismo CAI. Solo queda el historial, para
     // consultar/reimprimir ventas ya hechas antes del cambio.
-    'Caja' => ['Id'=>12,'Nombre'=>'Caja','Url'=>'#','Icono'=>'fas fa-cash-register','Permiso'=>'ventas.ver','TourId'=>'tour-caja-link','Children'=>[
-        ['Id'=>123,'Nombre'=>'Historial de Caja','Url'=>APP_URL.'Caja/historial','Icono'=>'fas fa-book','Permiso'=>'ventas.ver'],
-    ]],
+   ## 'Caja' => ['Id'=>12,'Nombre'=>'Caja','Url'=>'#','Icono'=>'fas fa-cash-register','Permiso'=>'ventas.ver','TourId'=>'tour-caja-link','Children'=>[
+  ###      ['Id'=>123,'Nombre'=>'Historial de Caja','Url'=>APP_URL.'Caja/historial','Icono'=>'fas fa-book','Permiso'=>'ventas.ver'],
+   ## ]],
 
-    'Pedidos' => ['Id'=>2,'Nombre'=>'Pedidos','Url'=>APP_URL.'Pedidos/index','Icono'=>'fas fa-shopping-bag','Permiso'=>'pedidos.ver','TourId'=>'tour-pedidos-link'],
+  #  'Pedidos' => ['Id'=>2,'Nombre'=>'Pedidos','Url'=>APP_URL.'Pedidos/index','Icono'=>'fas fa-shopping-bag','Permiso'=>'pedidos.ver','TourId'=>'tour-pedidos-link'],
 
-    'Ventas' => ['Id'=>4,'Nombre'=>'Ventas','Url'=>'#','Icono'=>'fas fa-receipt','Permiso'=>'ventas.ver','Children'=>[
-        ['Id'=>41,'Nombre'=>'Historial',     'Url'=>APP_URL.'Ventas/index',   'Icono'=>'fas fa-history',             'Permiso'=>'ventas.ver'],
-        ['Id'=>71,'Nombre'=>'Facturas',      'Url'=>APP_URL.'Facturas/index', 'Icono'=>'fas fa-file-invoice-dollar', 'Permiso'=>'facturacion.ver'],
-        ['Id'=>72,'Nombre'=>'Configuración', 'Url'=>APP_URL.'Facturas/config','Icono'=>'fas fa-sliders-h',           'Permiso'=>'facturacion.configurar'],
-    ]],
 
     'Catalogo' => ['Id'=>3,'Nombre'=>'Catálogo','Url'=>'#','Icono'=>'fas fa-box-open','Permiso'=>'','Children'=>[
         ['Id'=>31,'Nombre'=>'Productos',  'Url'=>APP_URL.'Productos/index',  'Icono'=>'fas fa-boxes',      'Permiso'=>'productos.ver'],
@@ -28,7 +23,7 @@ $menu = [
     ]],
 
     'Clientes' => ['Id'=>6,'Nombre'=>'Clientes','Url'=>'#','Icono'=>'fas fa-users','Permiso'=>'clientes.ver','Children'=>[
-        ['Id'=>61,'Nombre'=>'Lista',      'Url'=>APP_URL.'Clientes/index',  'Icono'=>'fas fa-list',           'Permiso'=>'clientes.ver'],
+       # ['Id'=>61,'Nombre'=>'Lista',      'Url'=>APP_URL.'Clientes/index',  'Icono'=>'fas fa-list',           'Permiso'=>'clientes.ver'],
         ['Id'=>51,'Nombre'=>'Calendario', 'Url'=>APP_URL.'Citas/index',     'Icono'=>'fas fa-calendar',       'Permiso'=>'citas.ver','TourId'=>'tour-citas-link'],
         ['Id'=>52,'Nombre'=>'Nueva cita', 'Url'=>APP_URL.'Citas/create',    'Icono'=>'fas fa-plus-circle',    'Permiso'=>'citas.crear'],
         ['Id'=>53,'Nombre'=>'Servicios',  'Url'=>APP_URL.'Servicios/index', 'Icono'=>'fas fa-concierge-bell', 'Permiso'=>'citas.ver'],
@@ -38,15 +33,15 @@ $menu = [
         ['Id'=>81,'Nombre'=>'Ver tienda',       'Url'=>APP_URL.'Tienda/index',  'Icono'=>'fas fa-external-link-alt','Permiso'=>''],
         ['Id'=>82,'Nombre'=>'Banners',           'Url'=>APP_URL.'Banners/index', 'Icono'=>'fas fa-image',            'Permiso'=>'tienda.configurar'],
         ['Id'=>84,'Nombre'=>'Fotos de clientes', 'Url'=>APP_URL.'Galeria/index', 'Icono'=>'fas fa-images',           'Permiso'=>'tienda.configurar'],
-        ['Id'=>83,'Nombre'=>'Zonas de envío',    'Url'=>APP_URL.'Zonas/index',   'Icono'=>'fas fa-map-marker-alt',   'Permiso'=>'tienda.configurar'],
+      #  ['Id'=>83,'Nombre'=>'Zonas de envío',    'Url'=>APP_URL.'Zonas/index',   'Icono'=>'fas fa-map-marker-alt',   'Permiso'=>'tienda.configurar'],
     ]],
 
     'Administracion' => ['Id'=>10,'Nombre'=>'Administración','Url'=>'#','Icono'=>'fas fa-cogs','Permiso'=>'','Children'=>[
         ['Id'=>101,'Nombre'=>'Usuarios',           'Url'=>APP_URL.'Usuarios/index',       'Icono'=>'fas fa-user-cog',    'Permiso'=>'usuarios.ver'],
         ['Id'=>102,'Nombre'=>'Roles',              'Url'=>APP_URL.'Roles/index',          'Icono'=>'fas fa-user-shield', 'Permiso'=>'roles.ver'],
         ['Id'=>103,'Nombre'=>'Permisos',           'Url'=>APP_URL.'Permisos/index',       'Icono'=>'fas fa-key',         'Permiso'=>'roles.ver'],
-        ['Id'=>91, 'Nombre'=>'Reporte Ventas',     'Url'=>APP_URL.'Reportes/ventas',      'Icono'=>'fas fa-chart-line',  'Permiso'=>'reportes.ver'],
-        ['Id'=>92, 'Nombre'=>'Reporte Pedidos',    'Url'=>APP_URL.'Reportes/pedidos',     'Icono'=>'fas fa-shopping-bag','Permiso'=>'reportes.ver'],
+      #  ['Id'=>91, 'Nombre'=>'Reporte Ventas',     'Url'=>APP_URL.'Reportes/ventas',      'Icono'=>'fas fa-chart-line',  'Permiso'=>'reportes.ver'],
+      #  ['Id'=>92, 'Nombre'=>'Reporte Pedidos',    'Url'=>APP_URL.'Reportes/pedidos',     'Icono'=>'fas fa-shopping-bag','Permiso'=>'reportes.ver'],
         ['Id'=>93, 'Nombre'=>'Reporte Inventario', 'Url'=>APP_URL.'Reportes/inventario',  'Icono'=>'fas fa-boxes',       'Permiso'=>'reportes.ver'],
         ['Id'=>110,'Nombre'=>'Soporte',            'Url'=>APP_URL.'Soporte/index',        'Icono'=>'fas fa-headset',     'Permiso'=>'usuarios.ver'],
     ]],
