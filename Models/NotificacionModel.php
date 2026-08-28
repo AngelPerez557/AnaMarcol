@@ -50,6 +50,19 @@ class NotificacionModel extends BaseModel
         );
     }
 
+    // Tipo 'pedido' a propósito: la columna notificaciones.tipo tiene un
+    // conjunto cerrado de valores y el ícono de bolsa sirve igual para
+    // una cotización. Cambiar el tipo exigiría un ALTER innecesario.
+    public function nuevaCotizacion(string $codigo, string $clienteNombre, float $total): void
+    {
+        $this->insert(
+            'pedido',
+            '🧾 Nueva cotización',
+            "Cotización #{$codigo} de {$clienteNombre} — L. " . number_format($total, 2),
+            'Cotizaciones/index'
+        );
+    }
+
     public function nuevoPedido(string $codigo, string $clienteNombre, float $total): void
     {
         $this->insert(

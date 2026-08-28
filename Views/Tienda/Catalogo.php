@@ -80,7 +80,7 @@ if (!function_exists('calcDesc')) {
              data-nombre="<?= strtolower(htmlspecialchars($p->nombre)) ?>">
             <div class="producto-card h-100 d-flex flex-column">
 
-                <!-- Imagen + botón favorito + badge descuento -->
+                <!-- Imagen + badge descuento -->
                 <div style="position:relative;">
                     <a href="<?= APP_URL ?>Tienda/producto/<?= $p->id ?>-<?= slugify($p->nombre) ?>">
                         <div class="producto-img"
@@ -98,19 +98,6 @@ if (!function_exists('calcDesc')) {
                     </span>
                     <?php endif; ?>
 
-                    <!-- Botón favorito — esquina superior derecha -->
-                    <button type="button"
-                            class="btn-favorito"
-                            data-id="<?= $p->id ?>"
-                            style="position:absolute; top:8px; right:8px; z-index:2;
-                                background:rgba(255,255,255,0.9);
-                                border:2px solid <?= in_array($p->id, $favoritosIds) ? '#de777d' : '#f0e0e1' ?>;
-                                border-radius:50%; width:36px; height:36px;
-                                display:flex; align-items:center; justify-content:center;
-                                cursor:pointer; transition:all 0.2s;
-                                box-shadow:0 2px 6px rgba(0,0,0,0.1);">
-                        <i class="fas fa-heart" style="color:<?= in_array($p->id, $favoritosIds) ? '#de777d' : '#ccc' ?>; font-size:0.85rem;"></i>
-                    </button>
                 </div>
 
                 <div class="p-3 flex-fill d-flex flex-column">
@@ -185,46 +172,6 @@ document.addEventListener('DOMContentLoaded', function () {
             else                        { item.style.display = 'none'; }
         });
         contador.textContent = `${visible} producto${visible !== 1 ? 's' : ''}`;
-    });
-
-    // ── Favoritos ─────────────────────────────────
-    document.querySelectorAll('.btn-favorito').forEach(btn => {
-        btn.addEventListener('click', function (e) {
-            e.preventDefault();
-            e.stopPropagation();
-
-            <?php if (empty($_SESSION['cliente'])): ?>
-            window.location.href = '<?= APP_URL ?>Tienda/login';
-            return;
-            <?php endif; ?>
-
-            const productoId = this.dataset.id;
-            const icon       = this.querySelector('i');
-            const self       = this;
-
-            fetch('<?= APP_URL ?>Tienda/toggleFavorito', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                body: `producto_id=${productoId}`
-            })
-            .then(r => r.json())
-            .then(data => {
-                if (data.error === 'no_auth') {
-                    window.location.href = '<?= APP_URL ?>Tienda/login';
-                    return;
-                }
-                if (data.liked) {
-                    icon.style.color   = '#de777d';
-                    self.style.borderColor = '#de777d';
-                    self.style.boxShadow   = '0 2px 8px rgba(222,119,125,0.4)';
-                } else {
-                    icon.style.color   = '#ccc';
-                    self.style.borderColor = '#f0e0e1';
-                    self.style.boxShadow   = '0 2px 6px rgba(0,0,0,0.1)';
-                }
-            })
-            .catch(() => {});
-        });
     });
 
 });

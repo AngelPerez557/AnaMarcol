@@ -16,7 +16,7 @@ class DashboardController
         $roleModel       = new RoleModel();
         $permissionModel = new PermissionModel();
         $productoModel   = new ProductoModel();
-        $pedidoModel     = new PedidoModel();
+        $cotizacionModel = new CotizacionModel();
         $clienteModel    = new ClienteModel();
         $citaModel       = new CitaModel();
 
@@ -28,8 +28,9 @@ class DashboardController
 
         $totalProductos         = $productoModel->count();
         $totalProductosActivos  = $productoModel->count();
-        $totalPedidosPendientes = $pedidoModel->countByEstado('Pendiente');
-        $totalPedidosHoy        = $pedidoModel->countHoy();
+        // La tienda ya no genera pedidos: el indicador diario son las cotizaciones
+        $totalCotizacionesNuevas = $cotizacionModel->countByEstado('Nueva');
+        $totalCotizacionesHoy    = $cotizacionModel->countHoy();
         $totalClientes          = $clienteModel->count();
         $totalCitasHoy          = $citaModel->countHoy();
         $totalCitasPendientes   = $citaModel->countPendientes();

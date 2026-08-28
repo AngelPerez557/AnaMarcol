@@ -431,27 +431,6 @@
                         <span class="badge-carrito" id="badgeCarrito">0</span>
                     </a>
 
-                    <?php if (!empty($_SESSION['cliente'])): ?>
-                    <div class="dropdown dropdown-tienda">
-                        <button class="dropdown-toggle" type="button"
-                                data-bs-toggle="dropdown" aria-expanded="false">
-                            <i class="fas fa-user me-1"></i>
-                            <?= htmlspecialchars($_SESSION['cliente']['nombre']) ?>
-                        </button>
-                        <ul class="dropdown-menu dropdown-menu-end">
-                            <li><a class="dropdown-item" href="<?= APP_URL ?>Tienda/miPerfil"><i class="fas fa-user-edit me-2"></i>Mi perfil</a></li>
-                            <li><a class="dropdown-item" href="<?= APP_URL ?>Tienda/misPedidos"><i class="fas fa-box me-2"></i>Mis pedidos</a></li>
-                            <li><a class="dropdown-item" href="<?= APP_URL ?>Tienda/misCitas"><i class="fas fa-calendar me-2"></i>Mis citas</a></li>
-                            <li><a class="dropdown-item" href="<?= APP_URL ?>Tienda/misFavoritos"><i class="fas fa-heart me-2" style="color:#de777d;"></i>Mis favoritos</a></li>
-                            <li><hr class="dropdown-divider"></li>
-                            <li><a class="dropdown-item text-danger" href="<?= APP_URL ?>Tienda/logout?csrf=<?= urlencode(Csrf::token()) ?>"><i class="fas fa-sign-out-alt me-2"></i>Cerrar sesión</a></li>
-                        </ul>
-                    </div>
-                    <?php else: ?>
-                    <a href="<?= APP_URL ?>Tienda/login" class="btn-rosa-outline" style="font-size:0.85rem;">
-                        <i class="fas fa-sign-in-alt me-1"></i>Ingresar
-                    </a>
-                    <?php endif; ?>
 
                     <button class="btn btn-outline-secondary btn-sm d-md-none" type="button"
                             data-bs-toggle="collapse" data-bs-target="#menuMobile"
@@ -637,46 +616,21 @@
     }
     document.addEventListener('DOMContentLoaded', actualizarBadge);
 
-    // ── Favoritos ─────────────────────────────────
+    </script>
+
+    <?php if (!empty($_SESSION['alert'])): $__alert = $_SESSION['alert']; unset($_SESSION['alert']); ?>
+    <script>
+    // Alerta enviada por el controller (validación de cotización, etc.)
     document.addEventListener('DOMContentLoaded', function () {
-        document.querySelectorAll('.btn-favorito').forEach(btn => {
-            btn.addEventListener('click', function (e) {
-                e.preventDefault();
-                e.stopPropagation();
-
-                <?php if (empty($_SESSION['cliente'])): ?>
-                window.location.href = '<?= APP_URL ?>Tienda/login';
-                return;
-                <?php endif; ?>
-
-                const productoId = this.dataset.id;
-                const icon       = this.querySelector('i');
-                const self       = this;
-
-                fetch('<?= APP_URL ?>Tienda/toggleFavorito', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                    body: `producto_id=${productoId}`
-                })
-                .then(r => r.json())
-                .then(data => {
-                    if (data.error === 'no_auth') {
-                        window.location.href = '<?= APP_URL ?>Tienda/login';
-                        return;
-                    }
-                    if (data.liked) {
-                        icon.style.color = '#de777d';
-                        self.style.boxShadow = '0 2px 8px rgba(222,119,125,0.4)';
-                    } else {
-                        icon.style.color = '#ccc';
-                        self.style.boxShadow = '0 2px 6px rgba(0,0,0,0.15)';
-                    }
-                })
-                .catch(() => {});
-            });
+        Swal.fire({
+            icon:  <?= json_encode($__alert['icon']  ?? 'info') ?>,
+            title: <?= json_encode($__alert['title'] ?? '') ?>,
+            text:  <?= json_encode($__alert['text']  ?? '') ?>,
+            confirmButtonColor: '#de777d'
         });
     });
     </script>
+    <?php endif; ?>
 
     {JSCRIPTS}
 </body>

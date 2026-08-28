@@ -1,7 +1,22 @@
 <?php
 
+/**
+ * PedidosController — HISTÓRICO (congelado el 2026-08-28).
+ *
+ * La tienda dejó de generar pedidos: el carrito produce cotizaciones
+ * (ver CotizacionesController) y la venta se factura en AnaMarcolPOS.
+ *
+ * Este módulo queda fuera del menú y SOLO PARA CONSULTA de lo que se
+ * vendió antes del cambio. Las acciones de escritura (cambiar estado,
+ * confirmar pago) están bloqueadas: confirmar un pago aquí crearía una
+ * venta en una caja que ya no se usa y descuadraría el POS.
+ */
 class PedidosController
 {
+    // Interruptor único del modo histórico. Ponerlo en false reactiva
+    // la gestión completa de pedidos (no hacerlo sin reactivar Caja).
+    private const SOLO_LECTURA = true;
+
     private PedidoModel $pedidoModel;
 
     public function __construct()
@@ -91,6 +106,15 @@ class PedidosController
         // Header JSON PRIMERO — evita que Auth::can() devuelva HTML
         header('Content-Type: application/json');
 
+        if (self::SOLO_LECTURA) {
+            http_response_code(409);
+            echo json_encode([
+                'success' => false,
+                'message' => 'Los pedidos son solo histórico. La gestión se hace por cotizaciones.',
+            ]);
+            exit();
+        }
+
         if (!Auth::can('pedidos.gestionar')) {
             http_response_code(403);
             echo json_encode(['success' => false, 'message' => 'Sin permiso.']);
@@ -136,6 +160,15 @@ class PedidosController
     public function confirmarPago(): void
     {
         header('Content-Type: application/json');
+
+        if (self::SOLO_LECTURA) {
+            http_response_code(409);
+            echo json_encode([
+                'success' => false,
+                'message' => 'Cobro deshabilitado: las ventas se registran en AnaMarcolPOS.',
+            ]);
+            exit();
+        }
 
         if (!Auth::can('pedidos.gestionar')) {
             http_response_code(403);

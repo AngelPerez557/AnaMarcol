@@ -131,6 +131,16 @@
                         <input type="hidden" name="duracion"  id="inputDuracion" value="60">
                         <input type="hidden" name="precio"    id="inputPrecio"   value="0">
 
+                        <!-- Nombre — la tienda ya no tiene cuentas -->
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold" for="inputNombreCita">
+                                Tu nombre <span class="text-danger">*</span>
+                            </label>
+                            <input type="text" class="form-control" id="inputNombreCita"
+                                   name="nombre_cliente" maxlength="120"
+                                   placeholder="Nombre y apellido" required>
+                        </div>
+
                         <!-- Servicio -->
                         <div class="mb-3">
                             <label class="form-label fw-semibold">
@@ -176,8 +186,7 @@
                                     <i class="fab fa-whatsapp text-success"></i>
                                 </span>
                                 <input type="text" class="form-control" name="wa_numero"
-                                       placeholder="9999-9999" required
-                                       value="<?= htmlspecialchars($_SESSION['cliente']['telefono'] ?? '') ?>">
+                                       placeholder="9999-9999" required maxlength="25">
                             </div>
                             <small class="text-muted">Te confirmaremos por aquí.</small>
                         </div>
@@ -195,12 +204,6 @@
                             <i class="fas fa-calendar-check me-2"></i>Agendar cita
                         </button>
 
-                        <?php if (empty($_SESSION['cliente'])): ?>
-                        <p class="text-center mt-2" style="font-size:0.8rem; color:#aaa;">
-                            <a href="<?= APP_URL ?>Tienda/login" style="color:#de777d;">Inicia sesión</a>
-                            para asociar la cita a tu cuenta.
-                        </p>
-                        <?php endif; ?>
 
                     </form>
 

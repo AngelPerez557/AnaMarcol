@@ -12,7 +12,12 @@ $menu = [
   ###      ['Id'=>123,'Nombre'=>'Historial de Caja','Url'=>APP_URL.'Caja/historial','Icono'=>'fas fa-book','Permiso'=>'ventas.ver'],
    ## ]],
 
+    // Pedidos deshabilitado (2026-08-28): la tienda ya no gestiona pedidos,
+    // el carrito genera cotizaciones. /Pedidos/index sigue accesible por URL
+    // solo como histórico de lo vendido antes del cambio.
   #  'Pedidos' => ['Id'=>2,'Nombre'=>'Pedidos','Url'=>APP_URL.'Pedidos/index','Icono'=>'fas fa-shopping-bag','Permiso'=>'pedidos.ver','TourId'=>'tour-pedidos-link'],
+
+    'Cotizaciones' => ['Id'=>2,'Nombre'=>'Cotizaciones','Url'=>APP_URL.'Cotizaciones/index','Icono'=>'fas fa-file-invoice-dollar','Permiso'=>'pedidos.ver','TourId'=>'tour-cotizaciones-link'],
 
 
     'Catalogo' => ['Id'=>3,'Nombre'=>'Catálogo','Url'=>'#','Icono'=>'fas fa-box-open','Permiso'=>'','Children'=>[

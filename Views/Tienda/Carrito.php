@@ -1,13 +1,16 @@
 <div class="container py-5">
 
-    <h3 class="fw-bold mb-4">
-        <i class="fas fa-shopping-cart me-2" style="color:#de777d;"></i>Tu carrito
+    <h3 class="fw-bold mb-1">
+        <i class="fas fa-file-invoice-dollar me-2" style="color:#de777d;"></i>Tu cotización
     </h3>
+    <p class="text-muted mb-4" style="font-size:0.9rem;">
+        Arma tu lista y envíala por WhatsApp. Te confirmamos disponibilidad y precio final por ahí mismo.
+    </p>
 
     <!-- Carrito vacío -->
     <div id="carritoVacio" style="display:none;" class="text-center py-5">
         <i class="fas fa-shopping-cart fa-4x mb-4 d-block" style="color:#de777d; opacity:0.3;"></i>
-        <h5 class="text-muted">Tu carrito está vacío</h5>
+        <h5 class="text-muted">Aún no has agregado productos</h5>
         <a href="<?= APP_URL ?>Tienda/catalogo" class="btn-rosa mt-3 d-inline-block px-4 py-2">
             <i class="fas fa-arrow-left me-2"></i>Ver catálogo
         </a>
@@ -15,161 +18,153 @@
 
     <!-- Carrito con productos -->
     <div id="carritoContenido">
-        <div class="row g-4">
+        <form id="formCotizacion" method="POST" action="<?= APP_URL ?>Tienda/cotizar">
+            <input type="hidden" name="csrf_token" value="<?= htmlspecialchars(Csrf::token()) ?>">
+            <input type="hidden" name="items"        id="hItems"      value="">
+            <input type="hidden" name="tipo_entrega" id="hTipoEntrega" value="Retiro">
 
-            <!-- Lista de productos -->
-            <div class="col-12 col-lg-7">
-                <div class="card">
-                    <div class="card-body p-0 tabla-carrito-wrap">
-                        <table class="table align-middle mb-0" id="tablaCarrito">
-                            <thead>
-                                <tr style="background:rgba(222,119,125,0.08);">
-                                    <th class="ps-3">Producto</th>
-                                    <th class="text-center">Cantidad</th>
-                                    <th class="text-end">Precio</th>
-                                    <th class="text-end pe-3">Subtotal</th>
-                                    <th style="width:36px;"></th>
-                                </tr>
-                            </thead>
-                            <tbody id="bodyCarrito"></tbody>
-                        </table>
+            <div class="row g-4">
+
+                <!-- Lista de productos -->
+                <div class="col-12 col-lg-7">
+                    <div class="card">
+                        <div class="card-body p-0 tabla-carrito-wrap">
+                            <table class="table align-middle mb-0" id="tablaCarrito">
+                                <thead>
+                                    <tr style="background:rgba(222,119,125,0.08);">
+                                        <th class="ps-3">Producto</th>
+                                        <th class="text-center">Cantidad</th>
+                                        <th class="text-end">Precio</th>
+                                        <th class="text-end pe-3">Subtotal</th>
+                                        <th style="width:36px;"></th>
+                                    </tr>
+                                </thead>
+                                <tbody id="bodyCarrito"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <p class="text-muted mt-2 mb-0" style="font-size:0.78rem;">
+                        <i class="fas fa-info-circle me-1"></i>
+                        Los precios son referenciales. La disponibilidad se confirma por WhatsApp.
+                    </p>
+                </div>
+
+                <!-- Datos de la cotización -->
+                <div class="col-12 col-lg-5">
+                    <div class="card">
+                        <div class="card-header fw-semibold">
+                            <i class="fas fa-receipt me-2"></i>Datos de la cotización
+                        </div>
+                        <div class="card-body">
+
+                            <!-- Nombre -->
+                            <div class="mb-3">
+                                <label class="form-label fw-semibold" for="inputNombre">
+                                    Tu nombre <span class="text-danger">*</span>
+                                </label>
+                                <input type="text" class="form-control" id="inputNombre"
+                                       name="nombre_cliente" maxlength="120"
+                                       placeholder="Nombre y apellido" required>
+                            </div>
+
+                            <!-- WhatsApp -->
+                            <div class="mb-3">
+                                <label class="form-label fw-semibold" for="inputWa">
+                                    Tu WhatsApp <span class="text-danger">*</span>
+                                </label>
+                                <div class="input-group">
+                                    <span class="input-group-text">
+                                        <i class="fab fa-whatsapp text-success"></i>
+                                    </span>
+                                    <input type="tel" class="form-control" id="inputWa"
+                                           name="wa_numero" maxlength="25"
+                                           placeholder="9999-9999" required>
+                                </div>
+                                <small class="text-muted">Por aquí te respondemos tu cotización.</small>
+                            </div>
+
+                            <!-- Tipo de entrega -->
+                            <div class="mb-3">
+                                <label class="form-label fw-semibold">¿Cómo lo querés recibir?</label>
+                                <div class="d-flex gap-2">
+                                    <button type="button" class="btn-selector activo flex-fill"
+                                            data-tipo="Retiro">
+                                        <i class="fas fa-store me-1"></i>Retiro
+                                    </button>
+                                    <button type="button" class="btn-selector flex-fill"
+                                            data-tipo="Envio">
+                                        <i class="fas fa-truck me-1"></i>Envío
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- Zona de envío (solo si selecciona envío) -->
+                            <div id="seccionEnvio" style="display:none;">
+                                <div class="mb-3">
+                                    <label class="form-label fw-semibold" for="selectZona">Zona de envío</label>
+                                    <select class="form-select" id="selectZona" name="zona_id">
+                                        <option value="">Seleccionar zona...</option>
+                                        <?php foreach ($zonas as $zona): ?>
+                                        <option value="<?= (int)$zona['id'] ?>" data-costo="<?= (float)$zona['costo'] ?>">
+                                            <?= htmlspecialchars($zona['nombre']) ?>
+                                            — <?= (float)$zona['costo'] === 0.0 ? 'Gratis' : 'L. ' . number_format((float)$zona['costo'], 2) ?>
+                                        </option>
+                                        <?php endforeach; ?>
+                                    </select>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label fw-semibold" for="inputDireccion">Dirección de entrega</label>
+                                    <textarea class="form-control" id="inputDireccion" name="direccion_envio"
+                                              rows="2" placeholder="Colonia, calle, referencia..."></textarea>
+                                </div>
+                            </div>
+
+                            <!-- Nota -->
+                            <div class="mb-3">
+                                <label class="form-label fw-semibold" for="inputNota">
+                                    Nota <span class="text-muted fw-normal">(opcional)</span>
+                                </label>
+                                <textarea class="form-control" id="inputNota" name="nota" rows="2"
+                                          placeholder="Tono, color, fecha en que lo necesitas..."></textarea>
+                            </div>
+
+                            <!-- Totales -->
+                            <div class="border-top pt-3">
+                                <div class="d-flex justify-content-between mb-1">
+                                    <span class="text-muted">Subtotal</span>
+                                    <span id="resumenSubtotal">L. 0.00</span>
+                                </div>
+                                <div class="d-flex justify-content-between mb-1" id="filaEnvio" style="display:none;">
+                                    <span class="text-muted">Envío</span>
+                                    <span id="resumenEnvio">L. 0.00</span>
+                                </div>
+                                <div class="d-flex justify-content-between fw-bold pt-2 border-top"
+                                     style="font-size:1.15rem;">
+                                    <span>Total estimado</span>
+                                    <span style="color:#de777d;" id="resumenTotal">L. 0.00</span>
+                                </div>
+                            </div>
+
+                            <button type="submit" class="btn-rosa w-100 mt-3" id="btnCotizar"
+                                    style="padding:12px; font-size:1rem;">
+                                <i class="fab fa-whatsapp me-2"></i>Enviar cotización por WhatsApp
+                            </button>
+
+                            <a href="<?= APP_URL ?>Tienda/catalogo" class="btn-rosa-outline d-block text-center mt-2">
+                                <i class="fas fa-arrow-left me-1"></i>Seguir viendo productos
+                            </a>
+
+                        </div>
                     </div>
                 </div>
             </div>
-
-            <!-- Resumen y checkout -->
-            <div class="col-12 col-lg-5">
-                <div class="card">
-                    <div class="card-header fw-semibold">
-                        <i class="fas fa-receipt me-2"></i>Resumen del pedido
-                    </div>
-                    <div class="card-body">
-
-                        <!-- Tipo de entrega -->
-                        <div class="mb-3">
-                            <label class="form-label fw-semibold">Tipo de entrega</label>
-                            <div class="d-flex gap-2">
-                                <button type="button" class="btn-selector activo flex-fill"
-                                        data-tipo="Retiro" id="btnRetiro">
-                                    <i class="fas fa-store me-1"></i>Retiro
-                                </button>
-                                <button type="button" class="btn-selector flex-fill"
-                                        data-tipo="Envio" id="btnEnvio">
-                                    <i class="fas fa-truck me-1"></i>Envío
-                                </button>
-                            </div>
-                        </div>
-
-                        <!-- Zona de envío (solo si selecciona envío) -->
-                        <div id="seccionEnvio" style="display:none;">
-                            <div class="mb-3">
-                                <label class="form-label fw-semibold">Zona de envío</label>
-                                <select class="form-select" id="selectZona">
-                                    <option value="">Seleccionar zona...</option>
-                                    <?php foreach ($zonas as $zona): ?>
-                                    <option value="<?= $zona['id'] ?>" data-costo="<?= $zona['costo'] ?>">
-                                        <?= htmlspecialchars($zona['nombre']) ?>
-                                        — <?= (float)$zona['costo'] === 0.0 ? 'Gratis' : 'L. ' . number_format((float)$zona['costo'], 2) ?>
-                                    </option>
-                                    <?php endforeach; ?>
-                                </select>
-                            </div>
-                            <div class="mb-3">
-                                <label class="form-label fw-semibold">Dirección de entrega</label>
-                                <textarea class="form-control" id="inputDireccion" rows="2"
-                                          placeholder="Colonia, calle, referencia..."></textarea>
-                            </div>
-                        </div>
-
-                        <!-- Método de pago -->
-                        <div class="mb-3">
-                            <label class="form-label fw-semibold">Método de pago</label>
-                            <div class="d-flex gap-2">
-                                <button type="button" class="btn-selector activo flex-fill"
-                                        data-metodo="Transferencia" id="btnTransferencia">
-                                    <i class="fas fa-mobile-alt me-1"></i>Transferencia
-                                </button>
-                                <button type="button" class="btn-selector flex-fill"
-                                        data-metodo="Efectivo" id="btnEfectivo">
-                                    <i class="fas fa-money-bill me-1"></i>Efectivo
-                                </button>
-                            </div>
-                        </div>
-
-                        <!-- WhatsApp -->
-                        <div class="mb-3">
-                            <label class="form-label fw-semibold">
-                                Tu WhatsApp
-                                <span class="text-muted fw-normal">(para notificaciones)</span>
-                            </label>
-                            <div class="input-group">
-                                <span class="input-group-text">
-                                    <i class="fab fa-whatsapp text-success"></i>
-                                </span>
-                                <input type="text" class="form-control" id="inputWa"
-                                       placeholder="9999-9999"
-                                       value="<?= htmlspecialchars($_SESSION['cliente']['telefono'] ?? '') ?>">
-                            </div>
-                        </div>
-
-                        <!-- Nota -->
-                        <div class="mb-3">
-                            <label class="form-label fw-semibold">
-                                Nota <span class="text-muted fw-normal">(opcional)</span>
-                            </label>
-                            <textarea class="form-control" id="inputNota" rows="2"
-                                      placeholder="Instrucciones especiales..."></textarea>
-                        </div>
-
-                        <!-- Totales -->
-                        <div class="border-top pt-3">
-                            <div class="d-flex justify-content-between mb-1">
-                                <span class="text-muted">Subtotal</span>
-                                <span id="resumenSubtotal">L. 0.00</span>
-                            </div>
-                            <div class="d-flex justify-content-between mb-1" id="filaEnvio" style="display:none!important;">
-                                <span class="text-muted">Envío</span>
-                                <span id="resumenEnvio">L. 0.00</span>
-                            </div>
-                            <div class="d-flex justify-content-between fw-bold pt-2 border-top"
-                                 style="font-size:1.15rem;">
-                                <span>Total</span>
-                                <span style="color:#de777d;" id="resumenTotal">L. 0.00</span>
-                            </div>
-                        </div>
-
-                        <!-- Botón confirmar -->
-                        <button type="button" class="btn-rosa w-100 mt-3" id="btnConfirmarPedido"
-                                style="padding:12px; font-size:1rem;">
-                            <i class="fas fa-check-circle me-2"></i>Confirmar pedido
-                        </button>
-
-                        <a href="<?= APP_URL ?>Tienda/catalogo" class="btn-rosa-outline d-block text-center mt-2">
-                            <i class="fas fa-arrow-left me-1"></i>Seguir comprando
-                        </a>
-
-                    </div>
-                </div>
-            </div>
-        </div>
+        </form>
     </div>
 
 </div>
 
-<!-- Form oculto para enviar el pedido -->
-<form id="formCheckout" method="POST" action="<?= APP_URL ?>Tienda/checkout" style="display:none;">
-    <input type="hidden" name="csrf_token"      value="<?= htmlspecialchars($_SESSION['csrf_token'] ?? '') ?>">
-    <input type="hidden" name="tipo_entrega"    id="hTipoEntrega"  value="Retiro">
-    <input type="hidden" name="metodo_pago"     id="hMetodoPago"   value="Transferencia">
-    <input type="hidden" name="zona_id"         id="hZonaId"       value="">
-    <input type="hidden" name="direccion_envio" id="hDireccion"    value="">
-    <input type="hidden" name="wa_numero"       id="hWa"           value="">
-    <input type="hidden" name="nota"            id="hNota"         value="">
-    <input type="hidden" name="items"           id="hItems"        value="">
-</form>
-
 <style>
-/* ── Botones selector (entrega y pago) ── */
+/* ── Botones selector (tipo de entrega) ── */
 .btn-selector {
     padding: 8px 12px;
     border: 2px solid #dee2e6;
@@ -197,14 +192,9 @@
     #tablaCarrito td:nth-child(3) { display: none; }
     #tablaCarrito { font-size: 0.82rem; min-width: 0; }
     #tablaCarrito td, #tablaCarrito th { padding: 8px 6px; }
-    #tablaCarrito .d-flex > div:first-child {
-        width: 36px !important;
-        height: 36px !important;
-    }
+    #tablaCarrito .d-flex > div:first-child { width: 36px !important; height: 36px !important; }
     #tablaCarrito button[onclick*="cambiarCantidad"] {
-        width: 22px !important;
-        height: 22px !important;
-        font-size: 0.8rem !important;
+        width: 22px !important; height: 22px !important; font-size: 0.8rem !important;
     }
     .col-12.col-lg-5 .card-body { padding: 1rem !important; }
 }
@@ -213,16 +203,16 @@
 <script>
 document.addEventListener('DOMContentLoaded', function () {
 
-    let tipoEntrega = 'Retiro';
-    let metodoPago  = 'Transferencia';
-    let costoEnvio  = 0;
+    let costoEnvio = 0;
+
+    const $ = id => document.getElementById(id);
 
     // ── Renderizar carrito ────────────────────────
     function renderCarrito() {
         const carrito = getCarrito();
-        const body    = document.getElementById('bodyCarrito');
-        const vacio   = document.getElementById('carritoVacio');
-        const cont    = document.getElementById('carritoContenido');
+        const body    = $('bodyCarrito');
+        const vacio   = $('carritoVacio');
+        const cont    = $('carritoContenido');
 
         if (carrito.length === 0) {
             vacio.style.display = '';
@@ -249,11 +239,11 @@ document.addEventListener('DOMContentLoaded', function () {
                 </td>
                 <td class="text-center">
                     <div class="d-flex align-items-center justify-content-center gap-1">
-                        <button onclick="cambiarCantidad(${idx}, -1)"
+                        <button type="button" onclick="cambiarCantidad(${idx}, -1)"
                                 style="width:26px; height:26px; border-radius:50%; border:1px solid #de777d;
                                        background:#fff; color:#de777d; cursor:pointer; font-size:0.9rem;">−</button>
                         <span style="min-width:24px; text-align:center; font-weight:600;">${item.cantidad}</span>
-                        <button onclick="cambiarCantidad(${idx}, 1)"
+                        <button type="button" onclick="cambiarCantidad(${idx}, 1)"
                                 style="width:26px; height:26px; border-radius:50%; border:1px solid #de777d;
                                        background:#fff; color:#de777d; cursor:pointer; font-size:0.9rem;">+</button>
                     </div>
@@ -265,7 +255,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     L. ${(item.precio * item.cantidad).toFixed(2)}
                 </td>
                 <td>
-                    <button onclick="quitarItem(${idx})"
+                    <button type="button" onclick="quitarItem(${idx})"
                             style="background:none; border:none; color:#dc3545; cursor:pointer;">
                         <i class="fas fa-times"></i>
                     </button>
@@ -275,7 +265,7 @@ document.addEventListener('DOMContentLoaded', function () {
         actualizarTotales();
     }
 
-    window.cambiarCantidad = function(idx, delta) {
+    window.cambiarCantidad = function (idx, delta) {
         const carrito = getCarrito();
         carrito[idx].cantidad += delta;
         if (carrito[idx].cantidad <= 0) carrito.splice(idx, 1);
@@ -283,7 +273,7 @@ document.addEventListener('DOMContentLoaded', function () {
         renderCarrito();
     };
 
-    window.quitarItem = function(idx) {
+    window.quitarItem = function (idx) {
         const carrito = getCarrito();
         carrito.splice(idx, 1);
         saveCarrito(carrito);
@@ -293,10 +283,9 @@ document.addEventListener('DOMContentLoaded', function () {
     function actualizarTotales() {
         const carrito  = getCarrito();
         const subtotal = carrito.reduce((sum, i) => sum + i.precio * i.cantidad, 0);
-        const total    = subtotal + costoEnvio;
-        document.getElementById('resumenSubtotal').textContent = `L. ${subtotal.toFixed(2)}`;
-        document.getElementById('resumenEnvio').textContent    = costoEnvio > 0 ? `L. ${costoEnvio.toFixed(2)}` : 'Gratis';
-        document.getElementById('resumenTotal').textContent    = `L. ${total.toFixed(2)}`;
+        $('resumenSubtotal').textContent = `L. ${subtotal.toFixed(2)}`;
+        $('resumenEnvio').textContent    = costoEnvio > 0 ? `L. ${costoEnvio.toFixed(2)}` : 'Gratis';
+        $('resumenTotal').textContent    = `L. ${(subtotal + costoEnvio).toFixed(2)}`;
     }
 
     // ── Tipo de entrega ───────────────────────────
@@ -304,101 +293,65 @@ document.addEventListener('DOMContentLoaded', function () {
         btn.addEventListener('click', function () {
             document.querySelectorAll('[data-tipo]').forEach(b => b.classList.remove('activo'));
             this.classList.add('activo');
-            tipoEntrega = this.dataset.tipo;
 
-            const secEnvio  = document.getElementById('seccionEnvio');
-            const filaEnvio = document.getElementById('filaEnvio');
+            const tipo = this.dataset.tipo;
+            $('hTipoEntrega').value = tipo;
 
-            if (tipoEntrega === 'Envio') {
-                secEnvio.style.display  = '';
-                filaEnvio.style.display = '';
-            } else {
-                secEnvio.style.display  = 'none';
-                filaEnvio.style.display = 'none';
-                costoEnvio = 0;
+            const esEnvio = tipo === 'Envio';
+            $('seccionEnvio').style.display = esEnvio ? '' : 'none';
+            $('filaEnvio').style.display    = esEnvio ? '' : 'none';
+
+            if (!esEnvio) {
+                costoEnvio            = 0;
+                $('selectZona').value = '';
                 actualizarTotales();
             }
         });
     });
 
-    // ── Método de pago ────────────────────────────
-    document.querySelectorAll('[data-metodo]').forEach(btn => {
-        btn.addEventListener('click', function () {
-            document.querySelectorAll('[data-metodo]').forEach(b => b.classList.remove('activo'));
-            this.classList.add('activo');
-            metodoPago = this.dataset.metodo;
-        });
-    });
-
     // ── Zona de envío ─────────────────────────────
-    document.getElementById('selectZona').addEventListener('change', function () {
-        const option = this.options[this.selectedIndex];
-        costoEnvio = parseFloat(option.dataset.costo || 0);
-        document.getElementById('filaEnvio').style.display = '';
+    $('selectZona').addEventListener('change', function () {
+        costoEnvio = parseFloat(this.options[this.selectedIndex].dataset.costo || 0);
         actualizarTotales();
     });
 
-    // ── Confirmar pedido ──────────────────────────
-    document.getElementById('btnConfirmarPedido').addEventListener('click', function () {
+    // ── Enviar cotización ─────────────────────────
+    // El carrito NO se limpia aquí: se limpia en la pantalla de
+    // confirmación, para no perderlo si el POST falla.
+    $('formCotizacion').addEventListener('submit', function (e) {
         const carrito = getCarrito();
 
-        <?php if (empty($_SESSION['cliente'])): ?>
-        window.location.href = '<?= APP_URL ?>Tienda/login';
-        return;
-        <?php endif; ?>
-
         if (carrito.length === 0) {
-            Swal.fire({ icon: 'warning', title: 'Carrito vacío',
-                confirmButtonColor: '#de777d' });
+            e.preventDefault();
+            Swal.fire({ icon: 'warning', title: 'Tu lista está vacía', confirmButtonColor: '#de777d' });
             return;
         }
 
-        if (tipoEntrega === 'Envio') {
-            const zonaId = document.getElementById('selectZona').value;
-            if (!zonaId) {
-                Swal.fire({ icon: 'warning', title: 'Selecciona una zona de envío',
-                    confirmButtonColor: '#de777d' });
+        if ($('hTipoEntrega').value === 'Envio') {
+            if (!$('selectZona').value) {
+                e.preventDefault();
+                Swal.fire({ icon: 'warning', title: 'Selecciona una zona de envío', confirmButtonColor: '#de777d' });
                 return;
             }
-            const direccion = document.getElementById('inputDireccion').value.trim();
-            if (!direccion) {
-                Swal.fire({ icon: 'warning', title: 'Ingresa tu dirección',
-                    confirmButtonColor: '#de777d' });
+            if (!$('inputDireccion').value.trim()) {
+                e.preventDefault();
+                Swal.fire({ icon: 'warning', title: 'Ingresa tu dirección', confirmButtonColor: '#de777d' });
                 return;
             }
-            document.getElementById('hZonaId').value    = zonaId;
-            document.getElementById('hDireccion').value = direccion;
         }
 
-        document.getElementById('hTipoEntrega').value = tipoEntrega;
-        document.getElementById('hMetodoPago').value  = metodoPago;
-        document.getElementById('hWa').value          = document.getElementById('inputWa').value;
-        document.getElementById('hNota').value        = document.getElementById('inputNota').value;
-        document.getElementById('hItems').value       = JSON.stringify(carrito);
+        // Solo se manda lo que el servidor necesita para reconstruir
+        // el detalle: id, variante y cantidad. El precio lo pone la BD.
+        $('hItems').value = JSON.stringify(carrito.map(i => ({
+            id:         i.id,
+            varianteId: i.varianteId || null,
+            cantidad:   i.cantidad
+        })));
 
-        const totalFinal = (carrito.reduce((s, i) => s + i.precio * i.cantidad, 0) + costoEnvio).toFixed(2);
-        const iconMetodo = metodoPago === 'Efectivo' ? '💵' : '📱';
-
-        Swal.fire({
-            icon: 'question',
-            title: '¿Confirmar pedido?',
-            html: `<b>Total:</b> L. ${totalFinal}<br>
-                   <small class="text-muted">${iconMetodo} Pago: ${metodoPago} &nbsp;|&nbsp;
-                   <i class="fas fa-${tipoEntrega === 'Envio' ? 'truck' : 'store'}"></i> ${tipoEntrega}</small>`,
-            showCancelButton: true,
-            confirmButtonColor: '#de777d',
-            cancelButtonColor: '#6c757d',
-            confirmButtonText: 'Sí, confirmar',
-            cancelButtonText: 'Revisar'
-        }).then(result => {
-            if (result.isConfirmed) {
-                localStorage.removeItem('carrito_anamarcol');
-                document.getElementById('formCheckout').submit();
-            }
-        });
+        $('btnCotizar').disabled  = true;
+        $('btnCotizar').innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Generando cotización...';
     });
 
-    // Inicializar
     renderCarrito();
 });
 </script>

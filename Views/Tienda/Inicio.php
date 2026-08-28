@@ -108,19 +108,6 @@ if (!function_exists('calcDesc')) {
                     </span>
                     <?php endif; ?>
 
-                    <!-- Botón favorito -->
-                    <button type="button"
-                            class="btn-favorito"
-                            data-id="<?= $p->id ?>"
-                            title="Agregar a favoritos"
-                            style="position:absolute;top:8px;right:8px;
-                                   background:rgba(255,255,255,0.9);border:2px solid #f0e0e1;
-                                   border-radius:50%;width:34px;height:34px;
-                                   display:flex;align-items:center;justify-content:center;
-                                   cursor:pointer;box-shadow:0 2px 6px rgba(0,0,0,0.12);
-                                   transition:all 0.2s;font-size:0.9rem;z-index:2;">
-                        <i class="fas fa-heart" style="color:#ccc;"></i>
-                    </button>
                 </div>
                 <div class="p-3">
                     <a href="<?= APP_URL ?>Tienda/producto/<?= $p->id ?>-<?= slugify($p->nombre) ?>" style="text-decoration:none;color:inherit;">

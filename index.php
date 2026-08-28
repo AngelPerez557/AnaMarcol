@@ -92,13 +92,15 @@ if (empty($_SESSION['csrf_token'])) {
 define('SESSION_TIMEOUT', 7200);
 if (isset($_SESSION['ultima_actividad'])) {
     if (time() - $_SESSION['ultima_actividad'] > SESSION_TIMEOUT) {
-        $esCliente = isset($_SESSION['cliente']);
+        // La tienda es pública y anónima: el timeout solo aplica al panel.
+        // Un visitante de la tienda no debe ser expulsado a ninguna parte.
+        $esVisitanteTienda = !Auth::isLoggedIn();
         session_unset();
         session_destroy();
-        header('Location: ' . ($esCliente
-            ? APP_URL . 'Tienda/login?expired=1'
-            : APP_URL . 'Auth/index?expired=1'));
-        exit();
+        if (!$esVisitanteTienda) {
+            header('Location: ' . APP_URL . 'Auth/index?expired=1');
+            exit();
+        }
     }
 }
 $_SESSION['ultima_actividad'] = time();
@@ -186,14 +188,15 @@ $rutasSinTemplate = ['login', 'auth', 'tienda', 'api'];
 $rutasCompletasSinTemplate = ['caja/recibo', 'caja/resumen'];
 
 // Métodos que retornan JSON — no cargar template
+// Métodos de login/registro/perfil/favoritos de tienda eliminados (2026-08-28):
+// la tienda es anónima y el carrito solo genera cotizaciones.
 $metodosJson = ['toggle', 'delete', 'save', 'saveVariante', 'deleteVariante',
                 'darkMode', 'buscar', 'barras', 'cobrar', 'search',
                 'cambiarEstado', 'confirmarPago', 'saveProductos', 'saveConfig',
                 'dia', 'verificar', 'cambiarEstadoCita', 'saveConfigCitas',
-                'checkout', 'guardarRegistro', 'procesarLogin', 'agendarCita',
+                'agendarCita', 'cotizar',
                 'obtener', 'marcarLeida', 'marcarTodas', 'eliminar',
-                'marcarTour', 'activarTour', 'verificarStock', 'toggleFavorito',
-                'guardarPerfil', 'cambiarPassword', 'comentar',
+                'marcarTour', 'activarTour', 'verificarStock', 'comentar',
                 'anular', 'abrir', 'cerrar', 'toggleVisible'];
 
 $metodoActual     = strtolower(explode('/', $urlActual)[1] ?? '');

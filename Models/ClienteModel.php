@@ -43,6 +43,20 @@ class ClienteModel extends BaseModel
         return ClienteEntity::fromArray($row);
     }
 
+    // Retorna un cliente por su teléfono — tienda sin login
+    // Normaliza guiones/espacios en el SP para que 9999-9999 y 99999999 sean el mismo
+    // Llama a: CALL sp_clientes_findByTelefono(?)
+    public function findByTelefono(string $telefono): ClienteEntity
+    {
+        $row = $this->callSPSingle('sp_clientes_findByTelefono', [$telefono]);
+
+        if ($row === null || empty($row)) {
+            return new ClienteEntity();
+        }
+
+        return ClienteEntity::fromArray($row);
+    }
+
     // Busca clientes por nombre, email o teléfono — para la Caja
     // Llama a: CALL sp_clientes_search(?)
     // Retorna array plano para JSON
@@ -117,4 +131,30 @@ class ClienteModel extends BaseModel
         return $row && (int)$row['existe'] > 0;
     }
     
+
+    // ─────────────────────────────────────────────
+    // CLIENTE SIN CUENTA
+    // La tienda ya no tiene registro: cotizaciones y citas
+    // identifican al cliente por su WhatsApp. Si ya existe se
+    // reutiliza; si no, se crea sin password (no puede loguearse
+    // porque el login de tienda fue eliminado).
+    // Retorna el id del cliente, o 0 si no se pudo resolver.
+    // ─────────────────────────────────────────────
+    public function resolverPorTelefono(string $telefono, string $nombre): int
+    {
+        $telefono = trim($telefono);
+        if ($telefono === '') return 0;
+
+        $existente = $this->findByTelefono($telefono);
+        if ($existente->Found && (int) $existente->id > 0) {
+            return (int) $existente->id;
+        }
+
+        return $this->insert([
+            'nombre'   => $nombre !== '' ? $nombre : 'Cliente tienda',
+            'email'    => null,
+            'telefono' => $telefono,
+            'password' => null,
+        ]);
+    }
 }

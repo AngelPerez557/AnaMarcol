@@ -129,25 +129,25 @@
         </div>
         <?php endif; ?>
 
-        <!-- Card Pedidos pendientes -->
+        <!-- Card Cotizaciones nuevas -->
         <?php if (Auth::can('pedidos.ver')): ?>
         <div class="col-12 col-sm-6 col-xl-3">
             <div class="card h-100">
                 <div class="card-body d-flex align-items-center gap-3">
                     <div class="rounded-circle d-flex align-items-center justify-content-center"
                          style="width:56px;height:56px;background:rgba(220,53,69,0.12);flex-shrink:0;">
-                        <i class="fas fa-shopping-bag fa-lg" style="color:#dc3545;"></i>
+                        <i class="fas fa-file-invoice-dollar fa-lg" style="color:#dc3545;"></i>
                     </div>
                     <div>
-                        <div class="text-muted" style="font-size:0.8rem;">Pedidos pendientes</div>
+                        <div class="text-muted" style="font-size:0.8rem;">Cotizaciones nuevas</div>
                         <div class="fw-bold" style="font-size:1.75rem;line-height:1;">
-                            <?= $totalPedidosPendientes ?>
+                            <?= $totalCotizacionesNuevas ?>
                         </div>
-                        <small class="text-muted"><?= $totalPedidosHoy ?> hoy</small>
+                        <small class="text-muted"><?= $totalCotizacionesHoy ?> hoy</small>
                     </div>
                 </div>
                 <div class="card-footer text-end">
-                    <a href="<?= APP_URL ?>Pedidos/pendientes" class="btn btn-sm btn-danger">
+                    <a href="<?= APP_URL ?>Cotizaciones/index" class="btn btn-sm btn-danger">
                         <i class="fas fa-arrow-right me-1"></i>Ver
                     </a>
                 </div>

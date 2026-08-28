@@ -9,7 +9,7 @@
             <small class="text-muted"><?= count($clientes) ?> cliente<?= count($clientes) !== 1 ? 's' : '' ?> registrado<?= count($clientes) !== 1 ? 's' : '' ?></small>
         </div>
         <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalQR">
-            <i class="fas fa-qrcode me-2"></i>Mostrar QR de registro
+            <i class="fas fa-qrcode me-2"></i>Mostrar QR del catálogo
         </button>
     </div>
 
@@ -18,13 +18,13 @@
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content text-center">
                 <div class="modal-header border-0">
-                    <h5 class="modal-title w-100 fw-bold"><i class="fas fa-qrcode me-2" style="color:#de777d;"></i>Registro de Cliente</h5>
+                    <h5 class="modal-title w-100 fw-bold"><i class="fas fa-qrcode me-2" style="color:#de777d;"></i>Catálogo en línea</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body pb-4">
-                    <p class="text-muted mb-3">Muestra este código al cliente para que se registre desde su celular.</p>
+                    <p class="text-muted mb-3">Muestra este código al cliente para que abra el catálogo y arme su cotización desde su celular.</p>
                     <div id="qrRegistro" style="display:inline-block;padding:12px;border:4px solid #de777d;border-radius:12px;"></div>
-                    <div class="mt-3"><small class="text-muted"><i class="fas fa-link me-1"></i><?= APP_URL ?>Tienda/registro</small></div>
+                    <div class="mt-3"><small class="text-muted"><i class="fas fa-link me-1"></i><?= APP_URL ?>Tienda/catalogo</small></div>
                 </div>
             </div>
         </div>
@@ -158,7 +158,7 @@
 document.addEventListener('DOMContentLoaded', function () {
 
     new QRCode(document.getElementById('qrRegistro'), {
-        text:'<?= APP_URL ?>Tienda/registro', width:220, height:220,
+        text:'<?= APP_URL ?>Tienda/catalogo', width:220, height:220,
         colorDark:'#de777d', colorLight:'#ffffff', correctLevel:QRCode.CorrectLevel.H
     });
 

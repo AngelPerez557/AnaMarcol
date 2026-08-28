@@ -20,6 +20,25 @@ class DescuentoModel extends BaseModel
         return $this->callSPSingle('sp_descuentos_getActivo');
     }
 
+    // ─────────────────────────────────────────────
+    // PRECIO FINAL — regla de negocio del descuento
+    // Vive aquí y no en las Views: el carrito, la cotización y
+    // el catálogo deben calcular exactamente el mismo precio.
+    // $descuento se puede inyectar para no consultar la BD en un bucle.
+    // ─────────────────────────────────────────────
+    public function precioConDescuento(float $precioBase, int $categoriaId, ?array $descuento = null): float
+    {
+        $d = $descuento ?? $this->getActivo();
+        if (empty($d)) return round($precioBase, 2);
+
+        $aplica = ($d['aplica_a'] ?? '') === 'todo'
+               || (($d['aplica_a'] ?? '') === 'categoria' && (int) ($d['categoria_id'] ?? 0) === $categoriaId);
+
+        if (!$aplica) return round($precioBase, 2);
+
+        return round($precioBase * (1 - (float) $d['porcentaje'] / 100), 2);
+    }
+
     public function insert(array $data): int
     {
         return $this->callSPInsert('sp_descuentos_insert', [
