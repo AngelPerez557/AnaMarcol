@@ -114,4 +114,20 @@ class CitaModel extends BaseModel
         $rows = $this->callSP('sp_citas_findByCliente', [$clienteId]);
         return array_map(fn($row) => CitaEntity::fromArray($row), $rows);
     }
+
+    // ─────────────────────────────────────────────
+    // LÍMITE DE CITAS PENDIENTES POR ORIGEN (device_id + IP)
+    // Ver BD/sql/2026-08-29-citas-limite-pendientes.sql
+    // ─────────────────────────────────────────────
+
+    public function contarPendientesPorOrigen(string $deviceId, string $ip): int
+    {
+        $row = $this->callSPSingle('sp_citas_contarPendientesPorOrigen', [$deviceId, $ip]);
+        return $row ? (int) $row['pendientes'] : 0;
+    }
+
+    public function insertOrigen(int $citaId, string $deviceId, string $ip): void
+    {
+        $this->callSPExecute('sp_citas_insertOrigen', [$citaId, $deviceId, $ip]);
+    }
 }

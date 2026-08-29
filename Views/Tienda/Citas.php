@@ -10,7 +10,13 @@
 
     <?php if (!empty($_GET['error'])): ?>
     <div class="alert alert-danger">
-        <?= $_GET['error'] === 'ocupado' ? 'Ese horario ya no está disponible. Elige otro.' : 'Por favor completa todos los campos.' ?>
+        <?php if ($_GET['error'] === 'ocupado'): ?>
+            Ese horario ya no está disponible. Elige otro.
+        <?php elseif ($_GET['error'] === 'limite'): ?>
+            Ya tienes 2 citas esperando confirmación. Te vamos a escribir por WhatsApp para confirmarlas antes de poder agendar una más.
+        <?php else: ?>
+            Por favor completa todos los campos.
+        <?php endif; ?>
     </div>
     <?php endif; ?>
 

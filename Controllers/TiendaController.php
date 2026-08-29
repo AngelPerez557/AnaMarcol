@@ -401,6 +401,17 @@ class TiendaController
             header('Location: ' . APP_URL . 'Tienda/citas?error=ocupado'); exit();
         }
 
+        // Límite de citas sin confirmar por dispositivo — no bloquea la IP
+        // (compartida entre clientes reales con datos móviles), solo pausa
+        // NUEVAS citas de este mismo origen mientras las anteriores sigan
+        // pendientes. En cuanto el panel confirma/cancela alguna, se libera
+        // sola en el siguiente intento — ver CitaModel::contarPendientesPorOrigen.
+        $deviceId = $this->obtenerODefinirDeviceId();
+        $ip       = $_SERVER['REMOTE_ADDR'] ?? '0.0.0.0';
+        if ($this->citaModel->contarPendientesPorOrigen($deviceId, $ip) >= 2) {
+            header('Location: ' . APP_URL . 'Tienda/citas?error=limite'); exit();
+        }
+
         $clienteId = $this->clienteModel->resolverPorTelefono($waNumero, $nombre);
 
         $citaId = $this->citaModel->insert([
@@ -415,6 +426,8 @@ class TiendaController
         ]);
 
         if ($citaId > 0) {
+            $this->citaModel->insertOrigen($citaId, $deviceId, $ip);
+
             $this->notifModel->nuevaCita(
                 $nombre,
                 $servicio->nombre ?? 'Servicio',
@@ -449,6 +462,29 @@ class TiendaController
     private function limpiar(string $valor): string
     {
         return htmlspecialchars(strip_tags(trim($valor)), ENT_QUOTES, 'UTF-8');
+    }
+
+    // Identifica al navegador con una cookie de larga duración, solo para
+    // contar citas pendientes por origen (ver agendarCita). No es un login,
+    // no identifica a la persona — si borra cookies, simplemente recibe un
+    // id nuevo (y con eso solo pierde el "recuerdo" de su límite anterior,
+    // no una ventaja real: la IP sigue contando también).
+    private function obtenerODefinirDeviceId(): string
+    {
+        $existente = $_COOKIE['am_device_id'] ?? '';
+        if (preg_match('/^[a-f0-9]{32}$/', $existente)) {
+            return $existente;
+        }
+
+        $nuevo = bin2hex(random_bytes(16));
+        setcookie('am_device_id', $nuevo, [
+            'expires'  => time() + 60 * 60 * 24 * 365,
+            'path'     => '/',
+            'secure'   => !empty($_SERVER['HTTPS']),
+            'httponly' => true,
+            'samesite' => 'Lax',
+        ]);
+        return $nuevo;
     }
 
     // Corta el flujo devolviendo al carrito con una alerta.
