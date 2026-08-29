@@ -67,58 +67,6 @@
                                        placeholder="Nombre y apellido" required>
                             </div>
 
-                            <!-- WhatsApp -->
-                            <div class="mb-3">
-                                <label class="form-label fw-semibold" for="inputWa">
-                                    Tu WhatsApp <span class="text-danger">*</span>
-                                </label>
-                                <div class="input-group">
-                                    <span class="input-group-text">
-                                        <i class="fab fa-whatsapp text-success"></i>
-                                    </span>
-                                    <input type="tel" class="form-control" id="inputWa"
-                                           name="wa_numero" maxlength="25"
-                                           placeholder="9999-9999" required>
-                                </div>
-                                <small class="text-muted">Por aquí te respondemos tu cotización.</small>
-                            </div>
-
-                            <!-- Tipo de entrega -->
-                            <div class="mb-3">
-                                <label class="form-label fw-semibold">¿Cómo lo querés recibir?</label>
-                                <div class="d-flex gap-2">
-                                    <button type="button" class="btn-selector activo flex-fill"
-                                            data-tipo="Retiro">
-                                        <i class="fas fa-store me-1"></i>Retiro
-                                    </button>
-                                    <button type="button" class="btn-selector flex-fill"
-                                            data-tipo="Envio">
-                                        <i class="fas fa-truck me-1"></i>Envío
-                                    </button>
-                                </div>
-                            </div>
-
-                            <!-- Zona de envío (solo si selecciona envío) -->
-                            <div id="seccionEnvio" style="display:none;">
-                                <div class="mb-3">
-                                    <label class="form-label fw-semibold" for="selectZona">Zona de envío</label>
-                                    <select class="form-select" id="selectZona" name="zona_id">
-                                        <option value="">Seleccionar zona...</option>
-                                        <?php foreach ($zonas as $zona): ?>
-                                        <option value="<?= (int)$zona['id'] ?>" data-costo="<?= (float)$zona['costo'] ?>">
-                                            <?= htmlspecialchars($zona['nombre']) ?>
-                                            — <?= (float)$zona['costo'] === 0.0 ? 'Gratis' : 'L. ' . number_format((float)$zona['costo'], 2) ?>
-                                        </option>
-                                        <?php endforeach; ?>
-                                    </select>
-                                </div>
-                                <div class="mb-3">
-                                    <label class="form-label fw-semibold" for="inputDireccion">Dirección de entrega</label>
-                                    <textarea class="form-control" id="inputDireccion" name="direccion_envio"
-                                              rows="2" placeholder="Colonia, calle, referencia..."></textarea>
-                                </div>
-                            </div>
-
                             <!-- Nota -->
                             <div class="mb-3">
                                 <label class="form-label fw-semibold" for="inputNota">
@@ -133,10 +81,6 @@
                                 <div class="d-flex justify-content-between mb-1">
                                     <span class="text-muted">Subtotal</span>
                                     <span id="resumenSubtotal">L. 0.00</span>
-                                </div>
-                                <div class="d-flex justify-content-between mb-1" id="filaEnvio" style="display:none;">
-                                    <span class="text-muted">Envío</span>
-                                    <span id="resumenEnvio">L. 0.00</span>
                                 </div>
                                 <div class="d-flex justify-content-between fw-bold pt-2 border-top"
                                      style="font-size:1.15rem;">
@@ -164,26 +108,6 @@
 </div>
 
 <style>
-/* ── Botones selector (tipo de entrega) ── */
-.btn-selector {
-    padding: 8px 12px;
-    border: 2px solid #dee2e6;
-    border-radius: 8px;
-    background: #fff;
-    cursor: pointer;
-    font-weight: 500;
-    transition: all 0.2s;
-}
-.btn-selector.activo {
-    border-color: #de777d;
-    background: #de777d;
-    color: #fff;
-}
-.btn-selector:hover:not(.activo) {
-    border-color: #de777d;
-    color: #de777d;
-}
-
 /* ── Tabla carrito responsive ── */
 .tabla-carrito-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
 
@@ -202,8 +126,6 @@
 
 <script>
 document.addEventListener('DOMContentLoaded', function () {
-
-    let costoEnvio = 0;
 
     const $ = id => document.getElementById(id);
 
@@ -284,36 +206,8 @@ document.addEventListener('DOMContentLoaded', function () {
         const carrito  = getCarrito();
         const subtotal = carrito.reduce((sum, i) => sum + i.precio * i.cantidad, 0);
         $('resumenSubtotal').textContent = `L. ${subtotal.toFixed(2)}`;
-        $('resumenEnvio').textContent    = costoEnvio > 0 ? `L. ${costoEnvio.toFixed(2)}` : 'Gratis';
-        $('resumenTotal').textContent    = `L. ${(subtotal + costoEnvio).toFixed(2)}`;
+        $('resumenTotal').textContent    = `L. ${subtotal.toFixed(2)}`;
     }
-
-    // ── Tipo de entrega ───────────────────────────
-    document.querySelectorAll('[data-tipo]').forEach(btn => {
-        btn.addEventListener('click', function () {
-            document.querySelectorAll('[data-tipo]').forEach(b => b.classList.remove('activo'));
-            this.classList.add('activo');
-
-            const tipo = this.dataset.tipo;
-            $('hTipoEntrega').value = tipo;
-
-            const esEnvio = tipo === 'Envio';
-            $('seccionEnvio').style.display = esEnvio ? '' : 'none';
-            $('filaEnvio').style.display    = esEnvio ? '' : 'none';
-
-            if (!esEnvio) {
-                costoEnvio            = 0;
-                $('selectZona').value = '';
-                actualizarTotales();
-            }
-        });
-    });
-
-    // ── Zona de envío ─────────────────────────────
-    $('selectZona').addEventListener('change', function () {
-        costoEnvio = parseFloat(this.options[this.selectedIndex].dataset.costo || 0);
-        actualizarTotales();
-    });
 
     // ── Enviar cotización ─────────────────────────
     // El carrito NO se limpia aquí: se limpia en la pantalla de
@@ -325,19 +219,6 @@ document.addEventListener('DOMContentLoaded', function () {
             e.preventDefault();
             Swal.fire({ icon: 'warning', title: 'Tu lista está vacía', confirmButtonColor: '#de777d' });
             return;
-        }
-
-        if ($('hTipoEntrega').value === 'Envio') {
-            if (!$('selectZona').value) {
-                e.preventDefault();
-                Swal.fire({ icon: 'warning', title: 'Selecciona una zona de envío', confirmButtonColor: '#de777d' });
-                return;
-            }
-            if (!$('inputDireccion').value.trim()) {
-                e.preventDefault();
-                Swal.fire({ icon: 'warning', title: 'Ingresa tu dirección', confirmButtonColor: '#de777d' });
-                return;
-            }
         }
 
         // Solo se manda lo que el servidor necesita para reconstruir

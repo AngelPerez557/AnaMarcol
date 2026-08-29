@@ -74,10 +74,12 @@ $estadoActual = $_GET['estado'] ?? '';
                             <div class="fw-semibold" style="font-size:0.88rem;">
                                 <?= htmlspecialchars($c->nombre_cliente ?? '') ?>
                             </div>
+                            <?php if (!empty($c->wa_numero)): ?>
                             <a href="https://wa.me/<?= $c->getWaNumeroInternacional() ?>"
                                target="_blank" rel="noopener" class="text-muted" style="font-size:0.8rem;">
                                 <i class="fab fa-whatsapp text-success me-1"></i><?= htmlspecialchars($c->wa_numero ?? '') ?>
                             </a>
+                            <?php endif; ?>
                         </td>
                         <td class="text-center"><?= (int)$c->total_items ?></td>
                         <td class="text-end fw-bold" style="color:#de777d;">

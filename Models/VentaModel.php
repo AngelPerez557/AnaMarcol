@@ -75,6 +75,40 @@ class VentaModel extends BaseModel
     }
 
     // ─────────────────────────────────────────────
+    // SYNC DESDE EL POS LOCAL
+    // Idempotente por pos_venta_id — reintentar el mismo envío no duplica.
+    // ─────────────────────────────────────────────
+
+    public function insertDesdePos(array $data): int
+    {
+        $row = $this->callSPSingle('sp_ventas_insertDesdePos', [
+            $data['pos_venta_id'],
+            $data['metodo_pago'],
+            $data['subtotal'],
+            $data['total'],
+            $data['monto_recibido'] ?? null,
+            $data['cambio']         ?? null,
+            $data['nota']           ?? null,
+            $data['correlativo']    ?? null,
+            $data['created_at'],
+        ]);
+        return $row ? (int) $row['id'] : 0;
+    }
+
+    public function insertDetalleDesdePos(array $data): bool
+    {
+        $affected = $this->callSPExecute('sp_ventas_insertDetalleDesdePos', [
+            $data['venta_id'],
+            $data['producto_id'] ?: null,
+            $data['nombre_producto'],
+            $data['precio_unit'],
+            $data['cantidad'],
+            $data['subtotal'],
+        ]);
+        return $affected >= 0;
+    }
+
+    // ─────────────────────────────────────────────
     // ANULACIÓN
     // No se elimina — obligatorio por ley fiscal HN
     // Devuelve true si se anuló, false si ya estaba anulada

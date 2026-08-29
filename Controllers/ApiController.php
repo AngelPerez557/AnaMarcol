@@ -16,12 +16,16 @@
  */
 class ApiController
 {
-    private ProductoModel $productoModel;
+    private ProductoModel     $productoModel;
+    private VentaModel        $ventaModel;
+    private CajaSesionModel   $cajaSesionModel;
 
     public function __construct()
     {
         $this->autenticar();
-        $this->productoModel = new ProductoModel();
+        $this->productoModel  = new ProductoModel();
+        $this->ventaModel     = new VentaModel();
+        $this->cajaSesionModel = new CajaSesionModel();
     }
 
     // ─────────────────────────────────────────────
@@ -213,6 +217,123 @@ class ApiController
         }
 
         $this->json(['success' => true, 'id' => $id]);
+    }
+
+    // ─────────────────────────────────────────────
+    // POST /Api/crearVenta — el POS reporta una venta ya cobrada
+    // (incluida su factura/correlativo) más su detalle de líneas.
+    // Body: {
+    //   "pos_venta_id": 123, "metodo_pago": "Efectivo",
+    //   "subtotal": 100, "total": 115, "monto_recibido": 120, "cambio": 5,
+    //   "nota": null, "correlativo": 5752, "created_at": "2026-08-28 10:00:00",
+    //   "items": [ { "producto_id": 4, "nombre_producto": "...", "precio_unit": 100, "cantidad": 1, "subtotal": 100 } ]
+    // }
+    // Idempotente: reenviar el mismo pos_venta_id no duplica la venta.
+    // 'producto_id' es el RemoteId del producto — puede venir null si ese
+    // producto todavía no se sincronizó al catálogo web; la línea igual
+    // se guarda, solo sin producto_id.
+    // ─────────────────────────────────────────────
+    public function crearVenta(): void
+    {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            $this->json(['success' => false, 'error' => 'Método no permitido.'], 405);
+            return;
+        }
+
+        $body = json_decode(file_get_contents('php://input'), true);
+
+        $posVentaId = (int) ($body['pos_venta_id'] ?? 0);
+        $metodoPago = (string) ($body['metodo_pago'] ?? 'Efectivo');
+        $total      = isset($body['total']) ? (float) $body['total'] : null;
+        $items      = $body['items'] ?? [];
+
+        if ($posVentaId <= 0 || $total === null || !is_array($items)) {
+            $this->json(['success' => false, 'error' => 'pos_venta_id, total e items son obligatorios.'], 400);
+            return;
+        }
+
+        $ventaId = $this->ventaModel->insertDesdePos([
+            'pos_venta_id'   => $posVentaId,
+            'metodo_pago'    => $metodoPago,
+            'subtotal'       => (float) ($body['subtotal'] ?? $total),
+            'total'          => $total,
+            'monto_recibido' => isset($body['monto_recibido']) ? (float) $body['monto_recibido'] : null,
+            'cambio'         => isset($body['cambio']) ? (float) $body['cambio'] : null,
+            'nota'           => $body['nota'] ?? null,
+            'correlativo'    => isset($body['correlativo']) ? (int) $body['correlativo'] : null,
+            'created_at'     => (string) ($body['created_at'] ?? date('Y-m-d H:i:s')),
+        ]);
+
+        if ($ventaId <= 0) {
+            $this->json(['success' => false, 'error' => 'No se pudo guardar la venta.'], 500);
+            return;
+        }
+
+        foreach ($items as $item) {
+            $this->ventaModel->insertDetalleDesdePos([
+                'venta_id'        => $ventaId,
+                'producto_id'     => isset($item['producto_id']) ? (int) $item['producto_id'] : null,
+                'nombre_producto' => (string) ($item['nombre_producto'] ?? ''),
+                'precio_unit'     => (float) ($item['precio_unit'] ?? 0),
+                'cantidad'        => (int) ($item['cantidad'] ?? 1),
+                'subtotal'        => (float) ($item['subtotal'] ?? 0),
+            ]);
+        }
+
+        $this->json(['success' => true, 'id' => $ventaId]);
+    }
+
+    // ─────────────────────────────────────────────
+    // POST /Api/crearCajaSesion — el POS reporta un turno de caja ya
+    // cerrado (el POS solo sincroniza al cerrar, nunca sesiones abiertas).
+    // Body: {
+    //   "pos_sesion_id": 8, "monto_apertura": 500, "monto_cierre": 1200,
+    //   "monto_sistema": 1180, "diferencia": 20, "total_ventas": 680,
+    //   "total_efectivo": 680, "total_tarjeta": 0, "total_transferencia": 0,
+    //   "nota_apertura": null, "nota_cierre": null,
+    //   "abierta_at": "2026-08-28 08:00:00", "cerrada_at": "2026-08-28 17:00:00"
+    // }
+    // Idempotente: reenviar el mismo pos_sesion_id no duplica.
+    // ─────────────────────────────────────────────
+    public function crearCajaSesion(): void
+    {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            $this->json(['success' => false, 'error' => 'Método no permitido.'], 405);
+            return;
+        }
+
+        $body = json_decode(file_get_contents('php://input'), true);
+
+        $posSesionId = (int) ($body['pos_sesion_id'] ?? 0);
+        $cerradaAt   = $body['cerrada_at'] ?? null;
+
+        if ($posSesionId <= 0 || !$cerradaAt) {
+            $this->json(['success' => false, 'error' => 'pos_sesion_id y cerrada_at son obligatorios.'], 400);
+            return;
+        }
+
+        $sesionId = $this->cajaSesionModel->insertDesdePos([
+            'pos_sesion_id'        => $posSesionId,
+            'monto_apertura'       => (float) ($body['monto_apertura'] ?? 0),
+            'monto_cierre'         => (float) ($body['monto_cierre'] ?? 0),
+            'monto_sistema'        => (float) ($body['monto_sistema'] ?? 0),
+            'diferencia'           => (float) ($body['diferencia'] ?? 0),
+            'total_ventas'         => (float) ($body['total_ventas'] ?? 0),
+            'total_efectivo'       => (float) ($body['total_efectivo'] ?? 0),
+            'total_tarjeta'        => (float) ($body['total_tarjeta'] ?? 0),
+            'total_transferencia'  => (float) ($body['total_transferencia'] ?? 0),
+            'nota_apertura'        => $body['nota_apertura'] ?? null,
+            'nota_cierre'          => $body['nota_cierre'] ?? null,
+            'abierta_at'           => (string) ($body['abierta_at'] ?? $cerradaAt),
+            'cerrada_at'           => (string) $cerradaAt,
+        ]);
+
+        if ($sesionId <= 0) {
+            $this->json(['success' => false, 'error' => 'No se pudo guardar el cierre de caja.'], 500);
+            return;
+        }
+
+        $this->json(['success' => true, 'id' => $sesionId]);
     }
 
     // ─────────────────────────────────────────────

@@ -178,11 +178,6 @@ class CotizacionEntity extends BaseEntity
             $this->addError('El nombre del cliente es obligatorio.');
         }
 
-        $numero = preg_replace('/[^0-9]/', '', $this->wa_numero ?? '');
-        if (strlen($numero) < 8) {
-            $this->addError('El número de WhatsApp no es válido.');
-        }
-
         if (!in_array($this->tipo_entrega, ['Retiro', 'Envio'], true)) {
             $this->addError('Tipo de entrega inválido.');
         }

@@ -61,4 +61,29 @@ class CajaSesionModel extends BaseModel
     {
         return $this->callSPSingle('sp_caja_findById', [$id]);
     }
+
+    // ─────────────────────────────────────────────
+    // SYNC DESDE EL POS LOCAL
+    // Idempotente por pos_sesion_id — reintentar el mismo envío no duplica.
+    // Llega siempre ya cerrado: el POS solo sincroniza al cerrar caja.
+    // ─────────────────────────────────────────────
+    public function insertDesdePos(array $data): int
+    {
+        $row = $this->callSPSingle('sp_caja_insertDesdePos', [
+            $data['pos_sesion_id'],
+            $data['monto_apertura'],
+            $data['monto_cierre'],
+            $data['monto_sistema'],
+            $data['diferencia'],
+            $data['total_ventas'],
+            $data['total_efectivo'],
+            $data['total_tarjeta'],
+            $data['total_transferencia'],
+            $data['nota_apertura'] ?? null,
+            $data['nota_cierre']   ?? null,
+            $data['abierta_at'],
+            $data['cerrada_at'],
+        ]);
+        return $row ? (int) $row['id'] : 0;
+    }
 }

@@ -88,6 +88,7 @@ $puedeGestionar = Auth::can('pedidos.gestionar');
                 <div class="card-header fw-semibold"><i class="fas fa-user me-2"></i>Cliente</div>
                 <div class="card-body">
                     <p class="mb-1 fw-semibold"><?= htmlspecialchars($cotizacion->nombre_cliente ?? '') ?></p>
+                    <?php if (!empty($cotizacion->wa_numero)): ?>
                     <p class="mb-3">
                         <a href="https://wa.me/<?= $cotizacion->getWaNumeroInternacional() ?>"
                            target="_blank" rel="noopener" class="text-decoration-none">
@@ -95,6 +96,7 @@ $puedeGestionar = Auth::can('pedidos.gestionar');
                             <?= htmlspecialchars($cotizacion->wa_numero ?? '') ?>
                         </a>
                     </p>
+                    <?php endif; ?>
 
                     <p class="mb-1" style="font-size:0.85rem;">
                         <i class="fas fa-<?= $cotizacion->esEnvio() ? 'truck' : 'store' ?> me-1 text-muted"></i>
@@ -114,11 +116,13 @@ $puedeGestionar = Auth::can('pedidos.gestionar');
                     </div>
                     <?php endif; ?>
 
+                    <?php if (!empty($cotizacion->wa_numero)): ?>
                     <a href="<?= htmlspecialchars($cotizacion->getWhatsAppUrlCliente($detalle)) ?>"
                        target="_blank" rel="noopener" class="btn w-100 mt-3"
                        style="background:#25d366; color:#fff; font-weight:600;">
                         <i class="fab fa-whatsapp me-2"></i>Responder por WhatsApp
                     </a>
+                    <?php endif; ?>
                 </div>
             </div>
 
