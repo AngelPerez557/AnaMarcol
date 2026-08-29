@@ -442,6 +442,41 @@ class ApiController
     }
 
     // ─────────────────────────────────────────────
+    // GET /Api/descargarBackupPos?archivo=anamarcolpos_2026-08-29.db
+    // Descarga uno de los backups de la cola — protegido por la misma
+    // X-Api-Key que todo lo demás (los archivos no son públicos, ver
+    // Storage/PosBackups/.htaccess). Sin argumento, descarga el más reciente.
+    // ─────────────────────────────────────────────
+    public function descargarBackupPos(): void
+    {
+        $archivos = glob(POS_BACKUP_DIR . 'anamarcolpos_*.db') ?: [];
+        if (empty($archivos)) {
+            $this->json(['success' => false, 'error' => 'No hay backups en la cola.'], 404);
+            return;
+        }
+        usort($archivos, fn($a, $b) => filemtime($b) <=> filemtime($a));
+
+        $pedido = trim((string) ($_GET['archivo'] ?? ''));
+        if ($pedido !== '') {
+            // Solo el nombre de archivo, nunca una ruta — evita path traversal.
+            $pedido = basename($pedido);
+            $ruta = POS_BACKUP_DIR . $pedido;
+            if (!str_starts_with($pedido, 'anamarcolpos_') || !file_exists($ruta)) {
+                $this->json(['success' => false, 'error' => 'Ese backup no existe.'], 404);
+                return;
+            }
+        } else {
+            $ruta = $archivos[0];
+        }
+
+        header('Content-Type: application/octet-stream');
+        header('Content-Disposition: attachment; filename="' . basename($ruta) . '"');
+        header('Content-Length: ' . filesize($ruta));
+        readfile($ruta);
+        exit();
+    }
+
+    // ─────────────────────────────────────────────
     // Helper de respuesta JSON
     // ─────────────────────────────────────────────
     private function json(array $data, int $status = 200): void
