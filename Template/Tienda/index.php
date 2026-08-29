@@ -410,7 +410,10 @@
                 $urlActual = strtolower(trim($_GET['url'] ?? '', '/'));
                 $esInicio   = $urlActual === 'tienda' || $urlActual === 'tienda/index' || $urlActual === '';
                 $esCatalogo = str_starts_with($urlActual, 'tienda/catalogo') || str_starts_with($urlActual, 'tienda/producto');
-                $esCitas    = str_starts_with($urlActual, 'tienda/citas');
+                // Agendar cita quedó deshabilitado — el link ahora abre WhatsApp
+                // directo para cotizar un servicio (ver TiendaController::bloquearCitas).
+                $waCotizarServicio = 'https://wa.me/' . WA_NUMBER . '?text='
+                    . urlencode('¡Hola! Quiero cotizar un servicio 💄');
                 ?>
                 <ul class="nav nav-tienda d-none d-md-flex align-items-center">
                     <li class="nav-item">
@@ -420,7 +423,9 @@
                         <a href="<?= APP_URL ?>Tienda/catalogo" class="nav-link <?= $esCatalogo ? 'active' : '' ?>">Catálogo</a>
                     </li>
                     <li class="nav-item">
-                        <a href="<?= APP_URL ?>Tienda/citas" class="nav-link <?= $esCitas ? 'active' : '' ?>">Agendar Cita</a>
+                        <a href="<?= htmlspecialchars($waCotizarServicio) ?>" target="_blank" rel="noopener" class="nav-link">
+                            <i class="fab fa-whatsapp me-1"></i>Cotizar servicio
+                        </a>
                     </li>
                 </ul>
 
@@ -444,7 +449,7 @@
                 <ul class="nav flex-column">
                     <li><a href="<?= APP_URL ?>Tienda/index"    class="nav-link <?= $esInicio   ? 'active' : '' ?>">Inicio</a></li>
                     <li><a href="<?= APP_URL ?>Tienda/catalogo" class="nav-link <?= $esCatalogo ? 'active' : '' ?>">Catálogo</a></li>
-                    <li><a href="<?= APP_URL ?>Tienda/citas"    class="nav-link <?= $esCitas    ? 'active' : '' ?>">Agendar Cita</a></li>
+                    <li><a href="<?= htmlspecialchars($waCotizarServicio) ?>" target="_blank" rel="noopener" class="nav-link"><i class="fab fa-whatsapp me-1"></i>Cotizar servicio</a></li>
                 </ul>
             </div>
         </div>
@@ -472,7 +477,7 @@
                     <h6 class="text-white mb-3">Tienda</h6>
                     <ul class="list-unstyled" style="font-size:0.85rem;">
                         <li><a href="<?= APP_URL ?>Tienda/catalogo">Catálogo</a></li>
-                        <li><a href="<?= APP_URL ?>Tienda/citas">Agendar cita</a></li>
+                        <li><a href="<?= htmlspecialchars($waCotizarServicio) ?>" target="_blank" rel="noopener">Cotizar servicio</a></li>
                         <li><a href="<?= APP_URL ?>Tienda/carrito">Carrito</a></li>
                     </ul>
                 </div>

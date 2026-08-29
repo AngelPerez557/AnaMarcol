@@ -20,6 +20,7 @@ class ApiController
     private VentaModel        $ventaModel;
     private CajaSesionModel   $cajaSesionModel;
     private CategoriaModel    $categoriaModel;
+    private DescuentoModel    $descuentoModel;
 
     public function __construct()
     {
@@ -28,6 +29,7 @@ class ApiController
         $this->ventaModel     = new VentaModel();
         $this->cajaSesionModel = new CajaSesionModel();
         $this->categoriaModel  = new CategoriaModel();
+        $this->descuentoModel  = new DescuentoModel();
     }
 
     // ─────────────────────────────────────────────
@@ -503,6 +505,34 @@ class ApiController
 
         $filas = $this->productoModel->eliminarDefinitivoConCascade($id);
         $this->json(['success' => true, 'filas_borradas' => $filas]);
+    }
+
+    // ─────────────────────────────────────────────
+    // GET /Api/descuentoActivo — el descuento vigente ahora mismo (o
+    // { "activo": false } si no hay ninguno). El POS lo trae en cada
+    // sincronización y lo aplica solo al cobrar, mostrando en el recibo
+    // qué productos llevaron descuento — misma regla de negocio que usa
+    // la tienda web (DescuentoModel::precioConDescuento).
+    // ─────────────────────────────────────────────
+    public function descuentoActivo(): void
+    {
+        $d = $this->descuentoModel->getActivo();
+
+        if (empty($d)) {
+            $this->json(['success' => true, 'activo' => false]);
+            return;
+        }
+
+        $this->json([
+            'success'      => true,
+            'activo'       => true,
+            'nombre'       => $d['nombre'],
+            'porcentaje'   => (float) $d['porcentaje'],
+            'aplica_a'     => $d['aplica_a'], // 'todo' | 'categoria'
+            'categoria_id' => isset($d['categoria_id']) ? (int) $d['categoria_id'] : null,
+            'fecha_inicio' => $d['fecha_inicio'] ?? null,
+            'fecha_fin'    => $d['fecha_fin']    ?? null,
+        ]);
     }
 
     // ─────────────────────────────────────────────

@@ -340,8 +340,20 @@ class TiendaController
     // CITAS
     // ─────────────────────────────────────────────
 
+    // El calendario de citas de la tienda quedó deshabilitado a propósito —
+    // ahora "Agendar Cita" en el menú abre WhatsApp directo para cotizar
+    // (ver Template/Tienda/index.php). Estas rutas siguen existiendo por si
+    // alguien entra por URL directa, pero redirigen sin dejar agendar nada.
+    private function bloquearCitas(): void
+    {
+        header('Location: https://wa.me/' . WA_NUMBER . '?text=' . urlencode('¡Hola! Quiero cotizar un servicio 💄'));
+        exit();
+    }
+
     public function citas(): void
     {
+        $this->bloquearCitas();
+
         $pageTitle = 'Agendar Cita';
         $config    = $this->citaModel->getConfig();
         $servicios = $this->servicioModel->findActivos();
@@ -364,6 +376,8 @@ class TiendaController
 
     public function agendarCita(): void
     {
+        $this->bloquearCitas();
+
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
             header('Location: ' . APP_URL . 'Tienda/citas'); exit();
         }
