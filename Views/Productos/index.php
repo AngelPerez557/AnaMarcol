@@ -177,16 +177,7 @@
                                 <i class="fas fa-edit"></i>
                             </a>
                             <?php endif; ?>
-                            <?php if (Auth::can('productos.eliminar')): ?>
-                            <button type="button" class="btn btn-sm btn-outline-danger btn-delete"
-                                    data-id="<?= $producto->id ?>"
-                                    data-nombre="<?= htmlspecialchars($producto->nombre) ?>"
-                                    data-url="<?= APP_URL ?>Productos/delete"
-                                    data-csrf="<?= htmlspecialchars($_SESSION['csrf_token'] ?? '') ?>"
-                                    title="Eliminar">
-                                <i class="fas fa-trash"></i>
-                            </button>
-                            <?php endif; ?>
+                            <!-- Eliminar deshabilitado: el POS local es dueño del catálogo. -->
                         </div>
                     </div>
                     <?php if (Auth::can('productos.editar')): ?>
@@ -291,15 +282,7 @@
                                         <i class="fas fa-edit"></i>
                                     </a>
                                     <?php endif; ?>
-                                    <?php if (Auth::can('productos.eliminar')): ?>
-                                    <button type="button" class="btn btn-sm btn-outline-danger btn-delete"
-                                            data-id="<?= $producto->id ?>"
-                                            data-nombre="<?= htmlspecialchars($producto->nombre) ?>"
-                                            data-url="<?= APP_URL ?>Productos/delete"
-                                            data-csrf="<?= htmlspecialchars($_SESSION['csrf_token'] ?? '') ?>">
-                                        <i class="fas fa-trash"></i>
-                                    </button>
-                                    <?php endif; ?>
+                                    <!-- Eliminar deshabilitado: el POS local es dueño del catálogo. -->
                                 </div>
                             </td>
                         </tr>

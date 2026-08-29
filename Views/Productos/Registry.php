@@ -128,6 +128,13 @@
                              SECCIÓN SIMPLE — se oculta si tiene variantes
                              ───────────────────────────────────────────── -->
                         <div id="seccionSimple" class="<?= $producto->tieneVariantes() ? 'd-none' : '' ?>">
+                            <?php if ($producto->Found): ?>
+                            <div class="alert alert-light border mb-3" style="font-size:0.85rem;">
+                                <i class="fas fa-lock me-1"></i>
+                                Precio, stock y código de barras los administra el <strong>POS de la tienda</strong> —
+                                acá solo se muestran de referencia. Para cambiarlos, hazlo desde el POS.
+                            </div>
+                            <?php endif; ?>
                             <div class="row g-3 mb-3">
                                 <!-- Precio base -->
                                 <div class="col-6">
@@ -141,7 +148,8 @@
                                            step="0.01"
                                            min="0"
                                            placeholder="0.00"
-                                           value="<?= $producto->precio_base ?? '' ?>">
+                                           value="<?= $producto->precio_base ?? '' ?>"
+                                           <?= $producto->Found ? 'disabled' : '' ?>>
                                 </div>
                                 <!-- Stock -->
                                 <div class="col-6">
@@ -152,7 +160,8 @@
                                            name="stock"
                                            min="0"
                                            placeholder="0"
-                                           value="<?= $producto->stock ?? 0 ?>">
+                                           value="<?= $producto->stock ?? 0 ?>"
+                                           <?= $producto->Found ? 'disabled' : '' ?>>
                                 </div>
                             </div>
 
@@ -171,12 +180,14 @@
                                            name="codigo_barras"
                                            placeholder="Escanear o ingresar manualmente..."
                                            maxlength="100"
-                                           value="<?= htmlspecialchars($producto->codigo_barras ?? '') ?>">
+                                           value="<?= htmlspecialchars($producto->codigo_barras ?? '') ?>"
+                                           <?= $producto->Found ? 'disabled' : '' ?>>
                                     <!-- Botón scanner con cámara -->
                                     <button type="button"
                                             class="btn btn-outline-primary"
                                             onclick="window.amBarcodeScanner && window.amBarcodeScanner.open(document.getElementById('codigo_barras'))"
-                                            title="Escanear con la cámara">
+                                            title="Escanear con la cámara"
+                                            <?= $producto->Found ? 'disabled' : '' ?>>
                                         <i class="fas fa-camera"></i>
                                         <span class="d-none d-md-inline ms-1">Escanear</span>
                                     </button>

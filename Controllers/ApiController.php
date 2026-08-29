@@ -115,7 +115,7 @@ class ApiController
             // "precio": null (campo opcional no usado) no debe pisar el valor real con 0.
             // Ya pasó una vez: un bug en el cliente C# mandaba null explícito y esto
             // puso precio/stock en 0 para todo el catálogo.
-            if (isset($item['precio']) || isset($item['stock'])) {
+            if (isset($item['precio']) || isset($item['stock']) || isset($item['codigo_barras'])) {
                 // update() reemplaza la fila completa — hay que partir de los
                 // valores actuales para no perder categoría/nombre/descripción.
                 $actual = $this->productoModel->findById($id);
@@ -124,8 +124,10 @@ class ApiController
                     continue;
                 }
 
-                $nuevoPrecio = isset($item['precio']) ? (float) $item['precio'] : (float) $actual->precio_base;
-                $nuevoStock  = isset($item['stock']) ? (int) $item['stock'] : $actual->stock;
+                $nuevoPrecio  = isset($item['precio']) ? (float) $item['precio'] : (float) $actual->precio_base;
+                $nuevoStock   = isset($item['stock']) ? (int) $item['stock'] : $actual->stock;
+                $nuevoCodigo  = isset($item['codigo_barras']) && $item['codigo_barras'] !== ''
+                    ? trim((string) $item['codigo_barras']) : ($actual->codigo_barras ?? null);
 
                 $ok = $this->productoModel->update([
                     'id'              => $id,
@@ -134,7 +136,7 @@ class ApiController
                     'descripcion'     => $actual->descripcion,
                     'precio_base'     => $nuevoPrecio,
                     'stock'           => $nuevoStock,
-                    'codigo_barras'   => $actual->codigo_barras ?? null,
+                    'codigo_barras'   => $nuevoCodigo,
                     'image_url'       => $actual->image_url,
                 ]);
 

@@ -106,6 +106,21 @@ class ProductosController
         $stock          = $tieneVariantes ? 0 : (int) ($_POST['stock'] ?? 0);
         $visibleTienda = isset($_POST['visible_tienda']) ? 1 : 0;
 
+        // Al EDITAR: precio, stock y código de barras los maneja el POS local
+        // (es la fuente de verdad de inventario/precio de piso — ver Api/stock
+        // y Api/crearProducto en ApiController). El panel web ya no puede
+        // tocarlos, para evitar que un cambio aquí se pierda en el próximo
+        // sync o entre en conflicto con lo que reporta la tienda. Se ignora
+        // lo que venga del formulario y se conserva el valor actual.
+        if ($esEdicion) {
+            $actual = $this->productoModel->findById($id);
+            if ($actual->Found) {
+                $precioBase   = (float) $actual->precio_base;
+                $stock        = (int) $actual->stock;
+                $codigoBarras = $actual->codigo_barras ?? null;
+            }
+        }
+
         // Validaciones básicas
         if (empty($nombre) || $categoriaId === 0) {
             $_SESSION['alert'] = [
@@ -212,28 +227,15 @@ class ProductosController
     // ─────────────────────────────────────────────
     public function delete(): void
     {
-        Auth::require('productos.eliminar');
-
-        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-            http_response_code(405);
-            exit();
-        }
-
-        // Validar CSRF
-        if (!Csrf::validate()) {
-            http_response_code(403);
-            exit();
-        }
-
-        $id = (int) ($_POST['id'] ?? 0);
-        $ok = $this->productoModel->delete($id);
-
+        // Deshabilitado a propósito: el POS local es dueño del catálogo
+        // (inventario, altas y bajas) — borrar un producto aquí lo dejaría
+        // huérfano en la próxima sincronización. Si un producto ya no se
+        // vende, se desactiva desde el POS.
         $_SESSION['alert'] = [
-            'icon'  => $ok ? 'success' : 'error',
-            'title' => $ok ? 'Eliminado' : 'Error',
-            'text'  => $ok ? 'Producto desactivado correctamente.' : 'Error al eliminar el producto.',
+            'icon'  => 'info',
+            'title' => 'No disponible',
+            'text'  => 'Los productos ya no se eliminan desde la web — se administran desde el POS de la tienda.',
         ];
-
         header('Location: ' . APP_URL . 'Productos/index');
         exit();
     }
