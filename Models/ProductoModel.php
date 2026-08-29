@@ -114,6 +114,17 @@ class ProductoModel extends BaseModel
         return $affected > 0;
     }
 
+    // Borrado DURO — uso puntual para limpiar registros de prueba desde la
+    // API (ver ApiController::eliminarProductoDefinitivo). Borra primero
+    // cualquier venta_detalle que lo referencie, luego el producto.
+    public function eliminarDefinitivoConCascade(int $id): int
+    {
+        $this->pdo->prepare('DELETE FROM venta_detalle WHERE producto_id = ?')->execute([$id]);
+        $stmt = $this->pdo->prepare('DELETE FROM productos WHERE id = ?');
+        $stmt->execute([$id]);
+        return $stmt->rowCount();
+    }
+
     // Descuenta stock de un producto simple al vender
     // Llama a: CALL sp_productos_updateStock(?, ?)
     // Retorna true si había stock suficiente

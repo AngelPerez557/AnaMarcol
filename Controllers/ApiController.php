@@ -479,6 +479,33 @@ class ApiController
     }
 
     // ─────────────────────────────────────────────
+    // POST /Api/eliminarProductoDefinitivo — borrado DURO (no soft-delete),
+    // uso puntual para limpiar basura de pruebas. No está expuesto en el
+    // panel — el botón de eliminar del panel sigue deshabilitado a propósito
+    // (ver ProductosController::delete()). Borra primero cualquier
+    // venta_detalle que lo referencie (cascade manual) y luego el producto.
+    // Body: { "id": 146 }
+    // ─────────────────────────────────────────────
+    public function eliminarProductoDefinitivo(): void
+    {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            $this->json(['success' => false, 'error' => 'Método no permitido.'], 405);
+            return;
+        }
+
+        $body = json_decode(file_get_contents('php://input'), true);
+        $id   = (int) ($body['id'] ?? 0);
+
+        if ($id <= 0) {
+            $this->json(['success' => false, 'error' => 'id inválido.'], 400);
+            return;
+        }
+
+        $filas = $this->productoModel->eliminarDefinitivoConCascade($id);
+        $this->json(['success' => true, 'filas_borradas' => $filas]);
+    }
+
+    // ─────────────────────────────────────────────
     // Helper de respuesta JSON
     // ─────────────────────────────────────────────
     private function json(array $data, int $status = 200): void
