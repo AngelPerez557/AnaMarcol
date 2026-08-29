@@ -19,6 +19,7 @@ class ApiController
     private ProductoModel     $productoModel;
     private VentaModel        $ventaModel;
     private CajaSesionModel   $cajaSesionModel;
+    private CategoriaModel    $categoriaModel;
 
     public function __construct()
     {
@@ -26,6 +27,7 @@ class ApiController
         $this->productoModel  = new ProductoModel();
         $this->ventaModel     = new VentaModel();
         $this->cajaSesionModel = new CajaSesionModel();
+        $this->categoriaModel  = new CategoriaModel();
     }
 
     // ─────────────────────────────────────────────
@@ -337,6 +339,45 @@ class ApiController
         }
 
         $this->json(['success' => true, 'id' => $sesionId]);
+    }
+
+    // ─────────────────────────────────────────────
+    // POST /Api/crearCategoria — usado una sola vez para el import masivo
+    // del catálogo de "Soluciones Logísticas Integradas" (2026-08-28):
+    // crea la categoría "Otros" para los productos que no encajan en las
+    // 6 categorías reales de la tienda (joyería, relojes, ropa interior...).
+    // Body: { "nombre": "Otros" }. Idempotente: si ya existe una categoría
+    // con ese nombre, devuelve su id en vez de duplicarla.
+    // ─────────────────────────────────────────────
+    public function crearCategoria(): void
+    {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            $this->json(['success' => false, 'error' => 'Método no permitido.'], 405);
+            return;
+        }
+
+        $body   = json_decode(file_get_contents('php://input'), true);
+        $nombre = trim((string) ($body['nombre'] ?? ''));
+
+        if ($nombre === '') {
+            $this->json(['success' => false, 'error' => 'nombre es obligatorio.'], 400);
+            return;
+        }
+
+        foreach ($this->categoriaModel->findAll() as $cat) {
+            if (strcasecmp($cat->nombre ?? '', $nombre) === 0) {
+                $this->json(['success' => true, 'id' => $cat->id]);
+                return;
+            }
+        }
+
+        $id = $this->categoriaModel->insert(['nombre' => $nombre]);
+        if ($id <= 0) {
+            $this->json(['success' => false, 'error' => 'No se pudo crear la categoría.'], 500);
+            return;
+        }
+
+        $this->json(['success' => true, 'id' => $id]);
     }
 
     // ─────────────────────────────────────────────
