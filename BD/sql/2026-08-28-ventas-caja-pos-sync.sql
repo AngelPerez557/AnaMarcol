@@ -22,12 +22,12 @@ USE anamarcol;
 -- distinguir en las vistas qué vino del POS vs. del web (histórico).
 -- ────────────────────────────────────────────────────────────────
 ALTER TABLE ventas
-    ADD COLUMN IF NOT EXISTS pos_venta_id INT UNSIGNED NULL UNIQUE AFTER id,
-    ADD COLUMN IF NOT EXISTS origen VARCHAR(10) NOT NULL DEFAULT 'Web' AFTER pos_venta_id;
+    ADD COLUMN pos_venta_id INT UNSIGNED NULL UNIQUE AFTER id,
+    ADD COLUMN origen VARCHAR(10) NOT NULL DEFAULT 'Web' AFTER pos_venta_id;
 
 ALTER TABLE caja_sesiones
-    ADD COLUMN IF NOT EXISTS pos_sesion_id INT UNSIGNED NULL UNIQUE AFTER id,
-    ADD COLUMN IF NOT EXISTS origen VARCHAR(10) NOT NULL DEFAULT 'Web' AFTER pos_sesion_id;
+    ADD COLUMN pos_sesion_id INT UNSIGNED NULL UNIQUE AFTER id,
+    ADD COLUMN origen VARCHAR(10) NOT NULL DEFAULT 'Web' AFTER pos_sesion_id;
 
 DELIMITER $$
 

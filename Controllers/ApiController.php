@@ -53,11 +53,14 @@ class ApiController
         $productos = $this->productoModel->findAll();
 
         $data = array_map(fn($p) => [
-            'id'          => $p->id,
-            'nombre'      => $p->nombre,
-            'precio_base' => $p->precio_base,
-            'stock'       => $p->stock,
-            'activo'      => $p->isActivo(),
+            'id'            => $p->id,
+            'nombre'        => $p->nombre,
+            'precio_base'   => $p->precio_base,
+            'stock'         => $p->stock,
+            'activo'        => $p->isActivo(),
+            'codigo_barras' => $p->codigo_barras,
+            'categoria_id'  => $p->categoria_id,
+            'image_url'     => $p->image_url,
         ], $productos);
 
         $this->json(['success' => true, 'data' => $data]);
