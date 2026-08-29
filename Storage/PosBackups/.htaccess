@@ -1,0 +1,3 @@
+# Nadie debe poder descargar los backups por URL directa — solo se
+# escriben/leen desde ApiController::backupPos(), nunca se sirven al público.
+Require all denied

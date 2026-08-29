@@ -39,6 +39,12 @@ define('COMBO_IMAGE_UPLOAD_DIR',    IMG_BASE_DIR . 'Combos'     . DS);
 define('BANNER_IMAGE_UPLOAD_DIR',   IMG_BASE_DIR . 'Banners'    . DS);
 define('CLIENTE_IMAGE_UPLOAD_DIR',  IMG_BASE_DIR . 'Clientes'   . DS);
 
+// Backups diarios del POS local — nunca dentro de Content/ (esa carpeta es
+// pública); esta vive fuera del árbol servible y con .htaccess "deny all"
+// como segunda barrera. Ver ApiController::backupPos().
+define('POS_BACKUP_DIR', ROOT . 'Storage' . DS . 'PosBackups' . DS);
+define('POS_BACKUP_MAX', 5);
+
 // ─────────────────────────────────────────────
 // 4. URL BASE — Se calcula automáticamente
 // Funciona en localhost, subdirectorio y Ubuntu

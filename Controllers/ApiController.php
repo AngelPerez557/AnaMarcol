@@ -383,6 +383,65 @@ class ApiController
     }
 
     // ─────────────────────────────────────────────
+    // POST /Api/backupPos — el POS local sube un respaldo diario de su
+    // anamarcolpos.db (multipart/form-data, campo "backup").
+    //
+    // Cola FIFO de POS_BACKUP_MAX (5) archivos: se guarda el nuevo con
+    // fecha en el nombre y, si ya hay más de 5, se borra el más viejo.
+    // No se sobrescribe el mismo día dos veces — cada backup del día
+    // reemplaza al de ESE mismo día (mismo nombre), para no gastar la cola
+    // con reintentos si el POS se abre varias veces en un día.
+    // ─────────────────────────────────────────────
+    public function backupPos(): void
+    {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            $this->json(['success' => false, 'error' => 'Método no permitido.'], 405);
+            return;
+        }
+
+        if (empty($_FILES['backup']['tmp_name']) || !is_uploaded_file($_FILES['backup']['tmp_name'])) {
+            $this->json(['success' => false, 'error' => 'No se recibió el archivo de backup.'], 400);
+            return;
+        }
+
+        if ($_FILES['backup']['size'] <= 0 || $_FILES['backup']['size'] > 200 * 1024 * 1024) {
+            $this->json(['success' => false, 'error' => 'Tamaño de archivo inválido.'], 400);
+            return;
+        }
+
+        if (!is_dir(POS_BACKUP_DIR) && !mkdir(POS_BACKUP_DIR, 0755, true)) {
+            $this->json(['success' => false, 'error' => 'No se pudo crear el directorio de backups.'], 500);
+            return;
+        }
+
+        $fecha  = date('Y-m-d');
+        $nombre = "anamarcolpos_{$fecha}.db";
+        $ruta   = POS_BACKUP_DIR . $nombre;
+
+        if (!move_uploaded_file($_FILES['backup']['tmp_name'], $ruta)) {
+            $this->json(['success' => false, 'error' => 'No se pudo guardar el backup.'], 500);
+            return;
+        }
+
+        // Rotación FIFO — conserva solo los POS_BACKUP_MAX más recientes.
+        $archivos = glob(POS_BACKUP_DIR . 'anamarcolpos_*.db') ?: [];
+        usort($archivos, fn($a, $b) => filemtime($a) <=> filemtime($b));
+        $sobrantes = count($archivos) - POS_BACKUP_MAX;
+        $borrados  = [];
+        for ($i = 0; $i < $sobrantes; $i++) {
+            @unlink($archivos[$i]);
+            $borrados[] = basename($archivos[$i]);
+        }
+
+        $this->json([
+            'success'  => true,
+            'archivo'  => $nombre,
+            'borrados' => $borrados,
+            'total_en_cola' => min(count($archivos), POS_BACKUP_MAX),
+        ]);
+    }
+
+    // ─────────────────────────────────────────────
     // Helper de respuesta JSON
     // ─────────────────────────────────────────────
     private function json(array $data, int $status = 200): void
