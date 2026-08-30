@@ -511,8 +511,8 @@
                         Desarrollado por
                         <a href="https://www.instagram.com/deskcod_" target="_blank" style="color:#de777d;">DeskCod</a>
                         <br>
-                        <a href="https://wa.me/50493429640" target="_blank" style="color:#ccc; text-decoration:none; font-size:0.78rem;">
-                            <i class="fab fa-whatsapp me-1" style="color:#25d366;"></i>+(504) 9342-9640
+                        <a href="https://wa.me/50493429641" target="_blank" style="color:#ccc; text-decoration:none; font-size:0.78rem;">
+                            <i class="fab fa-whatsapp me-1" style="color:#25d366;"></i>+(504) 9342-9641
                         </a>
                         <br>
                         <a href="https://www.instagram.com/deskcod_" target="_blank" style="color:#ccc; text-decoration:none; font-size:0.78rem;">
