@@ -79,11 +79,12 @@
             <p class="text-muted mb-3"><?= htmlspecialchars($producto->descripcion) ?></p>
             <?php endif; ?>
 
-            <!-- Precio -->
+            <!-- Precio: se confirma por WhatsApp, no se publica en la tienda -->
             <div class="mb-4">
-                <span class="fw-bold" style="font-size:1.8rem; color:#de777d;" id="precioMostrado">
-                    L. <?= number_format((float)$producto->precio_base, 2) ?>
-                </span>
+                <a href="<?= $waCotizarServicio ?? ('https://wa.me/' . WA_NUMBER) ?>" target="_blank"
+                   class="d-inline-flex align-items-center gap-2" style="color:#1e8e4a; font-weight:600; text-decoration:none;">
+                    <i class="fab fa-whatsapp fa-lg"></i> Consulta el precio por WhatsApp
+                </a>
             </div>
 
             <!-- Variantes -->
@@ -97,14 +98,10 @@
                             class="btn-variante"
                             data-id="<?= $v->id ?>"
                             data-nombre="<?= htmlspecialchars($v->nombre) ?>"
-                            data-precio="<?= $v->precio ?? $producto->precio_base ?>"
                             data-imagen="<?= htmlspecialchars($v->getImageUrl()) ?>"
                             style="padding:8px 16px; border:2px solid #dee2e6; border-radius:8px;
                                    background:#fff; cursor:pointer; font-weight:500; transition:all 0.2s;">
                         <?= htmlspecialchars($v->nombre) ?>
-                        <small style="color:#de777d; display:block; font-size:0.75rem;">
-                            L. <?= number_format((float)($v->precio ?? $producto->precio_base), 2) ?>
-                        </small>
                     </button>
                     <?php else: ?>
                     <button type="button" disabled
@@ -216,7 +213,7 @@ document.addEventListener('DOMContentLoaded', function () {
             if (varianteId) {
                 const btnVariante = document.querySelector(`.btn-variante[data-id="${varianteId}"]`);
                 if (btnVariante) {
-                    // Simular click en el botón de variante para sincronizar precio
+                    // Simular click en el botón de variante
                     document.querySelectorAll('.btn-variante').forEach(b => {
                         b.style.borderColor = '#dee2e6';
                         b.style.background  = '#fff';
@@ -228,10 +225,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     varianteSeleccionada = {
                         id:     btnVariante.dataset.id,
                         nombre: btnVariante.dataset.nombre,
-                        precio: parseFloat(btnVariante.dataset.precio),
                     };
-                    document.getElementById('precioMostrado').textContent =
-                        'L. ' + varianteSeleccionada.precio.toFixed(2);
                 }
             } else {
                 // Es la imagen principal — deseleccionar variante
@@ -241,8 +235,6 @@ document.addEventListener('DOMContentLoaded', function () {
                     b.style.color       = '#333';
                 });
                 varianteSeleccionada = null;
-                document.getElementById('precioMostrado').textContent =
-                    'L. ' + (<?= json_encode((float)($producto->precio_base ?? 0)) ?>).toFixed(2);
             }
         });
     });
@@ -262,11 +254,7 @@ document.addEventListener('DOMContentLoaded', function () {
             varianteSeleccionada = {
                 id:     this.dataset.id,
                 nombre: this.dataset.nombre,
-                precio: parseFloat(this.dataset.precio),
             };
-
-            document.getElementById('precioMostrado').textContent =
-                'L. ' + varianteSeleccionada.precio.toFixed(2);
 
             // Cambiar imagen principal
             const imagenVariante = this.dataset.imagen;
@@ -305,7 +293,6 @@ document.addEventListener('DOMContentLoaded', function () {
                 });
                 return;
             }
-            const precio         = varianteSeleccionada ? varianteSeleccionada.precio : <?= json_encode((float)($producto->precio_base ?? 0)) ?>;
             const varianteId     = varianteSeleccionada ? varianteSeleccionada.id     : null;
             const varianteNombre = varianteSeleccionada ? varianteSeleccionada.nombre : null;
             const bgImg          = imgDiv.style.backgroundImage;
@@ -317,7 +304,6 @@ document.addEventListener('DOMContentLoaded', function () {
                 agregarAlCarrito(
                     <?= json_encode((int)$producto->id) ?>,
                     <?= json_encode($producto->nombre) ?>,
-                    precio,
                     imgActual || imagenOriginal,
                     varianteId,
                     varianteNombre

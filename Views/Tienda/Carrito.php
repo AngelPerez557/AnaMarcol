@@ -4,7 +4,7 @@
         <i class="fas fa-file-invoice-dollar me-2" style="color:#de777d;"></i>Tu cotización
     </h3>
     <p class="text-muted mb-4" style="font-size:0.9rem;">
-        Arma tu lista y envíala por WhatsApp. Te confirmamos disponibilidad y precio final por ahí mismo.
+        Arma tu lista y envíala por WhatsApp. Te confirmamos disponibilidad y precio por ahí mismo.
     </p>
 
     <!-- Carrito vacío -->
@@ -34,8 +34,6 @@
                                     <tr style="background:rgba(222,119,125,0.08);">
                                         <th class="ps-3">Producto</th>
                                         <th class="text-center">Cantidad</th>
-                                        <th class="text-end">Precio</th>
-                                        <th class="text-end pe-3">Subtotal</th>
                                         <th style="width:36px;"></th>
                                     </tr>
                                 </thead>
@@ -45,7 +43,7 @@
                     </div>
                     <p class="text-muted mt-2 mb-0" style="font-size:0.78rem;">
                         <i class="fas fa-info-circle me-1"></i>
-                        Los precios son referenciales. La disponibilidad se confirma por WhatsApp.
+                        El precio y la disponibilidad se confirman por WhatsApp.
                     </p>
                 </div>
 
@@ -76,19 +74,6 @@
                                           placeholder="Tono, color, fecha en que lo necesitas..."></textarea>
                             </div>
 
-                            <!-- Totales -->
-                            <div class="border-top pt-3">
-                                <div class="d-flex justify-content-between mb-1">
-                                    <span class="text-muted">Subtotal</span>
-                                    <span id="resumenSubtotal">L. 0.00</span>
-                                </div>
-                                <div class="d-flex justify-content-between fw-bold pt-2 border-top"
-                                     style="font-size:1.15rem;">
-                                    <span>Total estimado</span>
-                                    <span style="color:#de777d;" id="resumenTotal">L. 0.00</span>
-                                </div>
-                            </div>
-
                             <button type="submit" class="btn-rosa w-100 mt-3" id="btnCotizar"
                                     style="padding:12px; font-size:1rem;">
                                 <i class="fab fa-whatsapp me-2"></i>Enviar cotización por WhatsApp
@@ -112,8 +97,6 @@
 .tabla-carrito-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
 
 @media (max-width: 575px) {
-    #tablaCarrito th:nth-child(3),
-    #tablaCarrito td:nth-child(3) { display: none; }
     #tablaCarrito { font-size: 0.82rem; min-width: 0; }
     #tablaCarrito td, #tablaCarrito th { padding: 8px 6px; }
     #tablaCarrito .d-flex > div:first-child { width: 36px !important; height: 36px !important; }
@@ -170,12 +153,6 @@ document.addEventListener('DOMContentLoaded', function () {
                                        background:#fff; color:#de777d; cursor:pointer; font-size:0.9rem;">+</button>
                     </div>
                 </td>
-                <td class="text-end text-muted" style="font-size:0.85rem;">
-                    L. ${parseFloat(item.precio).toFixed(2)}
-                </td>
-                <td class="text-end fw-bold" style="color:#de777d; font-size:0.85rem;">
-                    L. ${(item.precio * item.cantidad).toFixed(2)}
-                </td>
                 <td>
                     <button type="button" onclick="quitarItem(${idx})"
                             style="background:none; border:none; color:#dc3545; cursor:pointer;">
@@ -183,8 +160,6 @@ document.addEventListener('DOMContentLoaded', function () {
                     </button>
                 </td>
             </tr>`).join('');
-
-        actualizarTotales();
     }
 
     window.cambiarCantidad = function (idx, delta) {
@@ -201,13 +176,6 @@ document.addEventListener('DOMContentLoaded', function () {
         saveCarrito(carrito);
         renderCarrito();
     };
-
-    function actualizarTotales() {
-        const carrito  = getCarrito();
-        const subtotal = carrito.reduce((sum, i) => sum + i.precio * i.cantidad, 0);
-        $('resumenSubtotal').textContent = `L. ${subtotal.toFixed(2)}`;
-        $('resumenTotal').textContent    = `L. ${subtotal.toFixed(2)}`;
-    }
 
     // ── Enviar cotización ─────────────────────────
     // El carrito NO se limpia aquí: se limpia en la pantalla de

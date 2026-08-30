@@ -571,14 +571,16 @@
             badgeFlotante.style.display = total > 0 ? 'flex' : 'none';
         }
     }
-    function agregarAlCarrito(id, nombre, precio, imagen, varianteId, varianteNombre) {
+    // Nota: el carrito NO guarda precio — es una lista de cotización, no una
+    // compra. El precio lo confirma la tienda por WhatsApp.
+    function agregarAlCarrito(id, nombre, imagen, varianteId, varianteNombre) {
         const carrito = getCarrito();
         const key     = `${id}-${varianteId || ''}`;
         const existe  = carrito.find(i => i.key === key);
         if (existe) {
             existe.cantidad++;
         } else {
-            carrito.push({ key, id, nombre, precio, imagen,
+            carrito.push({ key, id, nombre, imagen,
                 varianteId:     varianteId     || null,
                 varianteNombre: varianteNombre || null,
                 cantidad: 1 });
@@ -587,7 +589,7 @@
         mostrarToast(`"${nombre}" agregado al carrito`);
     }
     // Wrapper con verificación de stock — usado en Catalogo e Inicio
-    function agregarAlCarritoConStock(id, varianteId, nombre, precio, imagen) {
+    function agregarAlCarritoConStock(id, varianteId, nombre, imagen) {
         fetch(`${APP_URL}Tienda/verificarStock`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
@@ -604,11 +606,11 @@
                 });
                 return;
             }
-            agregarAlCarrito(id, nombre, precio, imagen, varianteId || null, null);
+            agregarAlCarrito(id, nombre, imagen, varianteId || null, null);
         })
         .catch(() => {
             // Si falla la verificación igual agrega — falla silenciosa
-            agregarAlCarrito(id, nombre, precio, imagen, varianteId || null, null);
+            agregarAlCarrito(id, nombre, imagen, varianteId || null, null);
         });
     }
     function mostrarToast(msg) {

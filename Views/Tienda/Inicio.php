@@ -113,16 +113,11 @@ if (!function_exists('calcDesc')) {
                     <a href="<?= APP_URL ?>Tienda/producto/<?= $p->id ?>-<?= slugify($p->nombre) ?>" style="text-decoration:none;color:inherit;">
                         <h6 class="fw-semibold mb-1"><?= htmlspecialchars($p->nombre) ?></h6>
                     </a>
-                    <div class="fw-bold mb-2" style="color:#de777d;">
-                        <?php if ($p->tieneVariantes()): ?>
-                            <small class="text-muted">Desde</small> L. <?= number_format((float)$p->precio_base, 2) ?>
-                        <?php elseif ($desc['aplica']): ?>
-                            <span class="text-decoration-line-through text-muted fw-normal" style="font-size:0.82rem;">L. <?= number_format((float)$p->precio_base, 2) ?></span>
-                            <span class="ms-1">L. <?= number_format($desc['precio'], 2) ?></span>
-                        <?php else: ?>
-                            L. <?= number_format((float)$p->precio_base, 2) ?>
-                        <?php endif; ?>
+                    <?php if ($desc['aplica']): ?>
+                    <div class="fw-semibold mb-2" style="color:#1e8e4a; font-size:0.85rem;">
+                        <i class="fas fa-tag me-1"></i>Producto en descuento
                     </div>
+                    <?php endif; ?>
                     <?php if ($p->tieneVariantes()): ?>
                     <a href="<?= APP_URL ?>Tienda/producto/<?= $p->id ?>-<?= slugify($p->nombre) ?>"
                        class="btn-rosa w-100 d-block text-center" style="border-radius:8px;padding:8px;">
@@ -134,7 +129,7 @@ if (!function_exists('calcDesc')) {
                     </button>
                     <?php else: ?>
                     <button type="button" class="btn-rosa w-100"
-                            onclick="agregarAlCarrito(<?= $p->id ?>,'<?= addslashes(htmlspecialchars($p->nombre)) ?>',<?= $desc['aplica'] ? $desc['precio'] : $p->precio_base ?>,'<?= $p->getImageUrl() ?>',null,null)">
+                            onclick="agregarAlCarrito(<?= $p->id ?>,'<?= addslashes(htmlspecialchars($p->nombre)) ?>','<?= $p->getImageUrl() ?>',null,null)">
                         <i class="fas fa-cart-plus me-1"></i>Agregar
                     </button>
                     <?php endif; ?>
@@ -174,16 +169,11 @@ if (!function_exists('calcDesc')) {
                         <?php endif; ?>
 
                         <?php if (!empty($productosCombo)): ?>
-                        <div class="fw-bold mb-2" style="color:#de777d;">
-                            <?php if ($combo->tieneDescuento() && $precioOriginal > $precioCombo): ?>
-                            <span class="text-decoration-line-through text-muted fw-normal" style="font-size:0.82rem;">
-                                L. <?= number_format($precioOriginal, 2) ?>
-                            </span>
-                            <span class="ms-1">L. <?= number_format($precioCombo, 2) ?></span>
-                            <?php else: ?>
-                            L. <?= number_format($precioCombo, 2) ?>
-                            <?php endif; ?>
+                        <?php if ($combo->tieneDescuento() && $precioOriginal > $precioCombo): ?>
+                        <div class="fw-semibold mb-2" style="color:#1e8e4a; font-size:0.85rem;">
+                            <i class="fas fa-tag me-1"></i>Combo en descuento
                         </div>
+                        <?php endif; ?>
                         <div class="mb-3">
                             <?php foreach ($productosCombo as $pc): ?>
                             <small class="text-muted d-block" style="font-size:0.75rem;">
@@ -199,7 +189,6 @@ if (!function_exists('calcDesc')) {
                             'id'         => $pc['producto_id'],
                             'varianteId' => $pc['variante_id'],
                             'nombre'     => $pc['producto_nombre'] . ($pc['variante_nombre'] ? ' — ' . $pc['variante_nombre'] : ''),
-                            'precio'     => round((float)$pc['precio_unitario'] * (1 - (float)($combo->descuento ?? 0) / 100), 2),
                             'cantidad'   => (int)$pc['cantidad'],
                             'imagen'     => APP_URL . 'Content/Demo/img/Productos/' . ($pc['producto_imagen'] ?? ''),
                         ], $productosCombo));
@@ -280,7 +269,6 @@ document.addEventListener('DOMContentLoaded', function () {
                     agregarAlCarrito(
                         p.id,
                         '[Combo] ' + nombre + ' — ' + p.nombre,
-                        p.precio,
                         p.imagen || imagen,
                         p.varianteId || null,
                         null

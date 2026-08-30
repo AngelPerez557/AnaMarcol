@@ -111,19 +111,13 @@ if (!function_exists('calcDesc')) {
                     </small>
                     <?php endif; ?>
 
-                    <div class="fw-bold mb-3 mt-auto" style="color:#de777d;">
-                        <?php if ($p->tieneVariantes()): ?>
-                            <small class="text-muted fw-normal">Desde</small>
-                            L. <?= number_format((float)$p->precio_base, 2) ?>
-                        <?php elseif ($desc['aplica']): ?>
-                            <span class="text-decoration-line-through text-muted fw-normal" style="font-size:0.82rem;">
-                                L. <?= number_format((float)$p->precio_base, 2) ?>
-                            </span>
-                            <span class="ms-1">L. <?= number_format($desc['precio'], 2) ?></span>
-                        <?php else: ?>
-                            L. <?= number_format((float)$p->precio_base, 2) ?>
-                        <?php endif; ?>
+                    <?php if ($desc['aplica']): ?>
+                    <div class="fw-semibold mb-3 mt-auto" style="color:#1e8e4a; font-size:0.85rem;">
+                        <i class="fas fa-tag me-1"></i>Producto en descuento
                     </div>
+                    <?php else: ?>
+                    <div class="mb-3 mt-auto"></div>
+                    <?php endif; ?>
 
                     <?php if ($p->tieneVariantes()): ?>
                     <a href="<?= APP_URL ?>Tienda/producto/<?= $p->id ?>-<?= slugify($p->nombre) ?>"
@@ -135,7 +129,6 @@ if (!function_exists('calcDesc')) {
                             onclick="agregarAlCarritoConStock(
                                 <?= $p->id ?>, 0,
                                 '<?= addslashes(htmlspecialchars($p->nombre)) ?>',
-                                <?= $desc['aplica'] ? $desc['precio'] : $p->precio_base ?>,
                                 '<?= $p->getImageUrl() ?>')">
                         <i class="fas fa-cart-plus me-1"></i>Agregar al carrito
                     </button>
