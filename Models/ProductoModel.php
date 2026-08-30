@@ -120,6 +120,8 @@ class ProductoModel extends BaseModel
     public function eliminarDefinitivoConCascade(int $id): int
     {
         $this->pdo->prepare('DELETE FROM venta_detalle WHERE producto_id = ?')->execute([$id]);
+        $this->pdo->prepare('DELETE FROM combo_productos WHERE producto_id = ?')->execute([$id]);
+        $this->pdo->prepare('DELETE FROM pedido_detalle WHERE producto_id = ?')->execute([$id]);
         $stmt = $this->pdo->prepare('DELETE FROM productos WHERE id = ?');
         $stmt->execute([$id]);
         return $stmt->rowCount();
