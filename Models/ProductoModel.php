@@ -85,23 +85,49 @@ class ProductoModel extends BaseModel
     // Llama a: CALL sp_productos_update(...)
     public function update(array $data): bool
     {
-        // BUG REAL corregido acá: faltaba mandar 'tiene_variantes' — insert() sí
-        // lo manda (misma posición, justo después de precio_base) pero update()
-        // nunca lo incluía, así que marcar "tiene variantes" al editar un
-        // producto jamás llegaba a guardarse de verdad (o tronaba si el
-        // procedimiento espera la misma cantidad de parámetros que insert()).
+        // sp_productos_update en la base SOLO acepta 8 parámetros — confirmado en
+        // producción (SQLSTATE 42000: "expected 8, got 9") al intentar mandarle
+        // tiene_variantes de más. Ese procedimiento no sabe tocar esa columna;
+        // se actualiza aparte con actualizarTieneVariantes() más abajo, sin
+        // tocar este SP para no arriesgar romper el resto de la edición.
         $affected = $this->callSPExecute('sp_productos_update', [
             $data['id'],
             $data['categoria_id'],
             $data['nombre'],
             $data['descripcion']     ?? null,
             $data['precio_base']     ?? null,
-            $data['tiene_variantes'] ?? 0,
             $data['stock']           ?? 0,
             $data['codigo_barras']   ?? null,
             $data['image_url']       ?? null,
         ]);
-        return $affected > 0;
+        // $affected en 0 no siempre es error: si nadie cambió nombre/precio/etc.
+        // (ej. solo se marcó el check de variantes), MySQL reporta 0 filas
+        // afectadas aunque la sentencia corrió bien — no es un fallo real.
+        // Solo se considera error si el producto de verdad ya no existe.
+        $ok = $affected >= 0 && $this->existe((int) $data['id']);
+
+        if ($ok && isset($data['tiene_variantes'])) {
+            $this->actualizarTieneVariantes((int) $data['id'], (int) $data['tiene_variantes']);
+        }
+
+        return $ok;
+    }
+
+    private function existe(int $id): bool
+    {
+        $stmt = $this->pdo->prepare('SELECT 1 FROM productos WHERE id = ? LIMIT 1');
+        $stmt->execute([$id]);
+        return (bool) $stmt->fetchColumn();
+    }
+
+    // Actualiza SOLO la columna tiene_variantes — aparte de sp_productos_update
+    // porque ese procedimiento no la acepta como parámetro (ver arriba). Consulta
+    // directa mínima, de una sola columna, para no depender de un SP que
+    // tocaría que editar en la base.
+    private function actualizarTieneVariantes(int $id, int $tieneVariantes): void
+    {
+        $stmt = $this->pdo->prepare('UPDATE productos SET tiene_variantes = ? WHERE id = ?');
+        $stmt->execute([$tieneVariantes, $id]);
     }
 
     // Activa o desactiva un producto (soft delete)
