@@ -103,7 +103,10 @@ class ProductosController
         $precioBase     = !empty($_POST['precio_base']) ? (float) $_POST['precio_base'] : null;
         $tieneVariantes = isset($_POST['tiene_variantes']) ? 1 : 0;
         $codigoBarras = trim($_POST['codigo_barras'] ?? '') ?: null;
-        $stock          = $tieneVariantes ? 0 : (int) ($_POST['stock'] ?? 0);
+        // No se fuerza a 0 por tener variantes — el stock nunca se toca
+        // automáticamente por ese check, ni al crear ni al editar (ver el
+        // comentario grande más abajo, en el bloque de edición).
+        $stock          = (int) ($_POST['stock'] ?? 0);
         $visibleTienda = isset($_POST['visible_tienda']) ? 1 : 0;
 
         // Al EDITAR: precio, stock y código de barras los maneja el POS local
@@ -112,18 +115,21 @@ class ProductosController
         // tocarlos, para evitar que un cambio aquí se pierda en el próximo
         // sync o entre en conflicto con lo que reporta la tienda. Se ignora
         // lo que venga del formulario y se conserva el valor actual.
+        //
+        // IMPORTANTE: el stock se preserva SIEMPRE tal cual está, sin importar
+        // si se marca "tiene variantes" o no — activar variantes NUNCA debe
+        // tocar el stock del producto (se probó forzarlo a 0 automáticamente
+        // y fue un desastre en producción: reseteaba el stock real de
+        // cualquier producto al que se le agregaran variantes). Si el guardado
+        // llega a fallar por una inconsistencia de stock/variantes del lado de
+        // la base, eso hay que resolverlo aparte — nunca silenciosamente
+        // machacando un valor real.
         if ($esEdicion) {
             $actual = $this->productoModel->findById($id);
             if ($actual->Found) {
                 $precioBase   = (float) $actual->precio_base;
                 $codigoBarras = $actual->codigo_barras ?? null;
-                // OJO: si se está activando "tiene variantes" en esta edición, el
-                // stock del producto "padre" debe quedar en 0 (cada variante lleva
-                // el suyo) — antes esta línea lo pisaba de vuelta al stock viejo
-                // sin importar $tieneVariantes, dejando el producto en un estado
-                // inconsistente (con variantes pero stock > 0) que la base
-                // rechazaba con error al guardar.
-                $stock = $tieneVariantes ? 0 : (int) $actual->stock;
+                $stock        = (int) $actual->stock;
             }
         }
 
