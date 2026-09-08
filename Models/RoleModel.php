@@ -167,11 +167,25 @@ class RoleModel extends BaseModel
     // Verifica si un slug ya está registrado en la BD
     // Útil para validar duplicados antes de insertar
     // Llama a: CALL sp_roles_slugExists(?, ?)
-    // El segundo parámetro excluye un ID — útil en edición
+    // El segundo parámetro DEBERÍA excluir un ID (útil en edición), pero el
+    // procedimiento en la base no hace bien esa exclusión — confirmado en
+    // producción: al editar un rol SIN cambiar su nombre/slug (el caso más
+    // común: solo se tocan permisos), el SP lo reporta como "duplicado de sí
+    // mismo" y bloquea el guardado con "Ya existe un rol con ese slug".
+    // Se corrige acá, sin tocar el procedimiento: si el SP dice que existe,
+    // se verifica de nuevo cuál es el rol dueño de ese slug — si es el mismo
+    // que se está editando, no es un duplicado real.
     public function slugExists(string $slug, int $excludeId = 0): bool
     {
         $row = $this->callSPSingle('sp_roles_slugExists', [$slug, $excludeId]);
-        return $row ? (int) $row['existe'] === 1 : false;
+        $existe = $row ? (int) $row['existe'] === 1 : false;
+
+        if (!$existe || $excludeId <= 0) {
+            return $existe;
+        }
+
+        $duenio = $this->getBySlug($slug);
+        return $duenio->Found && (int) $duenio->id !== $excludeId;
     }
 
     // Verifica si un rol tiene usuarios asignados

@@ -116,8 +116,14 @@ class ProductosController
             $actual = $this->productoModel->findById($id);
             if ($actual->Found) {
                 $precioBase   = (float) $actual->precio_base;
-                $stock        = (int) $actual->stock;
                 $codigoBarras = $actual->codigo_barras ?? null;
+                // OJO: si se está activando "tiene variantes" en esta edición, el
+                // stock del producto "padre" debe quedar en 0 (cada variante lleva
+                // el suyo) — antes esta línea lo pisaba de vuelta al stock viejo
+                // sin importar $tieneVariantes, dejando el producto en un estado
+                // inconsistente (con variantes pero stock > 0) que la base
+                // rechazaba con error al guardar.
+                $stock = $tieneVariantes ? 0 : (int) $actual->stock;
             }
         }
 
