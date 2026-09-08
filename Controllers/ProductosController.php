@@ -178,6 +178,7 @@ class ProductosController
             'visible_tienda'  => $visibleTienda,
         ];
 
+        try {
         if ($esEdicion) {
             $data['id'] = $id;
             $ok = $this->productoModel->update($data);
@@ -187,6 +188,14 @@ class ProductosController
             $ok      = $nuevoId > 0;
             $mensaje = $ok ? 'Producto creado correctamente.' : 'Error al crear el producto.';
             if ($ok) $id = $nuevoId;
+        }
+        } catch (\Throwable $e) {
+            // Antes esto se colaba como error fatal de PHP crudo en pantalla, o
+            // se perdía en un "Error al actualizar" genérico sin decir por qué.
+            // Ahora se ve el motivo real (útil mientras se termina de confirmar
+            // que el procedimiento de la base acepta bien el parámetro nuevo).
+            $ok = false;
+            $mensaje = 'No se pudo guardar: ' . $e->getMessage();
         }
 
         $_SESSION['alert'] = [

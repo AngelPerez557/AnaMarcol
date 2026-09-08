@@ -85,12 +85,18 @@ class ProductoModel extends BaseModel
     // Llama a: CALL sp_productos_update(...)
     public function update(array $data): bool
     {
+        // BUG REAL corregido acá: faltaba mandar 'tiene_variantes' — insert() sí
+        // lo manda (misma posición, justo después de precio_base) pero update()
+        // nunca lo incluía, así que marcar "tiene variantes" al editar un
+        // producto jamás llegaba a guardarse de verdad (o tronaba si el
+        // procedimiento espera la misma cantidad de parámetros que insert()).
         $affected = $this->callSPExecute('sp_productos_update', [
             $data['id'],
             $data['categoria_id'],
             $data['nombre'],
             $data['descripcion']     ?? null,
             $data['precio_base']     ?? null,
+            $data['tiene_variantes'] ?? 0,
             $data['stock']           ?? 0,
             $data['codigo_barras']   ?? null,
             $data['image_url']       ?? null,
